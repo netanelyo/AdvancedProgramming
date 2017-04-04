@@ -3,6 +3,8 @@
 #include "IBattleshipGameAlgo.h"
 #include <fstream>
 
+
+
 class FBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:

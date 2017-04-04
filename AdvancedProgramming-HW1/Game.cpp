@@ -1,24 +1,16 @@
 #include "Game.h"
 
 
-Game::Game(int rows, int columns, std::string movesFileA, std::string movesFileB) : 
-	nextPlayer(0), A(movesFileA), B(movesFileB), rowsNum(rows), colsNum(columns)
+void Game::createBoardsForPlayers()
 {
-	gameBoard = new char*[rows];
+	char boardForA[10][10]; 
+	char boardForB[10][10]; 
 
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < 10; i++)
 	{
-		gameBoard[i] = new char[columns]; 
+
 	}
 
+	
 }
 
-Game::~Game()
-{
-	for (int i = 0; i < rowsNum; i++)
-	{
-		delete []gameBoard[i]; 
-	}
-
-	delete []gameBoard; 
-}

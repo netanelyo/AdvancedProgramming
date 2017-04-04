@@ -12,8 +12,8 @@ enum class GameState
 class Game
 {
 public:
-	Game(int rows, int columns, std::string movesFileA, std::string movesFileB);
-	~Game(); 
+	Game(std::string movesFileA, std::string movesFileB) : nextPlayer(0), A(movesFileA), B(movesFileB) {}
+	~Game() {}
 	int checkAndCreateBoard(std::ifstream & BoardFile); 
 	GameState playMove(); 
 	void createBoardsForPlayers(); 
@@ -22,9 +22,7 @@ private:
 	int nextPlayer; 
 	Player A;
 	Player B; 
-	int rowsNum;
-	int colsNum;
-	char** gameBoard; 
+	char gameBoard[10][10]; 
 	 
 	
 
