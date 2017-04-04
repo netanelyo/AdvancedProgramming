@@ -22,8 +22,9 @@ private:
 	int nextPlayer; 
 	Player A;
 	Player B; 
-	char gameBoard[10][10]; 
+	char gameBoard[BOARD_SIZE][BOARD_SIZE]; 
 	 
+	void createBoardForPlayer(int player, char** board); 
 	
 
 };
