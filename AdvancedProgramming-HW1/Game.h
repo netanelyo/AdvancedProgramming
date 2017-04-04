@@ -24,7 +24,6 @@ private:
 	Player B; 
 	char gameBoard[BOARD_SIZE][BOARD_SIZE]; 
 	 
-	void createBoardForPlayer(int player, char** board); 
 	
 
 };
