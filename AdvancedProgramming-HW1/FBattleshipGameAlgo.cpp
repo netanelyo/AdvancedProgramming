@@ -1,5 +1,6 @@
 #include "FBattleshipGameAlgo.h"
-#include <string>
+#include "BattleshipUtils.h"
+
 
 void FBattleshipGameAlgo::setBoard(const char** board, int numRows, int numCols)
 {
@@ -10,9 +11,23 @@ void FBattleshipGameAlgo::setBoard(const char** board, int numRows, int numCols)
 
 std::pair<int, int> FBattleshipGameAlgo::attack()
 {
-	std::string line("");
-	//std::getline(playerMoves, )
-	return std::pair<int, int>();
+	std::pair<int, int> attackCoordinate(-1, -1);
+	std::string			line;
+	
+	/* Reads attacks file until a valid line or EOF have been reached */
+	while (std::getline(playerMoves, line))
+	{
+		if (parseLineAndValidate(line, attackCoordinate))
+			break;
+	}
+
+	/* If EOF reached then current player is done */
+	if (playerMoves.eof())
+	{
+		isDone = true;
+	}
+	
+	return attackCoordinate;
 }
 
 void FBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, AttackResult result)
@@ -31,3 +46,5 @@ void FBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, Att
 		}
 	}
 }
+
+
