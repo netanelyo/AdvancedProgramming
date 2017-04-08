@@ -40,7 +40,7 @@ bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 
 std::string trimWhitespaces(const std::string& str)
 {
-	std::string whitespace = " \t"; /* Whitespace or TAB */
+	std::string whitespace = " \t\r"; /* Whitespace, TAB or CR */
 
 	/* Finds first char in str that is not a whitespace */
 	const auto strBegin = str.find_first_not_of(whitespace);
