@@ -139,11 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BattleshipUtils.h" />
     <ClInclude Include="FBattleshipGameAlgo.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="IBattleshipGameAlgo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BattleshipUtils.cpp" />
     <ClCompile Include="FBattleshipGameAlgo.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
