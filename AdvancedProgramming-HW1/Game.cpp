@@ -3,7 +3,72 @@
 
 #include "Game.h"
 
+#define WRONG_SIZE_B_PLAYER_A "Wrong size or shape for ship B for player A"
+#define WRONG_SIZE_P_PLAYER_A "Wrong size or shape for ship P for player A"
+#define WRONG_SIZE_M_PLAYER_A "Wrong size or shape for ship M for player A"
+#define WORNG_SIZE_D_PLAYER_A "Wrong size or shape for ship D for player A"
+#define WRONG_SIZE_b_PLAYER_B "Wrong size or shape for ship b for player B"
+#define WRONG_SIZE_p_PLAYER_B "Wrong size or shape for ship p for player B"
+#define WRONG_SIZE_m_PLAYER_B "Wrong size or shape for ship m for player B"
+#define WRONG_SIZE_d_PLAYER_B "Wrong size or shape for ship d for player B"
+#define TOO_FEW_PLAYER_A "Too few ships for player A"
+#define TOO_MANY_PLAYER_A "Too few ships for player A"
+#define TOO_FEW_PLAYER_B "Too few ships for player B"
+#define TOO_MANY_PLAYER_B "Too few ships for player B"
+#define ADJACENT_SHIPS "Adjacent Ships on Board"
+
 #define canPass(x) x ? !(A.getIsDone()) : !(B.getIsDone())
+
+
+int Game::checkAndCreateBoard(std::ifstream & boardFile)
+{
+	int shouldPrintErrMsg[13] = { 0 };
+	std::string errMsg[13] = { WRONG_SIZE_B_PLAYER_A , WRONG_SIZE_P_PLAYER_A, WRONG_SIZE_M_PLAYER_A , WORNG_SIZE_D_PLAYER_A, WRONG_SIZE_b_PLAYER_B,
+		WRONG_SIZE_p_PLAYER_B, WRONG_SIZE_m_PLAYER_B , WRONG_SIZE_d_PLAYER_B , TOO_FEW_PLAYER_A , TOO_MANY_PLAYER_A , TOO_FEW_PLAYER_B,
+		TOO_MANY_PLAYER_B , ADJACENT_SHIPS }; 
+
+	std::string line; 
+	std::string::size_type len; 
+
+	for (int i = 0; i < BOARD_SIZE; i++)
+	{
+		std::getline(boardFile, line);
+		len = line.length(); 
+
+		for (int j = 0; j < BOARD_SIZE; j++)
+		{
+			if (j < len)
+			{
+				switch (line[j])
+				{
+				case 'B':
+				case 'b':
+				case 'P':
+				case 'p':
+				case 'M':
+				case 'm':
+				case 'D':
+				case 'd':
+					gameBoard[i][j] = line[j];
+					break;
+				default:
+					gameBoard[i][j] = '0';
+					break;
+				}
+			}
+
+			else
+				gameBoard[i][j] = '0'; 
+		}
+	}
+
+
+	return 0; 
+
+}
+
+
+
 
 
 GameState Game::playMove()
