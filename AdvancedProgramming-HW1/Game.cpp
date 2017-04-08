@@ -3,6 +3,8 @@
 
 #include "Game.h"
 
+#define canPass(x) x ? !(A.getIsDone()) : !(B.getIsDone())
+
 
 GameState Game::playMove()
 {
@@ -45,7 +47,7 @@ GameState Game::playMove()
 	square = gameBoard[xCoord][yCoord];
 
 	/*determines if the next turn can be passed to the opponent */
-	canPassTurn = currentPlayer ? !A.getIsDone() : !B.getIsDone;
+	canPassTurn = canPass(currentPlayer);
 
 	/*determines the attack result and sets the next Turn and the player's points accordingly*/
 	if (square == '0')
@@ -194,7 +196,7 @@ AttackResult Game::determineAttackResult(char square, int xCoord, int yCoord)
 
 void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPlayer, bool isAShip)
 {
-	bool canPassTurn = currentPlayer ? !A.getIsDone() : !B.getIsDone;
+	bool canPassTurn = canPass(currentPlayer);
 
 	/*handles points in case of a sink*/
 	if (result == AttackResult::Sink)
