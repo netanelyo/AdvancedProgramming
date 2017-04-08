@@ -23,6 +23,9 @@ private:
 	Player A;
 	Player B; 
 	char gameBoard[BOARD_SIZE][BOARD_SIZE]; 
+
+	void printEndOfGame(int winner); 
+	bool endOfAttacks(); 
 	 
 	
 
