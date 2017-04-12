@@ -14,11 +14,13 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 	std::string			line;
 	
 	/* Reads attacks file until a valid line or EOF have been reached */
-	while (std::getline(playerMoves, line))
+	while (!std::getline(playerMoves, line).eof())
 	{
 		if (parseLineAndValidate(line, attackCoordinate))
 			break;
 	}
+
+	std::cout << "Am I out????" << std::endl;
 
 	/* If EOF reached then current player is done */
 	if (playerMoves.eof())

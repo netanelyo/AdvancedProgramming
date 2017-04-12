@@ -1,5 +1,7 @@
 #include "BattleshipUtils.h"
 
+#include <iostream>
+
 bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 {
 	std::string			tempStr;
@@ -8,9 +10,12 @@ bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 	int					x;
 	int					cnt		= 0;
 
+	std::cout << "In parseline" << std::endl;
+
 	/* while didn't reach end of str */
 	while (std::getline(strStream, tempStr, ','))
 	{
+		std::cout << "TEMP = " << tempStr << std::endl;
 		if (cnt == 2) return false; /* If we found 2 ',' --> line is illegal */
 		tempArr[cnt++] = tempStr;
 	}
@@ -19,6 +24,7 @@ bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 	/* Checks if line is valid */
 	for (std::string s : tempArr)
 	{
+		std::cout << "In parseline loop " << s << std::endl;
 		tempStr = trimWhitespaces(s);	/* First, cleaning whitespaces		*/
 		if (validateStr(tempStr))		/* Checks if it's a valid row/col	*/
 		{

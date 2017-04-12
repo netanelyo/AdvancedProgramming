@@ -26,8 +26,7 @@ public:
 	uint16_t getShipCounter() const { return shipCounter; }
 
 	void setPoints(uint16_t pts) { points = pts; }
-	void incrementShipCounter() { std::cout << "HERE" << std::endl; shipCounter++; std::cout << "cnt = " << getShipCounter() << std::endl;
-	}
+	void incrementShipCounter() { shipCounter++; }
 
 private:
 	char			board[BOARD_SIZE][BOARD_SIZE];

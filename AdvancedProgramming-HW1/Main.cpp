@@ -98,7 +98,9 @@ int main(int argc, char** argv)
 	if (missing)
 		return EXIT_FAILURE;
 
-	std::ifstream boardFile(filesArr[SBOARD]);
+	std::cout << filesArr[SBOARD] << std::endl; 
+
+	std::ifstream boardFile(filePath + "\\" + filesArr[SBOARD]);
 	Game battleshipGameManager(filesArr[ATTACK_A], filesArr[ATTACK_B]);
 	if (battleshipGameManager.checkAndCreateBoard(boardFile))
 	{
@@ -108,7 +110,9 @@ int main(int argc, char** argv)
 
 	boardFile.close();
 	
-	while (battleshipGameManager.playMove() != GameState::GAME_OVER) {}
+	while (battleshipGameManager.playMove() != GameState::GAME_OVER) {
+		std::cout << "In playMove()" << std::endl;
+	}
 
 	return EXIT_SUCCESS;
 }
