@@ -1,5 +1,4 @@
 #include "FBattleshipGameAlgo.h"
-#include "BattleshipUtils.h"
 
 
 void FBattleshipGameAlgo::setBoard(const char** board, int numRows, int numCols)

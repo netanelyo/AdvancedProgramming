@@ -1,10 +1,10 @@
 #include <cctype>
 #include <iostream>
+#include <map>
 
 #include "Game.h"
 
 #define WRONG_SIZE_B_PLAYER_A "Wrong size or shape for ship B for player A"
-//#define WRONG_SIZE_B_PLAYER_A_INDEX 0
 #define WRONG_SIZE_P_PLAYER_A "Wrong size or shape for ship P for player A"
 #define WRONG_SIZE_M_PLAYER_A "Wrong size or shape for ship M for player A"
 #define WRONG_SIZE_D_PLAYER_A "Wrong size or shape for ship D for player A"
@@ -13,16 +13,23 @@
 #define WRONG_SIZE_m_PLAYER_B "Wrong size or shape for ship m for player B"
 #define WRONG_SIZE_d_PLAYER_B "Wrong size or shape for ship d for player B"
 #define TOO_FEW_PLAYER_A "Too few ships for player A"
-#define TOO_MANY_PLAYER_A "Too few ships for player A"
+#define TOO_FEW_PLAYER_A_INDEX 8
+#define TOO_MANY_PLAYER_A "Too many ships for player A"
+#define TOO_MANY_PLAYER_A_INDEX 9
 #define TOO_FEW_PLAYER_B "Too few ships for player B"
-#define TOO_MANY_PLAYER_B "Too few ships for player B"
+#define TOO_FEW_PLAYER_B_INDEX 10
+#define TOO_MANY_PLAYER_B "Too many ships for player B"
+#define	TOO_MANY_PLAYER_B_INDEX 11
 #define ADJACENT_SHIPS "Adjacent Ships on Board"
+#define ADJACENT_SHIPS_INDEX 12
 
 #define canPass(x) x ? !(A.getIsDone()) : !(B.getIsDone())
 
 
-int Game::checkAndCreateBoard(std::ifstream & boardFile)
+bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 {
+	std::map<char, int> shipsErrorMsgMap = { {'B', 0}, {'P', 1}, {'M', 2}, {'D', 3},
+							{'b', 4}, {'p', 5}, {'m', 6}, {'d', 7} };
 	int shouldPrintErrMsg[13] = { 0 };
 	std::string errMsg[13] = { WRONG_SIZE_B_PLAYER_A , WRONG_SIZE_P_PLAYER_A, WRONG_SIZE_M_PLAYER_A,
 			WRONG_SIZE_D_PLAYER_A, WRONG_SIZE_b_PLAYER_B, WRONG_SIZE_p_PLAYER_B, WRONG_SIZE_m_PLAYER_B,
@@ -30,7 +37,7 @@ int Game::checkAndCreateBoard(std::ifstream & boardFile)
 			TOO_MANY_PLAYER_B, ADJACENT_SHIPS };
 
 	std::string line; 
-	std::string::size_type len; 
+	int len; 
 	int dummyBoard[BOARD_SIZE][BOARD_SIZE] = { { 0 } };
 	char currentShip;
 	int shipLength		= 0;
@@ -38,16 +45,20 @@ int Game::checkAndCreateBoard(std::ifstream & boardFile)
 	int adjShips		= 0;
 	bool belongsToA;
 
+	std::cout << "1" << std::endl;
+
 	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
-		if (!std::getline(boardFile, line))
+		if (std::getline(boardFile, line).eof())
 		{
 			len = 0; 
 		}
 		else 
 		{
+			std::cout << "In else:" << line << "aaaa" << std::endl;
 			len = line.length();
 		}
+
 
 		for (int j = 0; j < BOARD_SIZE; ++j)
 		{
@@ -76,70 +87,214 @@ int Game::checkAndCreateBoard(std::ifstream & boardFile)
 		}
 	}
 
+	std::cout << "2" << std::endl;
+
 	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
+		std::cout << "3" << std::endl;
 		for (int j = 0; j < BOARD_SIZE; ++j)
 		{
 			if (dummyBoard[i][j] == 0)
 			{
-				if (gameBoard[i][j] == 0)
+				dummyBoard[i][j] = 1;
+				//std::cout << "4" << std::endl;
+				if (gameBoard[i][j] == '0')
 					continue;
 
 				/* gameBoard[i][j] - candidate to be a valid ship */
 				currentShip = gameBoard[i][j];
 				belongsToA = isupper(currentShip);
-				if (belongsToA)
-					A.incrementShipCounter();
+				
+				dfsShip(currentShip, dummyBoard, i, j, shipLength, Direction::NON, invalidShape, adjShips);
+
+				if (invalidShape || !checkShipLength(shipLength, currentShip))
+				{
+					std::cout << "HERE invalid shape" << std::endl;
+					shouldPrintErrMsg[shipsErrorMsgMap[currentShip]] = 1;
+				}
 				else
-					B.incrementShipCounter();
+				{
+					std::cout << "HERE else invalid" << std::endl;
+					if (belongsToA)
+						A.incrementShipCounter();
+					else
+						B.incrementShipCounter();
+				}
 
-				dfsShip(currentShip, dummyBoard, i, j, &shipLength, -1, &invalidShape, &adjShips);
-
-
+				if (adjShips)
+				{
+					shouldPrintErrMsg[ADJACENT_SHIPS_INDEX] = 1;
+				}
 			}
-			
-			dummyBoard[i][j] = 1;
 		}
 	}
 
-	return 0; 
+
+	if (A.getShipCounter() > 5)
+	{
+		shouldPrintErrMsg[TOO_MANY_PLAYER_A_INDEX] = 1;
+	}
+	if (A.getShipCounter() < 5)
+	{
+		shouldPrintErrMsg[TOO_FEW_PLAYER_A_INDEX] = 1;
+	}
+	if (B.getShipCounter() > 5)
+	{
+		shouldPrintErrMsg[TOO_MANY_PLAYER_B_INDEX] = 1;
+	}
+	if (B.getShipCounter() < 5)
+	{
+		shouldPrintErrMsg[TOO_FEW_PLAYER_B_INDEX] = 1;
+	}
+
+	return printErrors(shouldPrintErrMsg, errMsg); 
 
 }
 
-//Code duplication
-//Edge cases
 void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
-					int* shipLen, int right, int* invalidShape, int* adjShips)
+					int& shipLen, Direction direction, int& invalidShape, int& adjShips) const
 {
+	bool stuckDown	= false;
+	bool stuckRight = false;
 	if (row < BOARD_SIZE - 1)
 	{
 		if (gameBoard[row + 1][col] == currShip)
 		{
-			if (right == 1)
-				*invalidShape = 1;
-			(*shipLen)++;
-			dfsShip(currShip, dummy, row + 1, col, shipLen, 0, invalidShape, adjShips);
-			dummy[row + 1][col] == 1;
+			if (direction == Direction::RIGHT)
+				invalidShape = 1;
+			shipLen++;
+			dummy[row + 1][col] = 1;
+			dfsShip(currShip, dummy, row + 1, col, shipLen, Direction::DOWN, invalidShape, adjShips);
 		}
 
 		else if (gameBoard[row + 1][col] != '0')
-			*adjShips = 1;
+			adjShips = 1;
+
+		else
+			stuckDown = true;
+	}
+	else
+	{
+		stuckDown = true;
 	}
 
 	if (col < BOARD_SIZE - 1)
 	{
 		if (gameBoard[row][col + 1] == currShip)
 		{
-			if (right == 0)
-				*invalidShape = 1;
-			(*shipLen)++;
-			dfsShip(currShip, dummy, row, col + 1, shipLen, 1, invalidShape, adjShips);
-			dummy[row][col + 1] == 1;
+			if (direction == Direction::DOWN)
+				invalidShape = 1;
+			shipLen++;
+			dummy[row][col + 1] = 1;
+			dfsShip(currShip, dummy, row, col + 1, shipLen, Direction::RIGHT, invalidShape, adjShips);
 		}
 
 		else if (gameBoard[row + 1][col] != '0')
-			*adjShips = 1;
+			adjShips = 1;
+
+		else
+			stuckRight = true;
 	}
+	else
+	{
+		stuckRight = true;
+	}
+
+	if (stuckDown && stuckRight)
+		markAllOfSameShip(currShip, dummy, row, col, invalidShape, adjShips);
+
+
+}
+
+void Game::markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
+				int& invalidShape, int& adjShips) const
+{
+	if (row < BOARD_SIZE - 1 && dummy[row + 1][col] == 0)
+	{
+		if (gameBoard[row + 1][col] == currShip)
+		{
+			dummy[row + 1][col] = 1;
+			markAllOfSameShip(currShip, dummy, row + 1, col, invalidShape, adjShips);
+		}
+
+		else if (gameBoard[row + 1][col] != '0')
+			adjShips = 1;
+
+	}
+
+	if (col < BOARD_SIZE - 1 && dummy[row][col + 1] == 0)
+	{
+		if (gameBoard[row][col + 1] == currShip)
+		{
+			dummy[row][col + 1] = 1;
+			markAllOfSameShip(currShip, dummy, row, col + 1, invalidShape, adjShips);
+		}
+
+		else if (gameBoard[row + 1][col] != '0')
+			adjShips = 1;
+
+	}
+	
+	if (row > 0 && dummy[row - 1][col] == 0)
+	{
+		if (gameBoard[row - 1][col] == currShip)
+		{
+			invalidShape = 1;
+			dummy[row - 1][col] = 1;
+			markAllOfSameShip(currShip, dummy, row - 1, col, invalidShape, adjShips);
+		}
+
+		else if (gameBoard[row - 1][col] != '0')
+			adjShips = 1;
+	}
+
+	if (col > 0 && dummy[row][col - 1] == 0)
+	{
+		if (gameBoard[row][col - 1] == currShip)
+		{
+			invalidShape = 1;
+			dummy[row][col - 1] = 1;
+			markAllOfSameShip(currShip, dummy, row, col - 1, invalidShape, adjShips);
+		}
+
+		else if (gameBoard[row][col - 1] != '0')
+			adjShips = 1;
+	}
+}
+
+bool Game::checkShipLength(int shipLength, char currentShip)
+{
+	switch (currentShip)
+	{
+	case 'B':
+	case 'b':
+		return shipLength == RUBBER_BOAT_LEN;
+	case 'P':
+	case 'p':
+		return shipLength == MISSILE_BOAT_LEN;
+	case 'M':
+	case 'm':
+		return shipLength == SUBMARINE_LEN;
+	case 'D':
+	case 'd':
+		return shipLength == DESTROYER_LEN;
+	default:
+		return false;
+	}
+}
+
+bool Game::printErrors(int shouldPrint[], std::string errors[])
+{
+	bool ret = false;
+	for (int i = 0; i < 13; ++i)
+	{
+		if (shouldPrint[i])
+		{
+			ret = true;
+			std::cout << errors[i] << std::endl;
+		}
+	}
+	return ret;
 }
 
 

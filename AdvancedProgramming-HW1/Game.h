@@ -18,12 +18,19 @@ enum class GameState
 	CONTINUE_PLAYING
 };
 
+enum class Direction
+{
+	NON,
+	DOWN,
+	RIGHT,
+};
+
 class Game
 {
 public:
 	Game(std::string movesFileA, std::string movesFileB) : nextPlayer(0), A(movesFileA), B(movesFileB) {}
 	~Game() {}
-	int checkAndCreateBoard(std::ifstream & boardFile); 
+	bool checkAndCreateBoard(std::ifstream & boardFile); 
 	GameState playMove(); 
 	void createBoardsForPlayers(); 
 
@@ -38,7 +45,11 @@ private:
 	AttackResult determineAttackResult(char square, int xCoord, int yCoord);
 	void handlePointsAndNextTurn(AttackResult result, char ship, int currentPlayer, bool isAship);
 	void dfsShip(char currShip, int dummy[][BOARD_SIZE], int row,
-			int col, int* shipLen, int right, int* invalidShape, int* adjShips);
+			int col, int& shipLen, Direction direction, int& invalidShape, int& adjShips) const;
+	void markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row,	int col,
+					int& invalidShape, int& adjShips) const;
+	bool checkShipLength(int shipLength, char currentShip);
+	bool printErrors(int shouldPrint[], std::string errors[]);
 	
 	
 

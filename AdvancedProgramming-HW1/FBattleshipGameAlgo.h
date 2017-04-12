@@ -1,9 +1,13 @@
 #pragma once
 
 #include "IBattleshipGameAlgo.h"
+#include "BattleshipUtils.h"
 #include <fstream>
 #include <string>
 #include <cctype>
+
+//TODO
+#include <iostream>
 
 #define BOARD_SIZE 10
 
@@ -22,7 +26,8 @@ public:
 	uint16_t getShipCounter() const { return shipCounter; }
 
 	void setPoints(uint16_t pts) { points = pts; }
-	void incrementShipCounter() { shipCounter++; }
+	void incrementShipCounter() { std::cout << "HERE" << std::endl; shipCounter++; std::cout << "cnt = " << getShipCounter() << std::endl;
+	}
 
 private:
 	char			board[BOARD_SIZE][BOARD_SIZE];

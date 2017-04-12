@@ -54,10 +54,15 @@ int main(int argc, char** argv)
 
 	if (argc == 2)
 	{
+		cmd += "\"";
 		cmd += argv[1];
+		cmd += "\"";
+		
 		filePath = argv[1];
 	}
 	cmd += " /b /a-d > files.txt";
+
+	std::cout << "CMD = " << cmd << std::endl;
 
 	/* Get files list in path folder */
 	rc = system(cmd.c_str());
@@ -71,7 +76,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 	
-	std::ifstream filesStream(filePath + "\\files.txt");
+	std::ifstream filesStream("files.txt");
 
 	while (std::getline(filesStream, tempStr))
 	{
@@ -86,17 +91,22 @@ int main(int argc, char** argv)
 				filePath = "Working Directory";
 
 			PRINT_MISSING_FILE(getProperMessage(i), filePath);
+			missing = true;
 		}
 	}
 
+	if (missing)
+		return EXIT_FAILURE;
+
 	std::ifstream boardFile(filesArr[SBOARD]);
 	Game battleshipGameManager(filesArr[ATTACK_A], filesArr[ATTACK_B]);
-	rc = battleshipGameManager.checkAndCreateBoard(boardFile);
-	if (rc)
+	if (battleshipGameManager.checkAndCreateBoard(boardFile))
 	{
-		//TODO end game
+		boardFile.close();
 		return EXIT_FAILURE;
 	}
+
+	boardFile.close();
 	
 	while (battleshipGameManager.playMove() != GameState::GAME_OVER) {}
 
