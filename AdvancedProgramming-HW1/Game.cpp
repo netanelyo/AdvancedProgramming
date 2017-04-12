@@ -4,9 +4,10 @@
 #include "Game.h"
 
 #define WRONG_SIZE_B_PLAYER_A "Wrong size or shape for ship B for player A"
+//#define WRONG_SIZE_B_PLAYER_A_INDEX 0
 #define WRONG_SIZE_P_PLAYER_A "Wrong size or shape for ship P for player A"
 #define WRONG_SIZE_M_PLAYER_A "Wrong size or shape for ship M for player A"
-#define WORNG_SIZE_D_PLAYER_A "Wrong size or shape for ship D for player A"
+#define WRONG_SIZE_D_PLAYER_A "Wrong size or shape for ship D for player A"
 #define WRONG_SIZE_b_PLAYER_B "Wrong size or shape for ship b for player B"
 #define WRONG_SIZE_p_PLAYER_B "Wrong size or shape for ship p for player B"
 #define WRONG_SIZE_m_PLAYER_B "Wrong size or shape for ship m for player B"
@@ -23,15 +24,21 @@
 int Game::checkAndCreateBoard(std::ifstream & boardFile)
 {
 	int shouldPrintErrMsg[13] = { 0 };
-	std::string errMsg[13] = { WRONG_SIZE_B_PLAYER_A , WRONG_SIZE_P_PLAYER_A, WRONG_SIZE_M_PLAYER_A , WORNG_SIZE_D_PLAYER_A, WRONG_SIZE_b_PLAYER_B,
-		WRONG_SIZE_p_PLAYER_B, WRONG_SIZE_m_PLAYER_B , WRONG_SIZE_d_PLAYER_B , TOO_FEW_PLAYER_A , TOO_MANY_PLAYER_A , TOO_FEW_PLAYER_B,
-		TOO_MANY_PLAYER_B , ADJACENT_SHIPS }; 
+	std::string errMsg[13] = { WRONG_SIZE_B_PLAYER_A , WRONG_SIZE_P_PLAYER_A, WRONG_SIZE_M_PLAYER_A,
+			WRONG_SIZE_D_PLAYER_A, WRONG_SIZE_b_PLAYER_B, WRONG_SIZE_p_PLAYER_B, WRONG_SIZE_m_PLAYER_B,
+			WRONG_SIZE_d_PLAYER_B, TOO_FEW_PLAYER_A, TOO_MANY_PLAYER_A, TOO_FEW_PLAYER_B,
+			TOO_MANY_PLAYER_B, ADJACENT_SHIPS };
 
 	std::string line; 
 	std::string::size_type len; 
 	int dummyBoard[BOARD_SIZE][BOARD_SIZE] = { { 0 } };
+	char currentShip;
+	int shipLength		= 0;
+	int invalidShape	= 0;
+	int adjShips		= 0;
+	bool belongsToA;
 
-	for (int i = 0; i < BOARD_SIZE; i++)
+	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
 		if (!std::getline(boardFile, line))
 		{
@@ -42,7 +49,7 @@ int Game::checkAndCreateBoard(std::ifstream & boardFile)
 			len = line.length();
 		}
 
-		for (int j = 0; j < BOARD_SIZE; j++)
+		for (int j = 0; j < BOARD_SIZE; ++j)
 		{
 			if (j < len)
 			{
@@ -69,11 +76,70 @@ int Game::checkAndCreateBoard(std::ifstream & boardFile)
 		}
 	}
 
+	for (int i = 0; i < BOARD_SIZE; ++i)
+	{
+		for (int j = 0; j < BOARD_SIZE; ++j)
+		{
+			if (dummyBoard[i][j] == 0)
+			{
+				if (gameBoard[i][j] == 0)
+					continue;
+
+				/* gameBoard[i][j] - candidate to be a valid ship */
+				currentShip = gameBoard[i][j];
+				belongsToA = isupper(currentShip);
+				if (belongsToA)
+					A.incrementShipCounter();
+				else
+					B.incrementShipCounter();
+
+				dfsShip(currentShip, dummyBoard, i, j, &shipLength, -1, &invalidShape, &adjShips);
 
 
+			}
+			
+			dummyBoard[i][j] = 1;
+		}
+	}
 
 	return 0; 
 
+}
+
+//Code duplication
+//Edge cases
+void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
+					int* shipLen, int right, int* invalidShape, int* adjShips)
+{
+	if (row < BOARD_SIZE - 1)
+	{
+		if (gameBoard[row + 1][col] == currShip)
+		{
+			if (right == 1)
+				*invalidShape = 1;
+			(*shipLen)++;
+			dfsShip(currShip, dummy, row + 1, col, shipLen, 0, invalidShape, adjShips);
+			dummy[row + 1][col] == 1;
+		}
+
+		else if (gameBoard[row + 1][col] != '0')
+			*adjShips = 1;
+	}
+
+	if (col < BOARD_SIZE - 1)
+	{
+		if (gameBoard[row][col + 1] == currShip)
+		{
+			if (right == 0)
+				*invalidShape = 1;
+			(*shipLen)++;
+			dfsShip(currShip, dummy, row, col + 1, shipLen, 1, invalidShape, adjShips);
+			dummy[row][col + 1] == 1;
+		}
+
+		else if (gameBoard[row + 1][col] != '0')
+			*adjShips = 1;
+	}
 }
 
 

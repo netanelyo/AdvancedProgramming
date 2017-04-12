@@ -22,6 +22,7 @@ public:
 	uint16_t getShipCounter() const { return shipCounter; }
 
 	void setPoints(uint16_t pts) { points = pts; }
+	void incrementShipCounter() { shipCounter++; }
 
 private:
 	char			board[BOARD_SIZE][BOARD_SIZE];
