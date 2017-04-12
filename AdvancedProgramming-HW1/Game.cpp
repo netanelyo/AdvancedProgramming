@@ -29,11 +29,18 @@ int Game::checkAndCreateBoard(std::ifstream & boardFile)
 
 	std::string line; 
 	std::string::size_type len; 
+	int dummyBoard[BOARD_SIZE][BOARD_SIZE] = { { 0 } };
 
 	for (int i = 0; i < BOARD_SIZE; i++)
 	{
-		std::getline(boardFile, line);
-		len = line.length(); 
+		if (!std::getline(boardFile, line))
+		{
+			len = 0; 
+		}
+		else 
+		{
+			len = line.length();
+		}
 
 		for (int j = 0; j < BOARD_SIZE; j++)
 		{
@@ -63,12 +70,11 @@ int Game::checkAndCreateBoard(std::ifstream & boardFile)
 	}
 
 
+
+
 	return 0; 
 
 }
-
-
-
 
 
 GameState Game::playMove()
