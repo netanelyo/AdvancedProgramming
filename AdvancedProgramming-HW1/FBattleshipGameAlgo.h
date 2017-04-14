@@ -2,6 +2,7 @@
 
 #include "IBattleshipGameAlgo.h"
 #include "BattleshipUtils.h"
+#include "ShipOnBoard.h"
 #include <fstream>
 #include <string>
 #include <cctype>
@@ -14,9 +15,9 @@
 class FBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:
-	FBattleshipGameAlgo(const std::string movesFile) : points(0),
+	FBattleshipGameAlgo(const std::string movesFile) : myShips(new ShipOnBoard[5]), points(0),
 		shipCounter(0), playerMoves(movesFile), isDone(false) {}
-	~FBattleshipGameAlgo() { playerMoves.close(); }
+	~FBattleshipGameAlgo() { playerMoves.close(); delete[]myShips; }
 	void setBoard(const char** board, int numRows, int numCols) override;
 	std::pair<int, int> attack() override;													
 	void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
@@ -29,10 +30,10 @@ public:
 	void incrementShipCounter() { shipCounter++; }
 
 private:
-	char			board[BOARD_SIZE][BOARD_SIZE];
+	ShipOnBoard*	myShips;
 	uint16_t		points;
 	uint16_t		shipCounter;
-	std::ifstream	playerMoves;
+	std::ifstream	playerMoves; 
 	bool			isDone;
 };
 

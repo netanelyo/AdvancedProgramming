@@ -28,7 +28,7 @@ enum class Direction
 class Game
 {
 public:
-	Game(std::string movesFileA, std::string movesFileB) : nextPlayer(0), A(movesFileA), B(movesFileB) {}
+	Game(std::string movesFileA, std::string movesFileB); 
 	~Game() {}
 	bool checkAndCreateBoard(std::ifstream & boardFile); 
 	GameState playMove(); 
@@ -38,7 +38,7 @@ private:
 	int nextPlayer; 
 	Player A;
 	Player B; 
-	char gameBoard[BOARD_SIZE][BOARD_SIZE]; 
+	char** gameBoard; 
 
 	void printEndOfGame(int winner); 
 	bool endOfAttacks(); 

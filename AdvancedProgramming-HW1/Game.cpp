@@ -26,6 +26,25 @@
 #define canPass(x) x ? !(A.getIsDone()) : !(B.getIsDone())
 
 
+Game::Game(std::string movesFileA, std::string movesFileB) : nextPlayer(0), A(movesFileA), B(movesFileB) 
+{
+	gameBoard = new char*[BOARD_SIZE]; 
+	for (int i = 0; i < BOARD_SIZE; i++)
+	{
+		gameBoard[i] = new char[BOARD_SIZE]; 
+	}
+}
+
+Game::~Game()
+{
+	for (int i = 0; i < BOARD_SIZE; i++)
+	{
+		delete []gameBoard[i];
+	}
+
+	delete []gameBoard; 
+}
+
 bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 {
 	std::map<char, int> shipsErrorMsgMap = { {'B', 0}, {'P', 1}, {'M', 2}, {'D', 3},
@@ -474,7 +493,7 @@ void Game::createBoardsForPlayers()
 	//TODO wtf
 	A.setBoard((const char**) boardForA, BOARD_SIZE, BOARD_SIZE); 
 	B.setBoard((const char**) boardForB, BOARD_SIZE, BOARD_SIZE); 
-
+	
 }
 
 void Game::printEndOfGame(int winner)
@@ -514,25 +533,25 @@ AttackResult Game::determineAttackResult(char square, int xCoord, int yCoord)
 		ret = AttackResult::Miss; 
 	}
 
-	else if ((xCoord > 0) && (gameBoard[xCoord - 1][yCoord] != '0')
+	 if ((xCoord > 0) && (gameBoard[xCoord - 1][yCoord] != '0')
 											&& (gameBoard[xCoord - 1][yCoord] != 'X'))
 	{
 			ret = AttackResult::Hit;
 	}
 
-	else if ((yCoord > 0) && (gameBoard[xCoord][yCoord - 1] != '0')
+	if ((yCoord > 0) && (gameBoard[xCoord][yCoord - 1] != '0')
 											&& (gameBoard[xCoord][yCoord - 1] != 'X'))
 	{
 			ret = AttackResult::Hit;
 	}
 
-	else if ((xCoord < BOARD_SIZE - 1) && (gameBoard[xCoord + 1][yCoord] != '0')
+	 if ((xCoord < BOARD_SIZE - 1) && (gameBoard[xCoord + 1][yCoord] != '0')
 											&& (gameBoard[xCoord + 1][yCoord] != 'X'))
 	{
 			ret = AttackResult::Hit;
 	}
 
-	else if ((yCoord < BOARD_SIZE - 1) && (gameBoard[xCoord][yCoord + 1] != '0')
+	if ((yCoord < BOARD_SIZE - 1) && (gameBoard[xCoord][yCoord + 1] != '0')
 											&& (gameBoard[xCoord][yCoord + 1] != 'X'))
 	{
 			ret = AttackResult::Hit;
