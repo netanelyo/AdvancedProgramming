@@ -1,14 +1,6 @@
 #pragma once
 #include "FBattleshipGameAlgo.h"
 
-#define RUBBER_BOAT_POINTS 2
-#define MISSILE_BOAT_POINTS 3
-#define SUBMARINE_POINTS 7
-#define DESTROYER_POINTS 8
-#define RUBBER_BOAT_LEN 1
-#define MISSILE_BOAT_LEN 2
-#define SUBMARINE_LEN 3
-#define DESTROYER_LEN 4
 
 using Player = FBattleshipGameAlgo;
 
@@ -28,8 +20,8 @@ enum class Direction
 class Game
 {
 public:
-	Game(std::string movesFileA, std::string movesFileB) : nextPlayer(0), A(movesFileA), B(movesFileB) {}
-	~Game() {}
+	Game(std::string movesFileA, std::string movesFileB); 
+	~Game(); 
 	bool checkAndCreateBoard(std::ifstream & boardFile); 
 	GameState playMove(); 
 	void createBoardsForPlayers(); 
@@ -38,7 +30,7 @@ private:
 	int nextPlayer; 
 	Player A;
 	Player B; 
-	char gameBoard[BOARD_SIZE][BOARD_SIZE]; 
+	char** gameBoard; 
 
 	void printEndOfGame(int winner); 
 	bool endOfAttacks(); 
