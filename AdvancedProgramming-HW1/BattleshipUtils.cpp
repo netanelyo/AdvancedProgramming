@@ -4,35 +4,30 @@
 
 bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 {
-	std::string			tempStr;
-	std::istringstream	strStream(str); /* To be used in getline()						  */
-	std::string			tempArr[2];		/* To hold potential strings representing row/col */
-	int					x;
-	int					cnt		= 0;
+	std::string				tempStr;
+	std::istringstream		strStream(str); /* To be used in getline()						  */
+	std::string				tempArr[2];		/* To hold potential strings representing row/col */
+	std::string::size_type	loc;
+	int						num;
+	int						cnt	= 0;
 
-	std::cout << "In parseline" << std::endl;
-
-	/* while didn't reach end of str */
-	while (std::getline(strStream, tempStr, ','))
-	{
-		std::cout << "TEMP = " << tempStr << std::endl;
-		if (cnt == 2) return false; /* If we found 2 ',' --> line is illegal */
-		tempArr[cnt++] = tempStr;
-	}
+	/* Splitting str by ',' */
+	loc = str.find_first_of(',');
+	tempArr[0] = str.substr(0, loc);
+	tempArr[1] = str.substr(loc + 1);
 
 	cnt = 0;
 	/* Checks if line is valid */
-	for (std::string s : tempArr)
+	for (auto s : tempArr)
 	{
-		std::cout << "In parseline loop " << s << std::endl;
 		tempStr = trimWhitespaces(s);	/* First, cleaning whitespaces		*/
 		if (validateStr(tempStr))		/* Checks if it's a valid row/col	*/
 		{
-			x = std::stoi(tempStr);
+			num = std::stoi(tempStr);
 			if (cnt)
-				coord.second = x;
+				coord.second = num;
 			else
-				coord.first	 = x;
+				coord.first	 = num;
 			cnt++;
 		}
 		else

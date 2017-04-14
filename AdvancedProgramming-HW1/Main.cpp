@@ -62,8 +62,6 @@ int main(int argc, char** argv)
 	}
 	cmd += " /b /a-d > files.txt";
 
-	std::cout << "CMD = " << cmd << std::endl;
-
 	/* Get files list in path folder */
 	rc = system(cmd.c_str());
 	if (rc)
@@ -78,7 +76,7 @@ int main(int argc, char** argv)
 	
 	std::ifstream filesStream("files.txt");
 
-	while (std::getline(filesStream, tempStr))
+	while (!std::getline(filesStream, tempStr).eof())
 	{
 		matchFileExtensionAndAssign(filesArr, tempStr);
 	}
@@ -99,12 +97,15 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 
 	std::ifstream boardFile(filePath + "\\" + filesArr[SBOARD]);
-	Game battleshipGameManager(filesArr[ATTACK_A], filesArr[ATTACK_B]);
+	Game battleshipGameManager(filePath + "\\" + filesArr[ATTACK_A],
+								filePath + "\\" + filesArr[ATTACK_B]);
 	if (battleshipGameManager.checkAndCreateBoard(boardFile))
 	{
 		boardFile.close();
 		return EXIT_FAILURE;
 	}
+
+	battleshipGameManager.createBoardsForPlayers(); //TODO leave it here?
 
 	boardFile.close();
 	

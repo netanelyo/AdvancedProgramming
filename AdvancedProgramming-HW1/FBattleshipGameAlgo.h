@@ -15,7 +15,7 @@ class FBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:
 	FBattleshipGameAlgo(const std::string movesFile) : points(0),
-							shipCounter(0), playerMoves(movesFile), isDone(false) {}
+		shipCounter(0), playerMoves(movesFile), isDone(false) {}
 	~FBattleshipGameAlgo() { playerMoves.close(); }
 	void setBoard(const char** board, int numRows, int numCols) override;
 	std::pair<int, int> attack() override;													

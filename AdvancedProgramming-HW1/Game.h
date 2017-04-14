@@ -43,7 +43,8 @@ private:
 	void printEndOfGame(int winner); 
 	bool endOfAttacks(); 
 	AttackResult determineAttackResult(char square, int xCoord, int yCoord);
-	void handlePointsAndNextTurn(AttackResult result, char ship, int currentPlayer, bool isAship);
+	void handlePointsAndNextTurn(AttackResult result, char ship, int currentPlayer,
+																bool isAship, bool canPassTurn);
 	void dfsShip(char currShip, int dummy[][BOARD_SIZE], int row,
 			int col, int& shipLen, Direction direction, int& invalidShape, int& adjShips) const;
 	void markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row,	int col,
