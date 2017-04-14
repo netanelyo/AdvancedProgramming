@@ -29,7 +29,7 @@ class Game
 {
 public:
 	Game(std::string movesFileA, std::string movesFileB); 
-	~Game() {}
+	~Game(); 
 	bool checkAndCreateBoard(std::ifstream & boardFile); 
 	GameState playMove(); 
 	void createBoardsForPlayers(); 

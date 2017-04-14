@@ -3,14 +3,52 @@
 
 void FBattleshipGameAlgo::setBoard(const char** board, int numRows, int numCols)
 {
-	for (int i = 0; i < numRows; ++i)
+	int index = 0;
+	bool isRow = false; 
+
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
-		for (int j = 0; j < numCols; ++j)
+		for (int j = 0; j < BOARD_SIZE; j++)
 		{
-			//TODO
-			char x = board[i][j];
-			std::cout << "In setBoard" << std::endl;
-			this->board[i][j] = board[i][j];
+			if (board[i][j] != '0')
+			{
+				if ((i < BOARD_SIZE - 1) && (board[i+1][j] == board[i][j]))
+				{	
+					isRow = false; 
+				}
+
+				if ((j < BOARD_SIZE - 1) && (board[i][j + 1] == board[i][j]))
+				{
+					isRow = true; 
+				}
+
+				myShips[index].setSymbol(board[i][j]); 
+				myShips[index].setIsOnRow(isRow); 
+				switch (board[i][j])
+				{
+				case 'B':
+				case 'b':
+					myShips[index].setLength(RUBBER_BOAT_LEN); 
+					myShips[index].setLengthOnBoard(RUBBER_BOAT_LEN); 
+					break;
+				case 'P':
+				case 'p':
+					myShips[index].setLength(MISSILE_BOAT_LEN);
+					myShips[index].setLength(MISSILE_BOAT_LEN); 
+				case 'M':
+				case 'm':
+					myShips[index].setLengthOnBoard(SUBMARINE_LEN); 
+					myShips[index].setLength(SUBMARINE_LEN);
+					break;
+				case 'D':
+				case 'd':
+					myShips[index].setLengthOnBoard(DESTROYER_LEN); 
+					myShips[index].setLength(DESTROYER_LEN); 
+				}
+
+				myShips[index].setFirstColIndex(j); 
+				myShips[index].setFirstRowIndex(i); 
+			}
 		}
 	}
 }
@@ -38,7 +76,7 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 
 void FBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, AttackResult result)
 {
-	if (board[row][col] != '0' && board[row][col] != 'X')
+	/*if (board[row][col] != '0' && board[row][col] != 'X')
 	{
 		switch (result)
 		{
@@ -51,6 +89,7 @@ void FBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, Att
 			break;
 		}
 	}
+	*/
 }
 
 

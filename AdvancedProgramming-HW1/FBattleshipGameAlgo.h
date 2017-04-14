@@ -11,6 +11,14 @@
 #include <iostream>
 
 #define BOARD_SIZE 10
+#define RUBBER_BOAT_POINTS 2
+#define MISSILE_BOAT_POINTS 3
+#define SUBMARINE_POINTS 7
+#define DESTROYER_POINTS 8
+#define RUBBER_BOAT_LEN 1
+#define MISSILE_BOAT_LEN 2
+#define SUBMARINE_LEN 3
+#define DESTROYER_LEN 4
 
 class FBattleshipGameAlgo : public IBattleshipGameAlgo
 {

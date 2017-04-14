@@ -445,9 +445,15 @@ GameState Game::playMove()
 
 void Game::createBoardsForPlayers()
 {
-	char boardForA[BOARD_SIZE][BOARD_SIZE];
-	char boardForB[BOARD_SIZE][BOARD_SIZE];
+	char** boardForA = new char*[BOARD_SIZE];
+	char** boardForB = new char*[BOARD_SIZE];
 	char c; 
+	
+	for (int i = 0; i < BOARD_SIZE; i++)
+	{
+		boardForA[i] = new char[BOARD_SIZE]; 
+		boardForB[i] = new char[BOARD_SIZE]; 
+	}
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -467,7 +473,7 @@ void Game::createBoardsForPlayers()
 		}
 	}
 
-	std::cout << std::endl;
+	/*std::cout << std::endl;
 	std::cout << std::endl;
 
 	for (size_t i = 0; i < BOARD_SIZE; i++)
@@ -489,11 +495,21 @@ void Game::createBoardsForPlayers()
 		}
 		std::cout << std::endl;
 	}
+	*/ 
+	
 
-	//TODO wtf
 	A.setBoard((const char**) boardForA, BOARD_SIZE, BOARD_SIZE); 
 	B.setBoard((const char**) boardForB, BOARD_SIZE, BOARD_SIZE); 
 	
+	for (int i = 0; i < BOARD_SIZE; i++)
+	{
+		delete[]boardForA[i];
+		delete[]boardForB[i]; 
+	}
+
+	delete []boardForA; 
+	delete []boardForB;
+
 }
 
 void Game::printEndOfGame(int winner)
