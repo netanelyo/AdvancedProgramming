@@ -2,13 +2,9 @@
 
 #include "IBattleshipGameAlgo.h"
 #include "BattleshipUtils.h"
-#include "ShipOnBoard.h"
 #include <fstream>
 #include <string>
 #include <cctype>
-
-//TODO
-#include <iostream>
 
 #define BOARD_SIZE 10
 #define RUBBER_BOAT_POINTS 2
@@ -20,27 +16,31 @@
 #define SUBMARINE_LEN 3
 #define DESTROYER_LEN 4
 
+//TODO
+#include <iostream>
+
 class FBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:
-	FBattleshipGameAlgo(const std::string movesFile) : myShips(new ShipOnBoard[5]), points(0),
-		shipCounter(0), playerMoves(movesFile), isDone(false) {}
-	~FBattleshipGameAlgo() { playerMoves.close(); delete[]myShips; }
+	FBattleshipGameAlgo(const std::string movesFile) : points(0), shipCounter(0),
+														playerMoves(movesFile), isDone(false) {}
+	~FBattleshipGameAlgo() { playerMoves.close(); }
 	void setBoard(const char** board, int numRows, int numCols) override;
 	std::pair<int, int> attack() override;													
 	void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
 	
 	bool getIsDone() const { return isDone; }
-	uint16_t getPoints() const { return points; }
-	uint16_t getShipCounter() const { return shipCounter; }
+	size_t getPoints() const { return points; }
+	size_t getShipCounter() const { return shipCounter; }
 
-	void setPoints(uint16_t pts) { points = pts; }
+	void setPoints(size_t pts) { points = pts; }
 	void incrementShipCounter() { shipCounter++; }
+	void setBoardCoord(int i, int j, char val) { board[i][j] = val; }
 
 private:
-	ShipOnBoard*	myShips;
-	uint16_t		points;
-	uint16_t		shipCounter;
+	char			board[BOARD_SIZE][BOARD_SIZE];
+	size_t			points;
+	size_t			shipCounter;
 	std::ifstream	playerMoves; 
 	bool			isDone;
 };

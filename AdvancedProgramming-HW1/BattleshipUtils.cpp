@@ -5,7 +5,6 @@
 bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 {
 	std::string				tempStr;
-	std::istringstream		strStream(str); /* To be used in getline()						  */
 	std::string				tempArr[2];		/* To hold potential strings representing row/col */
 	std::string::size_type	loc;
 	int						num;
