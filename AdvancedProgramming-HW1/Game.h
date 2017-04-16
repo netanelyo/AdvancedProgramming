@@ -46,7 +46,5 @@ private:
 	void removeSankShip(int xCoord, int yCoord);
 	size_t getShipLen(char ship);
 	
-	//void printBoard(); //TODO remove
-	
 
 };

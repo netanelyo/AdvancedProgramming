@@ -21,20 +21,6 @@
 
 #define canPass(x) x ? !(A.getIsDone()) : !(B.getIsDone())
 
-//TODO remove
-//void Game::printBoard()
-//{
-//	//TODO
-//	for (size_t i = 0; i < 10; i++)
-//	{
-//		for (size_t j = 0; j < 10; j++)
-//		{
-//			std::cout << gameBoard[i][j] << " ";
-//		}
-//		std::cout << std::endl;
-//	}
-//}
-
 bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 {
 	std::map<char, int> shipsErrorMsgMap = { {'B', 0}, {'P', 1}, {'M', 2}, {'D', 3},
