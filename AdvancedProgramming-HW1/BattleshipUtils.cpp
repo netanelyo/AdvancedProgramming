@@ -1,7 +1,5 @@
 #include "BattleshipUtils.h"
 
-#include <iostream>
-
 bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 {
 	std::string				tempStr;

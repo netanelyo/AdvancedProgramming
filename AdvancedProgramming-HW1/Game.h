@@ -1,6 +1,8 @@
 #pragma once
 #include "FBattleshipGameAlgo.h"
 
+#include <map>
+
 using Player = FBattleshipGameAlgo;
 
 enum class GameState 
@@ -44,7 +46,7 @@ private:
 	void removeSankShip(int xCoord, int yCoord);
 	size_t getShipLen(char ship);
 	
-	void printBoard(); //TODO remove
+	//void printBoard(); //TODO remove
 	
 
 };
