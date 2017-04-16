@@ -2,13 +2,8 @@
 
 #include "IBattleshipGameAlgo.h"
 #include "BattleshipUtils.h"
-#include "ShipOnBoard.h"
 #include <fstream>
-#include <string>
 #include <cctype>
-
-//TODO
-#include <iostream>
 
 #define BOARD_SIZE 10
 #define RUBBER_BOAT_POINTS 2
@@ -20,27 +15,60 @@
 #define SUBMARINE_LEN 3
 #define DESTROYER_LEN 4
 
+/**
+ * class FBattleshipGameAlgo - implements IBattleshipGameAlgo by playing
+ * a battleship game out of input files (board and moves)
+ */
 class FBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:
-	FBattleshipGameAlgo(const std::string movesFile) : myShips(new ShipOnBoard[5]), points(0),
-		shipCounter(0), playerMoves(movesFile), isDone(false) {}
-	~FBattleshipGameAlgo() { playerMoves.close(); delete[]myShips; }
+	/**
+	 * Constructor
+	 * 
+	 * @param movesFile - a moves filename to be opened as an ifstream
+	 */
+	FBattleshipGameAlgo(const std::string movesFile) : points(0), shipCounter(0),
+														playerMoves(movesFile), isDone(false) {}
+
+	/**
+	 * Destructor - closes the moves file ifstream
+	 */
+	~FBattleshipGameAlgo() { playerMoves.close(); }
+
+	/**
+	 * @implements IBattleshipGameAlgo::setBoard pure virtual function
+	 * 
+	 * Copies board[i][j] to this->board[i][j]
+	 * 
+	 * @param board - the board to copy of
+	 * @param numRows - board's number of rows
+	 * @param numCols - board's number of columns
+	 */
 	void setBoard(const char** board, int numRows, int numCols) override;
+
+	/**
+	 * @implements IBattleshipGameAlgo::attack pure virtual function
+	 * 
+	 * reads from file the next attack move, if exists. 
+	 * @return
+	 * <-1, -1> in case of EOF;
+	 * otherwise - a pair of positive integers as the next attack  
+	 */
 	std::pair<int, int> attack() override;													
 	void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
 	
-	bool getIsDone() const { return isDone; }
-	uint16_t getPoints() const { return points; }
-	uint16_t getShipCounter() const { return shipCounter; }
+	bool	getIsDone() const { return isDone; }
+	size_t	getPoints() const { return points; }
+	size_t	getShipCounter() const { return shipCounter; }
 
-	void setPoints(uint16_t pts) { points = pts; }
+	void setPoints(size_t pts) { points = pts; }
 	void incrementShipCounter() { shipCounter++; }
+	void setBoardCoord(int i, int j, char val) { board[i][j] = val; }
 
 private:
-	ShipOnBoard*	myShips;
-	uint16_t		points;
-	uint16_t		shipCounter;
+	char			board[BOARD_SIZE][BOARD_SIZE];
+	size_t			points;
+	size_t			shipCounter;
 	std::ifstream	playerMoves; 
 	bool			isDone;
 };

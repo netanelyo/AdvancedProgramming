@@ -143,7 +143,6 @@
     <ClInclude Include="FBattleshipGameAlgo.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="IBattleshipGameAlgo.h" />
-    <ClInclude Include="ShipOnBoard.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BattleshipUtils.cpp" />

@@ -1,7 +1,3 @@
-#include <cctype>
-#include <iostream>
-#include <map>
-
 #include "Game.h"
 
 #define WRONG_SIZE_B_PLAYER_A "Wrong size or shape for ship B for player A"
@@ -25,26 +21,6 @@
 
 #define canPass(x) x ? !(A.getIsDone()) : !(B.getIsDone())
 
-
-Game::Game(std::string movesFileA, std::string movesFileB) : nextPlayer(0), A(movesFileA), B(movesFileB) 
-{
-	gameBoard = new char*[BOARD_SIZE]; 
-	for (int i = 0; i < BOARD_SIZE; i++)
-	{
-		gameBoard[i] = new char[BOARD_SIZE]; 
-	}
-}
-
-Game::~Game()
-{
-	for (int i = 0; i < BOARD_SIZE; i++)
-	{
-		delete []gameBoard[i];
-	}
-
-	delete []gameBoard; 
-}
-
 bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 {
 	std::map<char, int> shipsErrorMsgMap = { {'B', 0}, {'P', 1}, {'M', 2}, {'D', 3},
@@ -56,7 +32,7 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 			TOO_MANY_PLAYER_B, ADJACENT_SHIPS };
 
 	std::string line; 
-	int len; 
+	size_t len;
 	int dummyBoard[BOARD_SIZE][BOARD_SIZE] = { { 0 } };
 	char currentShip;
 	int shipLength		= 1;
@@ -66,7 +42,7 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 
 	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
-		if (std::getline(boardFile, line).eof())
+		if (!std::getline(boardFile, line))
 		{
 			len = 0; 
 		}
@@ -74,7 +50,6 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 		{
 			len = line.length();
 		}
-
 
 		for (int j = 0; j < BOARD_SIZE; ++j)
 		{
@@ -105,14 +80,11 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 
 	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
-		//std::cout << "3" << std::endl;
 		for (int j = 0; j < BOARD_SIZE; ++j)
 		{
-			//std::cout << gameBoard[i][j] << " ";
 			if (dummyBoard[i][j] == 0)
 			{
 				dummyBoard[i][j] = 1;
-				//std::cout << "4" << std::endl;
 				if (gameBoard[i][j] == '0')
 					continue;
 
@@ -120,18 +92,14 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 				currentShip = gameBoard[i][j];
 				belongsToA = isupper(currentShip);
 
-				//std::cout << currentShip << " ";
-				
 				dfsShip(currentShip, dummyBoard, i, j, shipLength, Direction::NON, invalidShape, adjShips);
 
-				if (invalidShape || !checkShipLength(shipLength, currentShip))
+				if (invalidShape || shipLength != getShipLen(currentShip))
 				{
-					//std::cout << "HERE invalid shape" << std::endl;
 					shouldPrintErrMsg[shipsErrorMsgMap[currentShip]] = 1;
 				}
 				else
 				{
-					//std::cout << "HERE else invalid" << std::endl;
 					if (belongsToA)
 						A.incrementShipCounter();
 					else
@@ -148,10 +116,7 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 			invalidShape = 0;
 			adjShips = 0;
 		}
-		//std::cout << std::endl;
 	}
-
-	std::cout << "Out of for loops" << std::endl;
 
 	if (A.getShipCounter() > 5)
 	{
@@ -170,16 +135,11 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 		shouldPrintErrMsg[TOO_FEW_PLAYER_B_INDEX] = 1;
 	}
 
-	for (size_t i = 0; i < 10; i++)
-	{
-		for (size_t j = 0; j < 10; j++)
-		{
-			std::cout << gameBoard[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
+	if (printErrors(shouldPrintErrMsg, errMsg))
+		return true;
 
-	return printErrors(shouldPrintErrMsg, errMsg); 
+	createBoardsForPlayers();
+	return false;
 
 }
 
@@ -200,7 +160,6 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 		}
 
 		else if (gameBoard[row + 1][col] != '0') {
-			/*std::cout << "DOWN     " << currShip << std::endl;*/
 			adjShips = 1;
 		}
 
@@ -225,7 +184,6 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 
 		else if (gameBoard[row][col + 1] != '0')
 		{
-			//std::cout << "RIGHT    " << currShip << std::endl;
 			adjShips = 1;
 		}
 
@@ -246,7 +204,6 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 void Game::markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 				int& invalidShape, int& adjShips) const
 {
-	//std::cout << "in mark all" << std::endl;
 	if (row < BOARD_SIZE - 1 && dummy[row + 1][col] == 0)
 	{
 		if (gameBoard[row + 1][col] == currShip)
@@ -300,27 +257,6 @@ void Game::markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row, in
 	}
 }
 
-bool Game::checkShipLength(int shipLength, char currentShip)
-{
-	switch (currentShip)
-	{
-	case 'B':
-	case 'b':
-		return shipLength == RUBBER_BOAT_LEN;
-	case 'P':
-	case 'p':
-		return shipLength == MISSILE_BOAT_LEN;
-	case 'M':
-	case 'm':
-		return shipLength == SUBMARINE_LEN;
-	case 'D':
-	case 'd':
-		return shipLength == DESTROYER_LEN;
-	default:
-		return false;
-	}
-}
-
 bool Game::printErrors(int shouldPrint[], std::string errors[])
 {
 	bool ret = false;
@@ -333,6 +269,30 @@ bool Game::printErrors(int shouldPrint[], std::string errors[])
 		}
 	}
 	return ret;
+}
+
+void Game::removeSankShip(int xCoord, int yCoord)
+{
+	gameBoard[xCoord][yCoord] = '0';
+	if (xCoord > 0 && gameBoard[xCoord - 1][yCoord] == 'X')
+	{
+		removeSankShip(xCoord - 1, yCoord);
+	}
+
+	if (yCoord > 0 && gameBoard[xCoord][yCoord - 1] == 'X')
+	{
+		removeSankShip(xCoord, yCoord - 1);
+	}
+
+	if (xCoord < BOARD_SIZE - 1 && gameBoard[xCoord + 1][yCoord] == 'X')
+	{
+		removeSankShip(xCoord + 1, yCoord);
+	}
+
+	if (yCoord < BOARD_SIZE - 1 && gameBoard[xCoord][yCoord + 1] == 'X')
+	{
+		removeSankShip(xCoord, yCoord + 1);
+	}
 }
 
 static int countSink = 0;
@@ -357,8 +317,6 @@ GameState Game::playMove()
 	default: 
 		break; 
 	}
-
-	std::cout << "playMove (" << attackPair.first << ", " << attackPair.second << ")" << std::endl;
 
 	/*checks if both players got to EOF and if so -> game is over*/
 	if (endOfAttacks())
@@ -385,37 +343,26 @@ GameState Game::playMove()
 	/*determines the attack result and sets the next Turn and the player's points accordingly*/
 	if (square == '0')
 	{
-		std::cout << "Player: " << (currentPlayer ? "B" : "A") << " Result: " << "Miss" << std::endl;
 		result = AttackResult::Miss;
-		nextPlayer ^= canPassTurn; /* If canPassTurn -> nextPlayer changes */
+		nextPlayer ^= (canPassTurn ? 1 : 0); /* If canPassTurn -> nextPlayer changes */
 	}
 	else
 	{
 		gameBoard[xCoord][yCoord] = 'X';
 		result = determineAttackResult(square, xCoord, yCoord);
-		std::string tmp;
-		switch (result)
-		{
-		case AttackResult::Hit:
-			tmp = "Hit";
-			break;
-		case AttackResult::Sink:
-			countSink++;
-			tmp = "Sink";
-			break;
-		default:
-			tmp = "Miss";
-			break;
-		}
-		std::cout << "Player: " << (currentPlayer ? "B" : "A") << " Result: " << tmp <<
-			"	Count = " << countSink << std::endl;
+
 		if (result == AttackResult::Miss)
 		{
-			nextPlayer ^= canPassTurn;
+			nextPlayer ^= (canPassTurn ? 1 : 0);
 		}
 		else
 		{
 			handlePointsAndNextTurn(result, square, currentPlayer, isupper(square), canPassTurn);
+
+			if (result == AttackResult::Sink)
+			{
+				removeSankShip(xCoord, yCoord);
+			}
 		}
 	}
 
@@ -426,11 +373,11 @@ GameState Game::playMove()
 	/*checks if there is a winner*/
 	if (A.getShipCounter() == 0)
 	{
-		winner = 0; 
+		winner = 1; 
 	}
 	else if (B.getShipCounter() == 0)
 	{
-		winner = 1; 
+		winner = 0; 
 	}
 
 	/*if there's a winner, we end the game*/
@@ -451,13 +398,10 @@ void Game::createBoardsForPlayers()
 	
 	for (int i = 0; i < BOARD_SIZE; i++)
 	{
-		boardForA[i] = new char[BOARD_SIZE]; 
-		boardForB[i] = new char[BOARD_SIZE]; 
-	}
+		boardForA[i] = new char[BOARD_SIZE];
+		boardForB[i] = new char[BOARD_SIZE];
 
-	for (int i = 0; i < 10; i++)
-	{
-		for (int j = 0; j < 10; j++)
+		for (int j = 0; j < BOARD_SIZE; j++)
 		{
 			c = gameBoard[i][j]; 
 			if (c != '0')
@@ -472,31 +416,6 @@ void Game::createBoardsForPlayers()
  			}		
 		}
 	}
-
-	/*std::cout << std::endl;
-	std::cout << std::endl;
-
-	for (size_t i = 0; i < BOARD_SIZE; i++)
-	{
-		for (size_t j = 0; j < BOARD_SIZE; j++)
-		{
-			std::cout << boardForA[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-
-
-	std::cout << std::endl;std::cout << std::endl;
-	for (size_t i = 0; i < BOARD_SIZE; i++)
-	{
-		for (size_t j = 0; j < BOARD_SIZE; j++)
-		{
-			std::cout << boardForB[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-	*/ 
-	
 
 	A.setBoard((const char**) boardForA, BOARD_SIZE, BOARD_SIZE); 
 	B.setBoard((const char**) boardForB, BOARD_SIZE, BOARD_SIZE); 
@@ -542,38 +461,54 @@ bool Game::endOfAttacks()
 
 AttackResult Game::determineAttackResult(char square, int xCoord, int yCoord)
 {
-	AttackResult ret = AttackResult::Sink;
+	size_t len = getShipLen(square);
+	size_t tmp = len - 1;
+	char curr;
 	
 	if (square == 'X')
 	{
-		ret = AttackResult::Miss; 
+		return AttackResult::Hit;
 	}
 
-	 if ((xCoord > 0) && (gameBoard[xCoord - 1][yCoord] != '0')
-											&& (gameBoard[xCoord - 1][yCoord] != 'X'))
+	while (xCoord > len - tmp - 1 && tmp > 0)
 	{
-			ret = AttackResult::Hit;
+		curr = gameBoard[xCoord - (len - tmp)][yCoord];
+		if (curr == '0')	break;
+		if (curr == square) return AttackResult::Hit;
+		tmp--;
 	}
 
-	if ((yCoord > 0) && (gameBoard[xCoord][yCoord - 1] != '0')
-											&& (gameBoard[xCoord][yCoord - 1] != 'X'))
+	tmp = len - 1;
+
+	while (yCoord > len - tmp - 1 && tmp > 0)
 	{
-			ret = AttackResult::Hit;
+		curr = gameBoard[xCoord][yCoord - (len - tmp)];
+		if (curr == '0')	break;
+		if (curr == square) return AttackResult::Hit;
+		tmp--;
 	}
 
-	 if ((xCoord < BOARD_SIZE - 1) && (gameBoard[xCoord + 1][yCoord] != '0')
-											&& (gameBoard[xCoord + 1][yCoord] != 'X'))
+	tmp = len - 1;
+
+	while (xCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
-			ret = AttackResult::Hit;
+		curr = gameBoard[xCoord + (len - tmp)][yCoord];
+		if (curr == '0')	break;
+		if (curr == square) return AttackResult::Hit;
+		tmp--;
 	}
 
-	if ((yCoord < BOARD_SIZE - 1) && (gameBoard[xCoord][yCoord + 1] != '0')
-											&& (gameBoard[xCoord][yCoord + 1] != 'X'))
+	tmp = len - 1;
+
+	while (yCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
-			ret = AttackResult::Hit;
+		curr = gameBoard[xCoord][yCoord + (len - tmp)];
+		if (curr == '0')	break;
+		if (curr == square) return AttackResult::Hit;
+		tmp--;
 	}
 
-	return ret; 
+	return AttackResult::Sink; 
 }
 
 void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPlayer, bool isAShip, bool canPassTurn)
@@ -584,8 +519,6 @@ void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPl
 	if (result == AttackResult::Sink)
 	{
 		uint16_t points;
-
-		std::cout << "Sink " << ship << " By player: " << (currentPlayer ? "B" : "A") << std::endl;
 
 		switch (ship)
 		{
@@ -633,6 +566,26 @@ void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPl
 }
 
 
+size_t Game::getShipLen(char ship)
+{
+	switch (ship)
+	{
+	case 'B':
+	case 'b':
+		return RUBBER_BOAT_LEN;
+	case 'P':
+	case 'p':
+		return MISSILE_BOAT_LEN;
+	case 'M':
+	case 'm':
+		return SUBMARINE_LEN;
+	case 'D':
+	case 'd':
+		return DESTROYER_LEN;
+	default:
+		return 0;
+	}
+}
 
 
 

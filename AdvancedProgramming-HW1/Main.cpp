@@ -1,19 +1,27 @@
 #include "Game.h"
 
-#include <iostream>
 #include <cstdlib>
 
 #define PRINT_WRONG_PATH(path) std::cout << "Wrong path: " << path << std::endl
 #define PRINT_MISSING_FILE(msg, path) std::cout << "Missing " << msg << \
 				" looking in path: " << path << std::endl
-#define ATTACK_A 0
-#define ATTACK_B 1
-#define SBOARD 2
+#define SBOARD 0
+#define ATTACK_A 1
+#define ATTACK_B 2
 
+/**
+ * Checks if filename has a suitable extension (.attack-a/.attack-b/.sboard),
+ * if it does - assigns to files in the matching index.
+ * 
+ * @param files - an array of strings to be assigned with input files (if exist)
+ * @param filename - a candidte to be an input file
+ */
 void matchFileExtensionAndAssign(std::string files[3], const std::string& filename)
 {
-	const auto extIndex = filename.find_last_of('.');
-	std::string::size_type len = filename.length();
+	auto extIndex = filename.find_last_of('.'); /* Index of extension in substring */
+	auto len = filename.length();
+
+	/* Compares extension to one of the three mentioned above */
 	if (!filename.compare(extIndex, len, ".attack-a"))
 	{
 		files[ATTACK_A] = filename;
@@ -28,6 +36,9 @@ void matchFileExtensionAndAssign(std::string files[3], const std::string& filena
 	}
 }
 
+/**
+ * @return std::string - matching message according to missing file
+ */
 std::string getProperMessage(int i)
 {
 	switch (i)
@@ -46,11 +57,12 @@ std::string getProperMessage(int i)
 int main(int argc, char** argv)
 {
 	int rc;
-	std::string cmd = "dir ";
+	std::string cmd = "2>NUL dir ";
 	std::string filePath("");
 	std::string filesArr[3] = { "", "", "" };
 	std::string	tempStr("");
 	bool missing = false;
+	bool workingDir = false;
 
 	if (argc == 2)
 	{
@@ -60,13 +72,18 @@ int main(int argc, char** argv)
 		
 		filePath = argv[1];
 	}
+	else if (argc == 1) /* No path in CMD-line args */
+	{
+		filePath = ".";
+		workingDir = true;
+	}
 	cmd += " /b /a-d > files.txt";
 
 	/* Get files list in path folder */
-	rc = system(cmd.c_str());
+	rc = system(cmd.c_str()); /* Listing files in path to "files.txt" file */
 	if (rc)
 	{
-		if (!filePath.empty())
+		if (!workingDir)
 			PRINT_WRONG_PATH(filePath);
 		else
 			PRINT_WRONG_PATH("Working Directory");
@@ -74,18 +91,20 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 	
+	/* Reading "files.txt" to get input filenames */
 	std::ifstream filesStream("files.txt");
-
-	while (!std::getline(filesStream, tempStr).eof())
+	while (std::getline(filesStream, tempStr))
 	{
 		matchFileExtensionAndAssign(filesArr, tempStr);
 	}
+	filesStream.close();
 
+	/* Checking if there are any missing input files */
 	for (int i = 0; i < 3; ++i)
 	{
 		if (filesArr[i].empty())
 		{
-			if (filePath.empty())
+			if (workingDir)
 				filePath = "Working Directory";
 
 			PRINT_MISSING_FILE(getProperMessage(i), filePath);
@@ -96,6 +115,7 @@ int main(int argc, char** argv)
 	if (missing)
 		return EXIT_FAILURE;
 
+	/* Opens board and moves files */
 	std::ifstream boardFile(filePath + "\\" + filesArr[SBOARD]);
 	Game battleshipGameManager(filePath + "\\" + filesArr[ATTACK_A],
 								filePath + "\\" + filesArr[ATTACK_B]);
@@ -105,10 +125,9 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	battleshipGameManager.createBoardsForPlayers(); //TODO leave it here?
-
 	boardFile.close();
 	
+	/* Playing game */
 	while (battleshipGameManager.playMove() != GameState::GAME_OVER) {}
 
 	return EXIT_SUCCESS;
