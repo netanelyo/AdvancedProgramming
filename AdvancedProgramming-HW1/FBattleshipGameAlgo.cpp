@@ -44,7 +44,6 @@ void FBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, Att
 			break;
 		}
 	}
-	
 }
 
 
