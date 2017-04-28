@@ -16,7 +16,7 @@ bool FBattleshipGameAlgo::init(const std::string & path)
 		{
 			tempFilename = entry->d_name;
 			
-			if (endsWith(tempFilename, ATTACK_SUFFIX))
+			if (BattleshipUtils::endsWith(tempFilename, ATTACK_SUFFIX))
 				filesSet.insert(tempFilename);
 		}
 
@@ -47,7 +47,7 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 	{
 		line = m_playerMoves.front();
 		m_playerMoves.pop_front();
-		if (parseLineAndValidate(line, attackCoordinate))
+		if (BattleshipUtils::parseLineAndValidate(line, attackCoordinate))
 			break;
 	}
 
