@@ -24,11 +24,11 @@ bool BattleshipUtils::parseLineAndValidate(const std::string& str, std::pair<int
 		{
 			num = std::stoi(s);
 		}
-		catch (const std::invalid_argument& exInv)
+		catch (std::invalid_argument exInv)
 		{
 			return false;
 		}
-		catch (const std::out_of_range& exOut)
+		catch (std::out_of_range exOut)
 		{
 			return false;
 		}
@@ -55,7 +55,7 @@ bool BattleshipUtils::endsWith(const std::string& filename, const std::string& s
 	return (!filename.compare(extIndex + 1, len, suffix));
 }
 
-char ** BattleshipUtils::allocateBoard(int rows, int cols)
+char ** BattleshipUtils::allocateBoard(size_t rows, size_t cols)
 {
 	char** board = new char*[rows];
 
@@ -66,7 +66,7 @@ char ** BattleshipUtils::allocateBoard(int rows, int cols)
 	return board;
 }
 
-void BattleshipUtils::deallocateBoard(char ** board, int rows)
+void BattleshipUtils::deallocateBoard(char ** board, size_t rows)
 {
 	for (auto i = 0; i < rows; i++)
 	{

@@ -13,7 +13,8 @@ void CommonBattleshipGameAlgo::Board::setMembers(const char ** board, size_t row
 	}
 }
 
-std::pair<int, int> CommonBattleshipGameAlgo::Board::getNextEmptySquare(std::pair<int, int> pair)
+std::pair<int, int>
+CommonBattleshipGameAlgo::Board::getNextEmptySquare(const std::pair<int, int>& pair) const
 {
 	/*gets next potential col*/
 	auto tmp = pair.second;

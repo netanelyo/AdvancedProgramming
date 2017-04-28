@@ -54,7 +54,7 @@ protected:
 		char getBoardSquare(int i, int j) const { return m_board[i][j]; }
 		size_t getBoardRows() const { return m_rows; }
 		size_t getBoardCols() const { return m_cols; }
-		std::pair<int, int> getNextEmptySquare(std::pair<int, int> pair); 
+		std::pair<int, int> getNextEmptySquare(const std::pair<int, int>& pair) const;
 		
 	private:
 		char** m_board	= nullptr;

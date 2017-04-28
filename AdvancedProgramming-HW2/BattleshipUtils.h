@@ -35,9 +35,9 @@ public:
 	*/
 	static bool endsWith(const std::string& filename, const std::string& suffix);
 
-	static char** allocateBoard(int rows, int cols);
+	static char** allocateBoard(size_t rows, size_t cols);
 
-	static void	deallocateBoard(char** board, int rows);
+	static void	deallocateBoard(char** board, size_t rows);
 	
 };
 

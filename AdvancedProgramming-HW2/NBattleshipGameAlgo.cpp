@@ -5,8 +5,8 @@ std::pair<int, int> NBattleshipGameAlgo::attack()
 {
 	auto attackPair = m_myBoard.getNextEmptySquare(m_currentMove);
 	
-	attackPair.first++;
-	attackPair.second++;
+	m_currentMove.first		= attackPair.first++;
+	m_currentMove.second	= attackPair.second++;
 
 	return attackPair;
 }
