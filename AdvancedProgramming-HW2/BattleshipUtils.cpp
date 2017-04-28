@@ -72,3 +72,14 @@ bool validateStr(const std::string& str)
 		return false;
 	}
 }
+
+bool endsWith(const std::string& filename, const std::string& suffix)
+{
+	auto extIndex = filename.find_last_of('.'); /* Index of extension in substring */
+	auto len = filename.length();
+
+	if (extIndex >= len)
+		return false;
+
+	return (!filename.compare(extIndex + 1, len, suffix));
+}
