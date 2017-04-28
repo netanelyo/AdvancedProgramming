@@ -7,8 +7,6 @@
 #include <cctype>
 #include "dirent.h"
 
-//#define BOARD_SIZE 10
-
 
 /**
  * class FBattleshipGameAlgo - implements IBattleshipGameAlgo by playing
@@ -52,19 +50,7 @@ public:
 	 */
 	std::pair<int, int> attack() override;				
 
-	/**
-	* @implements IBattleshipGameAlgo::notifyOnAttackResult pure virtual function
-	*
-	* updates board if the attack result was a hit/sink of our ship
-	* and decreases shipCounter by one if the attack result was a sink of our ship
-	*
-	* @param player - an integer represting the current player
-	* @param row - the X coordinate of the attack
-	* @param col - the Y coordinate of the attck
-	* @param result - the attack result
-	* 
-	*/
-	void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
+
 private:
 	std::list<std::string>	m_playerMoves;
 	bool					m_sameMovesFile = false;

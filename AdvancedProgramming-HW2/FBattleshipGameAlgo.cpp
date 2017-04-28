@@ -60,23 +60,6 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 	return attackCoordinate;
 }
 
-void FBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, AttackResult result)
-{
-	auto sq = m_myBoard.getBoardSquare(row, col);
-	if (sq != '0' && sq != 'X')
-	{
-		switch (result)
-		{
-		case AttackResult::Sink:
-			decrementShipCounter();
-		case AttackResult::Hit:
-			sq = 'X';
-			break;
-		default:
-			break;
-		}
-	}
-}
 
 bool FBattleshipGameAlgo::makeMovesQueue(const std::string & filePath)
 {

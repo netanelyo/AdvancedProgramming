@@ -19,6 +19,20 @@ public:
 	* @param numCols - board's number of columns
 	*/
 	virtual void setBoard(int player, const char** board, int numRows, int numCols) override;
+
+	/**
+	* @implements IBattleshipGameAlgo::notifyOnAttackResult pure virtual function
+	*
+	* updates board if the attack result was a hit/sink of our ship
+	* and decreases shipCounter by one if the attack result was a sink of our ship
+	*
+	* @param player - an integer represting the current player
+	* @param row - the Y coordinate of the attack
+	* @param col - the X coordinate of the attck
+	* @param result - the attack result
+	*
+	*/
+	virtual void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
 	virtual bool init(const std::string& str) override { return true; }
 
 	bool	isDone() const { return m_isDone; } //returns true if the player has no more moves, and false otherwise
@@ -38,6 +52,9 @@ protected:
 		void setBoardSquare(int i, int j, char val) const { m_board[i][j] = val; }
 
 		char getBoardSquare(int i, int j) const { return m_board[i][j]; }
+		size_t getBoardRows() const { return m_rows; }
+		size_t getBoardCols() const { return m_cols; }
+		std::pair<int, int> getNextEmptySquare(std::pair<int, int> pair); 
 		
 	private:
 		char** m_board	= nullptr;
@@ -59,7 +76,6 @@ protected:
 	bool	m_isDone		= false;
 	int		m_playerID		= 0;
 
-	void setBoardMembers(const char** board, int rows, int cols) { m_myBoard.setMembers(board, rows, cols); }
 };
 
 
