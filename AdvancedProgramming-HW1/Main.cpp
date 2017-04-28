@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 		cmd += "\"";
 		cmd += argv[1];
 		cmd += "\"";
-		
+
 		filePath = argv[1];
 	}
 	else if (argc == 1) /* No path in CMD-line args */
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 
 		return EXIT_FAILURE;
 	}
-	
+
 	/* Reading "files.txt" to get input filenames */
 	std::ifstream filesStream("files.txt");
 	while (std::getline(filesStream, tempStr))
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 	/* Opens board and moves files */
 	std::ifstream boardFile(filePath + "\\" + filesArr[SBOARD]);
 	Game battleshipGameManager(filePath + "\\" + filesArr[ATTACK_A],
-								filePath + "\\" + filesArr[ATTACK_B]);
+		filePath + "\\" + filesArr[ATTACK_B]);
 	if (battleshipGameManager.checkAndCreateBoard(boardFile))
 	{
 		boardFile.close();
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
 	}
 
 	boardFile.close();
-	
+
 	/* Playing game */
 	while (battleshipGameManager.playMove() != GameState::GAME_OVER) {}
 
