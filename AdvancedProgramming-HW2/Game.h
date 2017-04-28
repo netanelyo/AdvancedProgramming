@@ -12,13 +12,6 @@ enum class GameState
 	CONTINUE_PLAYING
 };
 
-enum class Direction
-{
-	NON,
-	DOWN,
-	RIGHT,
-};
-
 /**
 * a class that manages a Battle Ship game between two players  
 */
@@ -59,12 +52,46 @@ public:
 
 private:
 
-	static const int BOARD_SIZE = 10; 
+	class GameConstants
+	{
+	public:
+		static const int BOARD_SIZE = 10;
+
+		static const int TOO_FEW_PLAYER_A_INDEX = 8;
+		static const int TOO_MANY_PLAYER_A_INDEX = 9;
+		static const int TOO_FEW_PLAYER_B_INDEX = 10;
+		static const int TOO_MANY_PLAYER_B_INDEX = 11;
+		static const int ADJACENT_SHIPS_INDEX = 12;
+
+		const static size_t RUBBER_BOAT_POINTS = 2;
+		const static size_t MISSILE_BOAT_POINTS = 3;
+		const static size_t SUBMARINE_POINTS = 7;
+		const static size_t DESTROYER_POINTS = 8;
+
+		const static size_t RUBBER_BOAT_LEN = 1;
+		const static size_t MISSILE_BOAT_LEN = 2;
+		const static size_t SUBMARINE_LEN = 3;
+		const static size_t DESTROYER_LEN = 4;
+
+		static const std::string WRONG_SIZE_B_PLAYER_A;
+		static const std::string WRONG_SIZE_P_PLAYER_A;
+		static const std::string WRONG_SIZE_M_PLAYER_A;
+		static const std::string WRONG_SIZE_D_PLAYER_A;
+		static const std::string WRONG_SIZE_b_PLAYER_B;
+		static const std::string WRONG_SIZE_p_PLAYER_B;
+		static const std::string WRONG_SIZE_m_PLAYER_B;
+		static const std::string WRONG_SIZE_d_PLAYER_B;
+		static const std::string TOO_FEW_PLAYER_A;
+		static const std::string TOO_MANY_PLAYER_A;
+		static const std::string TOO_FEW_PLAYER_B;
+		static const std::string TOO_MANY_PLAYER_B;
+		static const std::string ADJACENT_SHIPS;
+	};
 
 	int		m_nextPlayer; 
 	Player*	m_playerA;
 	Player*	m_playerB; 
-	char	m_gameBoard[BOARD_SIZE][BOARD_SIZE];
+	char	m_gameBoard[GameConstants::BOARD_SIZE][GameConstants::BOARD_SIZE];
 
 	void readBoardFromFile(std::ifstream& boardFile);
 
@@ -126,7 +153,7 @@ private:
 	* @param invalidShape - a boolean representing if the shape of currShip is invalid
 	* @param adjShips - a boolean representing if there are adjacent ships on board
 	*/
-	void dfsShip(char currShip, int dummy[][BOARD_SIZE], int row,
+	void dfsShip(char currShip, int dummy[][GameConstants::BOARD_SIZE], int row,
 			int col, int& shipLen, Direction direction, int& invalidShape, int& adjShips) const;
 	/**
 	* an helper function of dfsShip that finds all neighboring appearances of currShip on board
@@ -138,7 +165,7 @@ private:
 	* @param invalidShape - a boolean representing if the shape of currShip is invalid
 	* @param adjShips - a boolean representing if there are adjacent ships on board
 	*/
-	void markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row,	int col,
+	void markAllOfSameShip(char currShip, int dummy[][GameConstants::BOARD_SIZE], int row,	int col,
 					int& invalidShape, int& adjShips) const; 
 
 	/**

@@ -3,19 +3,11 @@
 #include <string>
 #include <iostream>
 
-
-class BattleshipConstants
+enum class Direction
 {
-public:
-	const static size_t RUBBER_BOAT_POINTS	= 2;
-	const static size_t MISSILE_BOAT_POINTS = 3;
-	const static size_t SUBMARINE_POINTS	= 7;
-	const static size_t DESTROYER_POINTS	= 8;
-
-	const static size_t RUBBER_BOAT_LEN		= 1;
-	const static size_t MISSILE_BOAT_LEN	= 2;
-	const static size_t SUBMARINE_LEN		= 3;
-	const static size_t DESTROYER_LEN		= 4;
+	NON,
+	VERTICAL,
+	HORIZONTAL,
 };
 
 class BattleshipUtils

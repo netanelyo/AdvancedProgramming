@@ -2,30 +2,26 @@
 
 #include <fstream>
 
-#define WRONG_SIZE_B_PLAYER_A "Wrong size or shape for ship B for player A"
-#define WRONG_SIZE_P_PLAYER_A "Wrong size or shape for ship P for player A"
-#define WRONG_SIZE_M_PLAYER_A "Wrong size or shape for ship M for player A"
-#define WRONG_SIZE_D_PLAYER_A "Wrong size or shape for ship D for player A"
-#define WRONG_SIZE_b_PLAYER_B "Wrong size or shape for ship b for player B"
-#define WRONG_SIZE_p_PLAYER_B "Wrong size or shape for ship p for player B"
-#define WRONG_SIZE_m_PLAYER_B "Wrong size or shape for ship m for player B"
-#define WRONG_SIZE_d_PLAYER_B "Wrong size or shape for ship d for player B"
-#define TOO_FEW_PLAYER_A "Too few ships for player A"
-#define TOO_FEW_PLAYER_A_INDEX 8
-#define TOO_MANY_PLAYER_A "Too many ships for player A"
-#define TOO_MANY_PLAYER_A_INDEX 9
-#define TOO_FEW_PLAYER_B "Too few ships for player B"
-#define TOO_FEW_PLAYER_B_INDEX 10
-#define TOO_MANY_PLAYER_B "Too many ships for player B"
-#define	TOO_MANY_PLAYER_B_INDEX 11
-#define ADJACENT_SHIPS "Adjacent Ships on Board"
-#define ADJACENT_SHIPS_INDEX 12
+const std::string Game::GameConstants::WRONG_SIZE_B_PLAYER_A	= "Wrong size or shape for ship B for player A";
+const std::string Game::GameConstants::WRONG_SIZE_P_PLAYER_A	= "Wrong size or shape for ship P for player A";
+const std::string Game::GameConstants::WRONG_SIZE_M_PLAYER_A	= "Wrong size or shape for ship M for player A";
+const std::string Game::GameConstants::WRONG_SIZE_D_PLAYER_A	= "Wrong size or shape for ship D for player A";
+const std::string Game::GameConstants::WRONG_SIZE_b_PLAYER_B	= "Wrong size or shape for ship b for player B";
+const std::string Game::GameConstants::WRONG_SIZE_p_PLAYER_B	= "Wrong size or shape for ship p for player B";
+const std::string Game::GameConstants::WRONG_SIZE_m_PLAYER_B	= "Wrong size or shape for ship m for player B";
+const std::string Game::GameConstants::WRONG_SIZE_d_PLAYER_B	= "Wrong size or shape for ship d for player B";
+const std::string Game::GameConstants::TOO_FEW_PLAYER_A			= "Too few ships for player A";
+const std::string Game::GameConstants::TOO_MANY_PLAYER_A		= "Too many ships for player A";
+const std::string Game::GameConstants::TOO_FEW_PLAYER_B			= "Too few ships for player B";
+const std::string Game::GameConstants::TOO_MANY_PLAYER_B		= "Too many ships for player B";
+const std::string Game::GameConstants::ADJACENT_SHIPS			= "Adjacent Ships on Board";
+
 
 void Game::readBoardFromFile(std::ifstream & boardFile)
 {
 	std::string line;
 	size_t		len;
-	for (auto i = 0; i < BOARD_SIZE; ++i)
+	for (auto i = 0; i < GameConstants::BOARD_SIZE; ++i)
 	{
 		if (!std::getline(boardFile, line))
 		{
@@ -36,7 +32,7 @@ void Game::readBoardFromFile(std::ifstream & boardFile)
 			len = line.length();
 		}
 
-		for (auto j = 0; j < BOARD_SIZE; ++j)
+		for (auto j = 0; j < GameConstants::BOARD_SIZE; ++j)
 		{
 			if (j < len)
 			{
@@ -66,16 +62,16 @@ void Game::readBoardFromFile(std::ifstream & boardFile)
 
 void Game::checkIfBoardIsValid(int shouldPrintErrMsg[], std::map<char, int>& shipsErrorMsgMap)
 {
-	int dummyBoard[BOARD_SIZE][BOARD_SIZE] = { { 0 } };
+	int dummyBoard[GameConstants::BOARD_SIZE][GameConstants::BOARD_SIZE] = { { 0 } };
 	int shipLength = 1;
 	int invalidShape = 0;
 	int adjShips = 0;
 	bool belongsToA;
 	char currentShip;
 
-	for (auto i = 0; i < BOARD_SIZE; ++i)
+	for (auto i = 0; i < GameConstants::BOARD_SIZE; ++i)
 	{
-		for (auto j = 0; j < BOARD_SIZE; ++j)
+		for (auto j = 0; j < GameConstants::BOARD_SIZE; ++j)
 		{
 			if (dummyBoard[i][j] == 0)
 			{
@@ -103,7 +99,7 @@ void Game::checkIfBoardIsValid(int shouldPrintErrMsg[], std::map<char, int>& shi
 
 				if (adjShips)
 				{
-					shouldPrintErrMsg[ADJACENT_SHIPS_INDEX] = 1;
+					shouldPrintErrMsg[GameConstants::ADJACENT_SHIPS_INDEX] = 1;
 				}
 			}
 
@@ -118,19 +114,19 @@ void Game::checkShipsQuantity(int shouldPrintErrMsg[]) const
 {
 	if (m_playerA->getShipCounter() > 5)
 	{
-		shouldPrintErrMsg[TOO_MANY_PLAYER_A_INDEX] = 1;
+		shouldPrintErrMsg[GameConstants::TOO_MANY_PLAYER_A_INDEX] = 1;
 	}
 	if (m_playerA->getShipCounter() < 5)
 	{
-		shouldPrintErrMsg[TOO_FEW_PLAYER_A_INDEX] = 1;
+		shouldPrintErrMsg[GameConstants::TOO_FEW_PLAYER_A_INDEX] = 1;
 	}
 	if (m_playerB->getShipCounter() > 5)
 	{
-		shouldPrintErrMsg[TOO_MANY_PLAYER_B_INDEX] = 1;
+		shouldPrintErrMsg[GameConstants::TOO_MANY_PLAYER_B_INDEX] = 1;
 	}
 	if (m_playerB->getShipCounter() < 5)
 	{
-		shouldPrintErrMsg[TOO_FEW_PLAYER_B_INDEX] = 1;
+		shouldPrintErrMsg[GameConstants::TOO_FEW_PLAYER_B_INDEX] = 1;
 	}
 }
 
@@ -139,10 +135,12 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 	std::map<char, int> shipsErrorMsgMap = { {'B', 0}, {'P', 1}, {'M', 2}, {'D', 3},
 							{'b', 4}, {'p', 5}, {'m', 6}, {'d', 7} };
 	int shouldPrintErrMsg[13] = { 0 };
-	std::string errMsg[13] = { WRONG_SIZE_B_PLAYER_A , WRONG_SIZE_P_PLAYER_A, WRONG_SIZE_M_PLAYER_A,
-			WRONG_SIZE_D_PLAYER_A, WRONG_SIZE_b_PLAYER_B, WRONG_SIZE_p_PLAYER_B, WRONG_SIZE_m_PLAYER_B,
-			WRONG_SIZE_d_PLAYER_B, TOO_FEW_PLAYER_A, TOO_MANY_PLAYER_A, TOO_FEW_PLAYER_B,
-			TOO_MANY_PLAYER_B, ADJACENT_SHIPS };
+	std::string errMsg[13] = {GameConstants::WRONG_SIZE_B_PLAYER_A , GameConstants::WRONG_SIZE_P_PLAYER_A,
+		GameConstants::WRONG_SIZE_M_PLAYER_A, GameConstants::WRONG_SIZE_D_PLAYER_A,
+		GameConstants::WRONG_SIZE_b_PLAYER_B, GameConstants::WRONG_SIZE_p_PLAYER_B,
+		GameConstants::WRONG_SIZE_m_PLAYER_B, GameConstants::WRONG_SIZE_d_PLAYER_B,
+		GameConstants::TOO_FEW_PLAYER_A, GameConstants::TOO_MANY_PLAYER_A, GameConstants::TOO_FEW_PLAYER_B,
+		GameConstants::TOO_MANY_PLAYER_B, GameConstants::ADJACENT_SHIPS };
 
 	readBoardFromFile(boardFile);
 
@@ -158,20 +156,20 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 
 }
 
-void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
+void Game::dfsShip(char currShip, int dummy[][GameConstants::BOARD_SIZE], int row, int col,
 					int& shipLen, Direction direction, int& invalidShape, int& adjShips) const
 {
 	auto stuckDown	= false;
 	auto stuckRight = false;
-	if (row < BOARD_SIZE - 1)
+	if (row < GameConstants::BOARD_SIZE - 1)
 	{
 		if (m_gameBoard[row + 1][col] == currShip)
 		{
-			if (direction == Direction::RIGHT)
+			if (direction == Direction::HORIZONTAL)
 				invalidShape = 1;
 			shipLen++;
 			dummy[row + 1][col] = 1;
-			dfsShip(currShip, dummy, row + 1, col, shipLen, Direction::DOWN, invalidShape, adjShips);
+			dfsShip(currShip, dummy, row + 1, col, shipLen, Direction::VERTICAL, invalidShape, adjShips);
 		}
 
 		else if (m_gameBoard[row + 1][col] != '0') {
@@ -186,15 +184,15 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 		stuckDown = true;
 	}
 
-	if (col < BOARD_SIZE - 1)
+	if (col < GameConstants::BOARD_SIZE - 1)
 	{
 		if (m_gameBoard[row][col + 1] == currShip)
 		{
-			if (direction == Direction::DOWN)
+			if (direction == Direction::VERTICAL)
 				invalidShape = 1;
 			shipLen++;
 			dummy[row][col + 1] = 1;
-			dfsShip(currShip, dummy, row, col + 1, shipLen, Direction::RIGHT, invalidShape, adjShips);
+			dfsShip(currShip, dummy, row, col + 1, shipLen, Direction::HORIZONTAL, invalidShape, adjShips);
 		}
 
 		else if (m_gameBoard[row][col + 1] != '0')
@@ -216,10 +214,10 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 
 }
 
-void Game::markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
+void Game::markAllOfSameShip(char currShip, int dummy[][GameConstants::BOARD_SIZE], int row, int col,
 				int& invalidShape, int& adjShips) const
 {
-	if (row < BOARD_SIZE - 1 && dummy[row + 1][col] == 0)
+	if (row < GameConstants::BOARD_SIZE - 1 && dummy[row + 1][col] == 0)
 	{
 		if (m_gameBoard[row + 1][col] == currShip)
 		{
@@ -232,7 +230,7 @@ void Game::markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row, in
 
 	}
 
-	if (col < BOARD_SIZE - 1 && dummy[row][col + 1] == 0)
+	if (col < GameConstants::BOARD_SIZE - 1 && dummy[row][col + 1] == 0)
 	{
 		if (m_gameBoard[row][col + 1] == currShip)
 		{
@@ -303,12 +301,12 @@ void Game::removeSankShip(int xCoord, int yCoord)
 		removeSankShip(xCoord, yCoord - 1);
 	}
 
-	if (xCoord < BOARD_SIZE - 1 && m_gameBoard[xCoord + 1][yCoord] == 'X')
+	if (xCoord < GameConstants::BOARD_SIZE - 1 && m_gameBoard[xCoord + 1][yCoord] == 'X')
 	{
 		removeSankShip(xCoord + 1, yCoord);
 	}
 
-	if (yCoord < BOARD_SIZE - 1 && m_gameBoard[xCoord][yCoord + 1] == 'X')
+	if (yCoord < GameConstants::BOARD_SIZE - 1 && m_gameBoard[xCoord][yCoord + 1] == 'X')
 	{
 		removeSankShip(xCoord, yCoord + 1);
 	}
@@ -409,16 +407,16 @@ GameState Game::playMove()
 
 void Game::createBoardsForPlayers()
 {
-	char** boardForA = new char*[BOARD_SIZE];
-	char** boardForB = new char*[BOARD_SIZE];
+	char** boardForA = new char*[GameConstants::BOARD_SIZE];
+	char** boardForB = new char*[GameConstants::BOARD_SIZE];
 	char c; 
 	
-	for (int i = 0; i < BOARD_SIZE; i++)
+	for (int i = 0; i < GameConstants::BOARD_SIZE; i++)
 	{
-		boardForA[i] = new char[BOARD_SIZE];
-		boardForB[i] = new char[BOARD_SIZE];
+		boardForA[i] = new char[GameConstants::BOARD_SIZE];
+		boardForB[i] = new char[GameConstants::BOARD_SIZE];
 
-		for (int j = 0; j < BOARD_SIZE; j++)
+		for (int j = 0; j < GameConstants::BOARD_SIZE; j++)
 		{
 			c = m_gameBoard[i][j];
 			if (c != '0')
@@ -434,11 +432,11 @@ void Game::createBoardsForPlayers()
 		}
 	}
 
-	m_playerA->setBoard(0, const_cast<const char**>(boardForA), BOARD_SIZE, BOARD_SIZE);
-	m_playerB->setBoard(1, const_cast<const char**>(boardForB), BOARD_SIZE, BOARD_SIZE);
+	m_playerA->setBoard(0, const_cast<const char**>(boardForA), GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
+	m_playerB->setBoard(1, const_cast<const char**>(boardForB), GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
 	
-	BattleshipUtils::deallocateBoard(boardForA, BOARD_SIZE);
-	BattleshipUtils::deallocateBoard(boardForB, BOARD_SIZE);
+	BattleshipUtils::deallocateBoard(boardForA, GameConstants::BOARD_SIZE);
+	BattleshipUtils::deallocateBoard(boardForB, GameConstants::BOARD_SIZE);
 
 }
 
@@ -503,7 +501,7 @@ AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord
 
 	tmp = len - 1;
 
-	while (rowCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
+	while (rowCoord < GameConstants::BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
 		curr = m_gameBoard[rowCoord + (len - tmp)][colCoord];
 		if (curr == '0')	break;
@@ -513,7 +511,7 @@ AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord
 
 	tmp = len - 1;
 
-	while (colCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
+	while (colCoord < GameConstants::BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
 		curr = m_gameBoard[rowCoord][colCoord + (len - tmp)];
 		if (curr == '0')	break;
@@ -538,19 +536,19 @@ void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPl
 		{
 		case 'B':
 		case 'b':
-			points = BattleshipConstants::RUBBER_BOAT_POINTS;
+			points = GameConstants::RUBBER_BOAT_POINTS;
 			break;
 		case 'P':
 		case 'p':
-			points = BattleshipConstants::MISSILE_BOAT_POINTS; 
+			points = GameConstants::MISSILE_BOAT_POINTS;
 			break; 
 		case 'M':
 		case 'm': 
-			points = BattleshipConstants::SUBMARINE_POINTS; 
+			points = GameConstants::SUBMARINE_POINTS;
 			break; 
 		case 'D':
 		case 'd':
-			points = BattleshipConstants::DESTROYER_POINTS;
+			points = GameConstants::DESTROYER_POINTS;
 			break; 
 		default:
 			points = 0;
@@ -586,16 +584,16 @@ size_t Game::getShipLen(char ship)
 	{
 	case 'B':
 	case 'b':
-		return BattleshipConstants::RUBBER_BOAT_LEN;
+		return GameConstants::RUBBER_BOAT_LEN;
 	case 'P':
 	case 'p':
-		return BattleshipConstants::MISSILE_BOAT_LEN;
+		return GameConstants::MISSILE_BOAT_LEN;
 	case 'M':
 	case 'm':
-		return BattleshipConstants::SUBMARINE_LEN;
+		return GameConstants::SUBMARINE_LEN;
 	case 'D':
 	case 'd':
-		return BattleshipConstants::DESTROYER_LEN;
+		return GameConstants::DESTROYER_LEN;
 	default:
 		return 0;
 	}

@@ -152,11 +152,11 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 	{
 		if (gameBoard[row + 1][col] == currShip)
 		{
-			if (direction == Direction::RIGHT)
+			if (direction == Direction::HORIZONTAL)
 				invalidShape = 1;
 			shipLen++;
 			dummy[row + 1][col] = 1;
-			dfsShip(currShip, dummy, row + 1, col, shipLen, Direction::DOWN, invalidShape, adjShips);
+			dfsShip(currShip, dummy, row + 1, col, shipLen, Direction::VERTICAL, invalidShape, adjShips);
 		}
 
 		else if (gameBoard[row + 1][col] != '0') {
@@ -175,11 +175,11 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 	{
 		if (gameBoard[row][col + 1] == currShip)
 		{
-			if (direction == Direction::DOWN)
+			if (direction == Direction::VERTICAL)
 				invalidShape = 1;
 			shipLen++;
 			dummy[row][col + 1] = 1;
-			dfsShip(currShip, dummy, row, col + 1, shipLen, Direction::RIGHT, invalidShape, adjShips);
+			dfsShip(currShip, dummy, row, col + 1, shipLen, Direction::HORIZONTAL, invalidShape, adjShips);
 		}
 
 		else if (gameBoard[row][col + 1] != '0')
