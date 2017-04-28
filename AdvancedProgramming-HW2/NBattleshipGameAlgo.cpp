@@ -2,9 +2,7 @@
 
 void NBattleshipGameAlgo::setBoard(int player, const char** board, int numRows, int numCols)
 {
-	for (auto i = 0; i < numRows; i++)
-		for (auto j = 0; j < numCols; j++)
-			setBoardCoord(i, j, board[i][j]);
+	
 }
 
 std::pair<int, int> NBattleshipGameAlgo::attack()

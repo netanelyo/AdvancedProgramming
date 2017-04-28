@@ -27,5 +27,26 @@ CommonBattleshipGameAlgo::Board::~Board()
 void CommonBattleshipGameAlgo::setBoard(int player, const char ** board, int numRows, int numCols)
 {
 	m_playerID = player;
+	char square;
+
 	m_myBoard.setMembers(board, numRows, numCols);
+
+	for (auto i = 0; i < numRows; i++)
+	{
+		for (auto j = 0; j < numCols; j++)
+		{
+			square = m_myBoard.getBoardSquare(i, j);
+			if (!isalpha(square))
+			{
+				if (i > 0 && isalpha(m_myBoard.getBoardSquare(i - 1, j)))
+					m_myBoard.setBoardSquare(i, j, '#');
+				else if (i < 9 && isalpha(m_myBoard.getBoardSquare(i + 1, j)))
+					m_myBoard.setBoardSquare(i, j, '#');
+				else if (j > 0 && isalpha(m_myBoard.getBoardSquare(i, j - 1)))
+					m_myBoard.setBoardSquare(i, j, '#');
+				else if (j < 9 && isalpha(m_myBoard.getBoardSquare(i, j + 1)))
+					m_myBoard.setBoardSquare(i, j, '#');
+			}
+		}
+	}
 }

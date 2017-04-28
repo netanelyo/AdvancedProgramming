@@ -40,7 +40,7 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 	int adjShips		= 0;
 	bool belongsToA;
 
-	for (auto i = 0; i < BOARD_SIZE; ++i)
+	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
 		if (!std::getline(boardFile, line))
 		{
@@ -51,7 +51,7 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 			len = line.length();
 		}
 
-		for (auto j = 0; j < BOARD_SIZE; ++j)
+		for (int j = 0; j < BOARD_SIZE; ++j)
 		{
 			if (j < len)
 			{
@@ -78,9 +78,9 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 		}
 	}
 
-	for (auto i = 0; i < BOARD_SIZE; ++i)
+	for (int i = 0; i < BOARD_SIZE; ++i)
 	{
-		for (auto j = 0; j < BOARD_SIZE; ++j)
+		for (int j = 0; j < BOARD_SIZE; ++j)
 		{
 			if (dummyBoard[i][j] == 0)
 			{
@@ -197,8 +197,6 @@ void Game::dfsShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
 
 	if (stuckDown && stuckRight)
 		markAllOfSameShip(currShip, dummy, row, col, invalidShape, adjShips);
-
-
 }
 
 void Game::markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row, int col,
@@ -259,13 +257,17 @@ void Game::markAllOfSameShip(char currShip, int dummy[][BOARD_SIZE], int row, in
 
 bool Game::printErrors(int shouldPrint[], std::string errors[])
 {
-	auto ret = false;
-	for (auto i = 0; i < 13; ++i)
+	bool ret = false, first = false; 
+	for (int i = 0; i < 13; ++i)
 	{
 		if (shouldPrint[i])
 		{
-			ret = true;
-			std::cout << errors[i] << std::endl;
+			ret = true; 
+			if (!first)
+				std::cout << errors[i];
+			else
+				std::cout << std::endl << errors[i]; 
+			first = true;
 		}
 	}
 	return ret;
@@ -301,9 +303,9 @@ GameState Game::playMove()
 {
 	std::pair<int, int> attackPair; 
 	AttackResult result; 
-	int rowCoord, colCoord, winner = -1, currentPlayer = nextPlayer; 
+	int xCoord, yCoord, winner = -1, currentPlayer = nextPlayer; 
 	char square;   
-	bool canPassTurn;
+	bool canPassTurn; 
 
 	/*gets player's next move*/
 	switch (currentPlayer)
@@ -332,10 +334,10 @@ GameState Game::playMove()
 	}
 
 	/*gets square coordinates*/
-	rowCoord = attackPair.first - 1;
-	colCoord = attackPair.second - 1;
+	xCoord = attackPair.first - 1;
+	yCoord = attackPair.second - 1;
 	/*gets square*/
-	square = gameBoard[rowCoord][colCoord];
+	square = gameBoard[xCoord][yCoord];
 
 	/*determines if the next turn can be passed to the opponent */
 	canPassTurn = canPass(currentPlayer);
@@ -348,8 +350,8 @@ GameState Game::playMove()
 	}
 	else
 	{
-		gameBoard[rowCoord][colCoord] = 'X';
-		result = determineAttackResult(square, rowCoord, colCoord);
+		gameBoard[xCoord][yCoord] = 'X';
+		result = determineAttackResult(square, xCoord, yCoord);
 
 		if (result == AttackResult::Miss)
 		{
@@ -361,14 +363,14 @@ GameState Game::playMove()
 
 			if (result == AttackResult::Sink)
 			{
-				removeSankShip(rowCoord, colCoord);
+				removeSankShip(xCoord, yCoord);
 			}
 		}
 	}
 
 	/*notifies players on the current result*/
-	A.notifyOnAttackResult(currentPlayer, rowCoord, colCoord, result);
-	B.notifyOnAttackResult(currentPlayer, rowCoord, colCoord, result); 
+	A.notifyOnAttackResult(currentPlayer, xCoord, yCoord, result);
+	B.notifyOnAttackResult(currentPlayer, xCoord, yCoord, result); 
 	
 	/*checks if there is a winner*/
 	if (A.getShipCounter() == 0)
@@ -417,8 +419,8 @@ void Game::createBoardsForPlayers()
 		}
 	}
 
-	A.setBoard(const_cast<const char**>(boardForA), BOARD_SIZE, BOARD_SIZE);
-	B.setBoard(const_cast<const char**>(boardForB), BOARD_SIZE, BOARD_SIZE);
+	A.setBoard((const char**) boardForA, BOARD_SIZE, BOARD_SIZE); 
+	B.setBoard((const char**) boardForB, BOARD_SIZE, BOARD_SIZE); 
 	
 	for (int i = 0; i < BOARD_SIZE; i++)
 	{
@@ -431,7 +433,7 @@ void Game::createBoardsForPlayers()
 
 }
 
-void Game::printEndOfGame(int winner) const
+void Game::printEndOfGame(int winner)
 {
 	if (winner == 0)
 	{
@@ -445,10 +447,10 @@ void Game::printEndOfGame(int winner) const
 
 	std::cout << "Points:" << std::endl;
 	std::cout << "Player A: " << A.getPoints() << std::endl;
-	std::cout << "Player B: " << B.getPoints() << std::endl; 
+	std::cout << "Player B: " << B.getPoints(); 
 }
 
-bool Game::endOfAttacks() const
+bool Game::endOfAttacks()
 {
 	if (A.getIsDone() && B.getIsDone())
 	{
@@ -459,10 +461,10 @@ bool Game::endOfAttacks() const
 	return false; 
 }
 
-AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord) const
+AttackResult Game::determineAttackResult(char square, int xCoord, int yCoord)
 {
-	auto len = getShipLen(square);
-	auto tmp = len - 1;
+	size_t len = getShipLen(square);
+	size_t tmp = len - 1;
 	char curr;
 	
 	if (square == 'X')
@@ -470,11 +472,9 @@ AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord
 		return AttackResult::Hit;
 	}
 
-	//TODO remove code duplication, maybe... shahar doesn't approve
-
-	while (rowCoord > len - tmp - 1 && tmp > 0)
+	while (xCoord > len - tmp - 1 && tmp > 0)
 	{
-		curr = gameBoard[rowCoord - (len - tmp)][colCoord];
+		curr = gameBoard[xCoord - (len - tmp)][yCoord];
 		if (curr == '0')	break;
 		if (curr == square) return AttackResult::Hit;
 		tmp--;
@@ -482,9 +482,9 @@ AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord
 
 	tmp = len - 1;
 
-	while (colCoord > len - tmp - 1 && tmp > 0)
+	while (yCoord > len - tmp - 1 && tmp > 0)
 	{
-		curr = gameBoard[rowCoord][colCoord - (len - tmp)];
+		curr = gameBoard[xCoord][yCoord - (len - tmp)];
 		if (curr == '0')	break;
 		if (curr == square) return AttackResult::Hit;
 		tmp--;
@@ -492,9 +492,9 @@ AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord
 
 	tmp = len - 1;
 
-	while (rowCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
+	while (xCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
-		curr = gameBoard[rowCoord + (len - tmp)][colCoord];
+		curr = gameBoard[xCoord + (len - tmp)][yCoord];
 		if (curr == '0')	break;
 		if (curr == square) return AttackResult::Hit;
 		tmp--;
@@ -502,21 +502,20 @@ AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord
 
 	tmp = len - 1;
 
-	while (colCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
+	while (yCoord < BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
-		curr = gameBoard[rowCoord][colCoord + (len - tmp)];
+		curr = gameBoard[xCoord][yCoord + (len - tmp)];
 		if (curr == '0')	break;
 		if (curr == square) return AttackResult::Hit;
 		tmp--;
 	}
 
-	return AttackResult::Sink;
+	return AttackResult::Sink; 
 }
 
 void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPlayer, bool isAShip, bool canPassTurn)
 {
-	auto shouldPass = ((!currentPlayer && isAShip) || (currentPlayer && !isAShip)
-													|| ship == 'X') && canPassTurn;
+	bool shouldPass = ((!currentPlayer && isAShip) || (currentPlayer && !isAShip)) && canPassTurn;
 
 	/*handles points in case of a sink*/
 	if (result == AttackResult::Sink)
@@ -589,8 +588,3 @@ size_t Game::getShipLen(char ship)
 		return 0;
 	}
 }
-
-
-
-
-

@@ -1,9 +1,8 @@
 #pragma once
-#include "FBattleshipGameAlgo.h"
-
+#include "CommonBattleshipGameAlgo.h"
 #include <map>
 
-using Player = FBattleshipGameAlgo;
+using Player = CommonBattleshipGameAlgo;
 
 enum class GameState 
 {
@@ -30,7 +29,7 @@ public:
 	* @param movesFileA- a moves filename to be passed to player A
 	* @param movesFileB- a moves filename to be passed to player B
 	*/
-	Game(std::string movesFileA, std::string movesFileB): nextPlayer(0), A(movesFileA), B(movesFileB) {}
+	Game(std::string movesFileA, std::string movesFileB): m_nextPlayer(0), m_playerA(movesFileA), m_playerB(movesFileB) {}
 	~Game() {} //destructor
 
 	/**
@@ -60,10 +59,13 @@ public:
 	void createBoardsForPlayers(); 
 
 private:
-	int		nextPlayer; 
-	Player	A;
-	Player	B; 
-	char	gameBoard[BOARD_SIZE][BOARD_SIZE]; 
+
+	static const int BOARD_SIZE = 10; 
+
+	int		m_nextPlayer; 
+	Player*	m_playerA;
+	Player*	m_playerB; 
+	char	m_gameBoard[BOARD_SIZE][BOARD_SIZE]; 
 
 	/**
 	* prints the game result when the game is over.
