@@ -45,7 +45,7 @@ public:
 
 	static char** allocateBoard(int rows, int cols);
 
-	static void	deallocate(char** board, int rows);
+	static void	deallocateBoard(char** board, int rows);
 	
 };
 

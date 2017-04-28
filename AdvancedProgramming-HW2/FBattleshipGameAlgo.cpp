@@ -62,14 +62,15 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 
 void FBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, AttackResult result)
 {
-	if (board[row][col] != '0' && board[row][col] != 'X')
+	auto sq = m_myBoard.getBoardSquare(row, col);
+	if (sq != '0' && sq != 'X')
 	{
 		switch (result)
 		{
 		case AttackResult::Sink:
-			shipCounter--;
+			decrementShipCounter();
 		case AttackResult::Hit:
-			board[row][col] = 'X';
+			sq = 'X';
 			break;
 		default:
 			break;
@@ -99,5 +100,5 @@ bool FBattleshipGameAlgo::makeMovesQueue(const std::string & filePath)
 void FBattleshipGameAlgo::setBoard(int player, const char ** board, int numRows, int numCols)
 {
 	m_playerID = player;
-	setBoardMembers(board, numRows, numCols);
+	m_myBoard.setMembers(board, numRows, numCols);
 }

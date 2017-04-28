@@ -66,7 +66,7 @@ char ** BattleshipUtils::allocateBoard(int rows, int cols)
 	return board;
 }
 
-void BattleshipUtils::deallocate(char ** board, int rows)
+void BattleshipUtils::deallocateBoard(char ** board, int rows)
 {
 	for (auto i = 0; i < rows; i++)
 	{

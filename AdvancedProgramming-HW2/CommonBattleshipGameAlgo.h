@@ -28,11 +28,16 @@ public:
 
 	void setPoints(size_t pts) { m_points = pts; } //sets the player's points to pts
 	void incrementShipCounter() { m_shipCounter++; }
+	void decrementShipCounter() { m_shipCounter--; }
 
-private:
+protected:
 	class Board
 	{
 	public:
+		void setMembers(const char** board, size_t rows, size_t cols);
+		void setBoardSquare(int i, int j, char val) const { m_board[i][j] = val; }
+
+		char getBoardSquare(int i, int j) const { return m_board[i][j]; }
 		
 	private:
 		char** m_board	= nullptr;
@@ -46,13 +51,8 @@ private:
 		Board& operator=(const Board& b) = delete;
 		~Board();
 
-		void setMembers(const char** board, size_t rows, size_t cols);
-		void setBoardSquare(int i, int j, char val) const { m_board[i][j] = val; }
-
-		char getBoardSquare(int i, int j) const { return m_board[i][j]; }
 	};
 
-protected:
 	Board	m_myBoard;
 	size_t	m_points		= 0;
 	size_t	m_shipCounter	= 0;

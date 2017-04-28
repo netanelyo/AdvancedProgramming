@@ -1,6 +1,8 @@
 #pragma once
 #include "CommonBattleshipGameAlgo.h"
+
 #include <map>
+#include <fstream>
 
 using Player = CommonBattleshipGameAlgo;
 
@@ -25,11 +27,8 @@ class Game
 public:
 	/**
 	* Constructor
-	*
-	* @param movesFileA- a moves filename to be passed to player A
-	* @param movesFileB- a moves filename to be passed to player B
 	*/
-	Game(std::string movesFileA, std::string movesFileB): m_nextPlayer(0), m_playerA(movesFileA), m_playerB(movesFileB) {}
+	Game(): m_nextPlayer(0), m_playerA(nullptr), m_playerB(nullptr) {}
 	~Game() {} //destructor
 
 	/**
@@ -51,12 +50,12 @@ public:
 	* GAME_OVER if after the current move the game ended  
 	* otherwise CONTINUE_PLAYING 
 	*/
-	GameState playMove(); 
+	GameState playMove();
 
 	/**
 	* creates and sets a board for each player, which contains only the player's ships .
 	*/
-	void createBoardsForPlayers(); 
+	void createBoardsForPlayers();
 
 private:
 
@@ -65,7 +64,15 @@ private:
 	int		m_nextPlayer; 
 	Player*	m_playerA;
 	Player*	m_playerB; 
-	char	m_gameBoard[BOARD_SIZE][BOARD_SIZE]; 
+	char	m_gameBoard[BOARD_SIZE][BOARD_SIZE];
+
+	void readBoardFromFile(std::ifstream& boardFile);
+
+	void checkIfBoardIsValid(int shouldPrint[], std::map<char, int>& shipsErrorMsgMap);
+
+	void checkShipsQuantity(int shouldPrint[]) const;
+
+	bool canPassTurn(int player) const { return (player ? !(m_playerA->isDone()) : !(m_playerB->isDone())); }
 
 	/**
 	* prints the game result when the game is over.
