@@ -1,8 +1,7 @@
 #include "BattleshipUtils.h"
 
-bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
+bool BattleshipUtils::parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 {
-	std::string				tempStr;
 	std::string				tempArr[2];		/* To hold potential strings representing row/col */
 	std::string::size_type	loc;
 	int						num;
@@ -11,69 +10,41 @@ bool parseLineAndValidate(const std::string& str, std::pair<int, int>& coord)
 	/* Splitting str by ',' */
 	loc = str.find_first_of(',');
 	tempArr[0] = str.substr(0, loc);
-	tempArr[1] = str.substr(loc + 1);
+
+	if (loc < str.length() - 1)
+		tempArr[1] = str.substr(loc + 1);
+	else
+		return false;
 
 	cnt = 0;
 	/* Checks if line is valid */
-	for (auto s : tempArr)
+	for (const auto& s : tempArr)
 	{
-		tempStr = trimWhitespaces(s);	/* First, cleaning whitespaces		*/
-		if (validateStr(tempStr))		/* Checks if it's a valid row/col	*/
+		try
 		{
-			num = std::stoi(tempStr);
-			if (cnt)
-				coord.second = num;
-			else
-				coord.first	 = num;
-			cnt++;
+			num = std::stoi(s);
 		}
-		else
+		catch (const std::invalid_argument& exInv)
 		{
 			return false;
 		}
+		catch (const std::out_of_range& exOut)
+		{
+			return false;
+		}
+
+		if (cnt)
+			coord.second = num;
+		else
+			coord.first	 = num;
+
+		cnt++;
 	}
 
 	return true;
 }
 
-std::string trimWhitespaces(const std::string& str)
-{
-	std::string whitespace = " \t\r"; /* Whitespace, TAB or CR */
-
-	/* Finds first char in str that is not a whitespace */
-	const auto strBegin = str.find_first_not_of(whitespace);
-
-	if (strBegin == std::string::npos) /* If there is none returns an empty string*/
-		return "";
-
-	/* Finds last char in str that is not a whitespace */
-	const auto strEnd = str.find_last_not_of(whitespace);
-
-	/* Range of chars in str with no leading/trailing whitespaces */
-	const auto strRange = strEnd - strBegin + 1; 
-
-	return str.substr(strBegin, strRange);
-}
-
-bool validateStr(const std::string& str)
-{
-	auto len = str.length();
-	if (len < 1 || len > 2) /* A valid row/col will be of length 1 or 2 */
-		return false;
-	else
-	{
-		if (len == 2 && !str.compare("10")) /* A valid row/col of length 2 must be "10" */
-			return true;
-		else if (len == 1)
-		{
-			/* A valid row/col of length 1 must be a digit > 0 */
-			return (isdigit(str[0]) && str[0] != '0');
-		}
-		return false;
-	}
-}
-
-bool endsWith(const std::string& filename, const std::string& suffix)
+bool BattleshipUtils::endsWith(const std::string& filename, const std::string& suffix)
 {
 	auto extIndex = filename.find_last_of('.'); /* Index of extension in substring */
 	auto len = filename.length();
@@ -82,4 +53,25 @@ bool endsWith(const std::string& filename, const std::string& suffix)
 		return false;
 
 	return (!filename.compare(extIndex + 1, len, suffix));
+}
+
+char ** BattleshipUtils::allocateBoard(int rows, int cols)
+{
+	char** board = new char*[rows];
+
+	for (auto i = 0; i < rows; i++)
+	{
+		board[i] = new char[cols];
+	}
+	return board;
+}
+
+void BattleshipUtils::deallocate(char ** board, int rows)
+{
+	for (auto i = 0; i < rows; i++)
+	{
+		delete[] board[i];
+	}
+
+	delete[] board;
 }

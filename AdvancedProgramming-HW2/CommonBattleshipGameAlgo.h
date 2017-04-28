@@ -52,11 +52,14 @@ private:
 		char getBoardSquare(int i, int j) const { return m_board[i][j]; }
 	};
 
+protected:
 	Board	m_myBoard;
 	size_t	m_points		= 0;
 	size_t	m_shipCounter	= 0;
 	bool	m_isDone		= false;
 	int		m_playerID		= 0;
+
+	void setBoardMembers(const char** board, int rows, int cols) { m_myBoard.setMembers(board, rows, cols); }
 };
 
 

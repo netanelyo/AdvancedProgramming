@@ -26,6 +26,6 @@ CommonBattleshipGameAlgo::Board::~Board()
 
 void CommonBattleshipGameAlgo::setBoard(int player, const char ** board, int numRows, int numCols)
 {
-	m_player = player;
+	m_playerID = player;
 	m_myBoard.setMembers(board, numRows, numCols);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CommonBattleshipGameAlgo.h"
-#include <forward_list>
+#include <list>
 #include <set>
 #include <fstream>
 #include <cctype>
@@ -27,6 +27,18 @@ public:
 	 * Destructor
 	 */
 	~FBattleshipGameAlgo() {}
+
+	/**
+	* @implements IBattleshipGameAlgo::setBoard pure virtual function
+	*
+	* Copies board[i][j] to this->board[i][j]
+	*
+	* @param player - the player's index as given by game manager
+	* @param board - the board to copy of
+	* @param numRows - board's number of rows
+	* @param numCols - board's number of columns
+	*/
+	void setBoard(int player, const char** board, int numRows, int numCols) override;
 
 	bool init(const std::string& path) override;
 
@@ -54,7 +66,8 @@ public:
 	*/
 	void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
 private:
-	std::forward_list<std::string> m_playerMoves;
+	std::list<std::string>	m_playerMoves;
+	bool					m_sameMovesFile = false;
 
 	const static std::string ATTACK_SUFFIX;
 

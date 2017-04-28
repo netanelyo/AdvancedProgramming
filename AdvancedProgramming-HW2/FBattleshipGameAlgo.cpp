@@ -2,13 +2,6 @@
 
 const std::string FBattleshipGameAlgo::ATTACK_SUFFIX = "attack";
 
-void FBattleshipGameAlgo::setBoard(const char** board, int numRows, int numCols)
-{
-	for (auto i = 0; i < numRows; i++)
-		for (auto j = 0; j < numCols; j++)
-			setBoardCoord(i, j, board[i][j]);
-}
-
 bool FBattleshipGameAlgo::init(const std::string & path)
 {
 	DIR* dir;
@@ -38,7 +31,7 @@ bool FBattleshipGameAlgo::init(const std::string & path)
 		if (!(setSize == 1 || getPlayerID() == 0))
 			++fileIter;
 		
-		return makeMovesQueue(*fileIter);
+		return makeMovesQueue(path + (*fileIter));
 	}
 	else
 		return false;
@@ -49,17 +42,19 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 	std::pair<int, int> attackCoordinate(-1, -1);
 	std::string			line;
 
-	/* Reads attacks file until a valid line or EOF have been reached */
-	while (std::getline(playerMoves, line))
+	/* Reads attacks until a valid line or no moves left */
+	while (!(m_playerMoves.empty()))
 	{
+		line = m_playerMoves.front();
+		m_playerMoves.pop_front();
 		if (parseLineAndValidate(line, attackCoordinate))
 			break;
 	}
 
-	/* If EOF reached then current player is done */
-	if (!playerMoves)
+	/* If no moves left then current player is done */
+	if (m_playerMoves.empty())
 	{
-		isDone = true;
+		m_isDone = true;
 	}
 	
 	return attackCoordinate;
@@ -93,10 +88,16 @@ bool FBattleshipGameAlgo::makeMovesQueue(const std::string & filePath)
 
 	while (getline(movesFin, line))
 	{
-		m_playerMoves.push_front(line);
+		m_playerMoves.push_back(line);
 	}
+
+	movesFin.close();
 
 	return true;
 }
 
-
+void FBattleshipGameAlgo::setBoard(int player, const char ** board, int numRows, int numCols)
+{
+	m_playerID = player;
+	setBoardMembers(board, numRows, numCols);
+}
