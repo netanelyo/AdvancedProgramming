@@ -288,27 +288,27 @@ bool Game::printErrors(int shouldPrint[], std::string errors[])
 	return ret;
 }
 
-void Game::removeSankShip(int xCoord, int yCoord)
+void Game::removeSankShip(int row, int col)
 {
-	m_gameBoard[xCoord][yCoord] = '0';
-	if (xCoord > 0 && m_gameBoard[xCoord - 1][yCoord] == 'X')
+	m_gameBoard[row][col] = '0';
+	if (row > 0 && m_gameBoard[row - 1][col] == 'X')
 	{
-		removeSankShip(xCoord - 1, yCoord);
+		removeSankShip(row - 1, col);
 	}
 
-	if (yCoord > 0 && m_gameBoard[xCoord][yCoord - 1] == 'X')
+	if (col > 0 && m_gameBoard[row][col - 1] == 'X')
 	{
-		removeSankShip(xCoord, yCoord - 1);
+		removeSankShip(row, col - 1);
 	}
 
-	if (xCoord < GameConstants::BOARD_SIZE - 1 && m_gameBoard[xCoord + 1][yCoord] == 'X')
+	if (row < GameConstants::BOARD_SIZE - 1 && m_gameBoard[row + 1][col] == 'X')
 	{
-		removeSankShip(xCoord + 1, yCoord);
+		removeSankShip(row + 1, col);
 	}
 
-	if (yCoord < GameConstants::BOARD_SIZE - 1 && m_gameBoard[xCoord][yCoord + 1] == 'X')
+	if (col < GameConstants::BOARD_SIZE - 1 && m_gameBoard[row][col + 1] == 'X')
 	{
-		removeSankShip(xCoord, yCoord + 1);
+		removeSankShip(row, col + 1);
 	}
 }
 
@@ -382,8 +382,8 @@ GameState Game::playMove()
 	}
 
 	/*notifies players on the current result*/
-	m_playerA->notifyOnAttackResult(currentPlayer, rowCoord, colCoord, result);
-	m_playerB->notifyOnAttackResult(currentPlayer, rowCoord, colCoord, result);
+	m_playerA->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
+	m_playerB->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
 	
 	/*checks if there is a winner*/
 	if (m_playerA->getShipCounter() == 0)

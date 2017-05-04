@@ -5,11 +5,15 @@ void CommonBattleshipGameAlgo::Board::setMembers(const char ** board, size_t row
 	m_rows = rows;
 	m_cols = cols;
 	m_board = BattleshipUtils::allocateBoard(rows, cols);
+	char c;
 	
 	for (auto i = 0; i < m_rows; i++)
 	{
 		for (auto j = 0; j < m_cols; j++)
-			m_board[i][j] = board[i][j];
+		{
+			c = board[i][j];
+			m_board[i][j] = isalpha(c) ? c : '0';
+		}
 	}
 }
 
@@ -24,9 +28,10 @@ CommonBattleshipGameAlgo::Board::getNextEmptySquare(const std::pair<int, int>& p
 	tmp = pair.first;
 	auto row = cond ? tmp : tmp + 1;
 
-	std::pair<int, int> retPair;
+	bool valid;
+
 	/*finds the first empty square*/
-	while (getBoardSquare(row, col) != '0')
+	while ((valid = validateCoordinate(row, col)) == true && getBoardSquare(row, col) != '0')
 	{
 		if (col == (getBoardCols() - 1))
 		{
@@ -37,7 +42,12 @@ CommonBattleshipGameAlgo::Board::getNextEmptySquare(const std::pair<int, int>& p
 			col++;
 	}
 
-	return retPair;
+	if (!valid)
+	{
+		return std::pair<int, int>(-1, -1);
+	}
+
+	return std::pair<int, int>(row, col);
 }
 
 CommonBattleshipGameAlgo::Board::~Board()
@@ -75,6 +85,11 @@ void CommonBattleshipGameAlgo::setBoard(int player, const char ** board, int num
 
 void CommonBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, AttackResult result)
 {
+	row--;
+	col--;
+	if (!m_myBoard.validateCoordinate(row, col))
+		return;
+
 	if (m_myBoard.getBoardSquare(row, col) != '0' && m_myBoard.getBoardSquare(row, col) != 'X')
 	{
 		switch (result)
@@ -88,4 +103,27 @@ void CommonBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col
 			break;
 		}
 	}
+}
+
+std::pair<int, int> CommonBattleshipGameAlgo::attack()
+{
+	if (isDone())
+	{
+		return std::pair<int, int>(-1, -1);
+	}
+
+	auto attackPair = m_myBoard.getNextEmptySquare(m_currentSeqMove);
+	auto& row = attackPair.first;
+	auto& col = attackPair.second;
+
+	if (row == -1 && col == -1)
+	{
+		m_isDone = true;
+		return attackPair;
+	}
+
+	m_currentSeqMove.first = row++;
+	m_currentSeqMove.second = col++;
+
+	return attackPair;
 }

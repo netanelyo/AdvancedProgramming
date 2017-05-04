@@ -6,7 +6,7 @@
 class CommonBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:
-	CommonBattleshipGameAlgo() {}
+	CommonBattleshipGameAlgo() : m_currentSeqMove(0, -1) {}
 
 	/**
 	* @implements IBattleshipGameAlgo::setBoard pure virtual function
@@ -34,6 +34,7 @@ public:
 	*/
 	virtual void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
 	virtual bool init(const std::string& str) override { return true; }
+	virtual std::pair<int, int> attack() override;
 
 	bool	isDone() const { return m_isDone; } //returns true if the player has no more moves, and false otherwise
 	size_t	getPoints() const { return m_points; } //returns the player's current points 
@@ -55,6 +56,10 @@ protected:
 		size_t getBoardRows() const { return m_rows; }
 		size_t getBoardCols() const { return m_cols; }
 		std::pair<int, int> getNextEmptySquare(const std::pair<int, int>& pair) const;
+		bool validateCoordinate(int row, int col) const
+		{
+			return (row > 0 && row < m_rows && col > 0 && col < m_cols);
+		}
 		
 	private:
 		char** m_board	= nullptr;
@@ -70,11 +75,12 @@ protected:
 
 	};
 
-	Board	m_myBoard;
-	size_t	m_points		= 0;
-	size_t	m_shipCounter	= 0;
-	bool	m_isDone		= false;
-	int		m_playerID		= 0;
+	Board				m_myBoard;
+	size_t				m_points		= 0;
+	size_t				m_shipCounter	= 0;
+	bool				m_isDone		= false;
+	int					m_playerID		= 0;
+	std::pair<int, int> m_currentSeqMove;
 
 };
 

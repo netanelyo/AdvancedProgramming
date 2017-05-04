@@ -3,22 +3,29 @@
 #include <unordered_set>
 #include <unordered_map>
 
-using _coordinate = std::pair<int, int>;
+using intPair = std::pair<int, int>;
 
 class SBattleshipGameAlgo : public CommonBattleshipGameAlgo
 {
 public:
-	SBattleshipGameAlgo() : CommonBattleshipGameAlgo(), m_currentSeqMove(0, -1),
-		m_currentAttackingShip(-1, -1), m_sequentialState(true) {}
+	SBattleshipGameAlgo() : CommonBattleshipGameAlgo(),	m_currentAttackingShip(-1, -1),
+						m_sequentialState(true), m_lastAttackDirection(Direction::NON) {}
 
 	void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
 
-	_coordinate attack() override;
+	intPair attack() override;
+
+	bool isSequntial() const { return m_sequentialState; }
 
 private:
-	_coordinate m_currentSeqMove;
-	_coordinate m_currentAttackingShip;
-	bool m_sequentialState;
-	std::unordered_set<_coordinate> m_preferredAttackSquares;
-	std::unordered_map <_coordinate, std::tuple<Direction, _coordinate>> m_attackHelperMap;
+	intPair		m_currentAttackingShip;
+	bool		m_sequentialState;
+	Direction	m_lastAttackDirection;
+	std::unordered_set<intPair> m_preferredAttackSquares;
+	std::unordered_map<intPair, std::tuple<Direction, intPair>> m_attackHelperMap;
+
+	void markOppSankShip(int row, int col, bool& changed);
+	void missSetUpForNextAttack();
+	void markRecursiveCall(int row, int col, bool& changed);
+	void findNextMove();
 };
