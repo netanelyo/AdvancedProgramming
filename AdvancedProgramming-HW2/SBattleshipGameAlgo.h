@@ -22,10 +22,14 @@ private:
 	bool		m_sequentialState;
 	Direction	m_lastAttackDirection;
 	std::unordered_set<intPair> m_preferredAttackSquares;
-	std::unordered_map<intPair, std::tuple<Direction, intPair>> m_attackHelperMap;
+	std::unordered_map<intPair, Direction> m_attackHelperMap;
 
 	void markOppSankShip(int row, int col, bool& changed);
-	void missSetUpForNextAttack();
+	//void missSetUpForNextAttack();
 	void markRecursiveCall(int row, int col, bool& changed);
 	void findNextMove();
+	void hitNotify(int row, int col, int player);
+	void sinkNotify(int row, int col, int player);
+	intPair findNextEmptySquare(int row, int col, Direction nextAttackDirection);
+	intPair findNextIterative(int row, int col, Direction nextAttackDirection) const;
 };

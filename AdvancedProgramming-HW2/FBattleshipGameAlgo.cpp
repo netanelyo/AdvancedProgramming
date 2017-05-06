@@ -85,3 +85,8 @@ void FBattleshipGameAlgo::setBoard(int player, const char ** board, int numRows,
 	m_playerID = player;
 	m_myBoard.setMembers(board, numRows, numCols);
 }
+
+IBattleshipGameAlgo* GetAlgorithm()
+{
+	return new FBattleshipGameAlgo();
+}

@@ -26,3 +26,7 @@ std::pair<int, int> NBattleshipGameAlgo::attack()
 	return attackPair;
 }
 
+IBattleshipGameAlgo* GetAlgorithm()
+{
+	return new NBattleshipGameAlgo();
+}

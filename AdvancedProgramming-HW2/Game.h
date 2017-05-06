@@ -2,7 +2,8 @@
 #include "CommonBattleshipGameAlgo.h"
 
 #include <map>
-#include <fstream>
+#include <set>
+#include <array>
 
 using Player = CommonBattleshipGameAlgo;
 
@@ -21,8 +22,8 @@ public:
 	/**
 	* Constructor
 	*/
-	Game(): m_nextPlayer(0), m_playerA(nullptr), m_playerB(nullptr) {}
-	~Game() {} //destructor
+	Game(): m_nextPlayer(0) {}
+	~Game() { /*TODO delete pointers*/ } //destructor
 
 	/**
 	*
@@ -46,9 +47,13 @@ public:
 	GameState playMove();
 
 	/**
-	* creates and sets a board for each player, which contains only the player's ships .
-	*/
-	void createBoardsForPlayers();
+	 * creates and sets a board for each player, which contains only the player's ships .
+	 * 
+	 * @param player - player's index
+	 */
+	void createBoardsForPlayers(int player);
+
+	bool loadAndInitPlayersFromDLL(const std::string& path, std::set<std::string> dllSet);
 
 private:
 
@@ -88,10 +93,9 @@ private:
 		static const std::string ADJACENT_SHIPS;
 	};
 
-	int		m_nextPlayer; 
-	Player*	m_playerA;
-	Player*	m_playerB; 
-	char	m_gameBoard[GameConstants::BOARD_SIZE][GameConstants::BOARD_SIZE];
+	std::array<Player*, 2>	m_players;
+	int						m_nextPlayer;
+	char					m_gameBoard[GameConstants::BOARD_SIZE][GameConstants::BOARD_SIZE];
 
 	void readBoardFromFile(std::ifstream& boardFile);
 
@@ -99,7 +103,7 @@ private:
 
 	void checkShipsQuantity(int shouldPrint[]) const;
 
-	bool canPassTurn(int player) const { return (player ? !(m_playerA->isDone()) : !(m_playerB->isDone())); }
+	bool canPassTurn(int player) const { return (player ? !(m_players[0]->isDone()) : !(m_players[1]->isDone())); }
 
 	/**
 	* prints the game result when the game is over.

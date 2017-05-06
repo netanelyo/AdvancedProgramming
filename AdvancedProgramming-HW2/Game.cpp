@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include <fstream>
+#include <windows.h>
 
 const std::string Game::GameConstants::WRONG_SIZE_B_PLAYER_A	= "Wrong size or shape for ship B for player A";
 const std::string Game::GameConstants::WRONG_SIZE_P_PLAYER_A	= "Wrong size or shape for ship P for player A";
@@ -66,7 +67,7 @@ void Game::checkIfBoardIsValid(int shouldPrintErrMsg[], std::map<char, int>& shi
 	int shipLength = 1;
 	int invalidShape = 0;
 	int adjShips = 0;
-	bool belongsToA;
+	int belongsToA;
 	char currentShip;
 
 	for (auto i = 0; i < GameConstants::BOARD_SIZE; ++i)
@@ -91,10 +92,7 @@ void Game::checkIfBoardIsValid(int shouldPrintErrMsg[], std::map<char, int>& shi
 				}
 				else
 				{
-					if (belongsToA)
-						m_playerA->incrementShipCounter();
-					else
-						m_playerB->incrementShipCounter();
+					m_players[!belongsToA]->incrementShipCounter();
 				}
 
 				if (adjShips)
@@ -112,19 +110,22 @@ void Game::checkIfBoardIsValid(int shouldPrintErrMsg[], std::map<char, int>& shi
 
 void Game::checkShipsQuantity(int shouldPrintErrMsg[]) const
 {
-	if (m_playerA->getShipCounter() > 5)
+	auto playerA = m_players[0];
+	auto playerB = m_players[1];
+
+	if (playerA->getShipCounter() > 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_MANY_PLAYER_A_INDEX] = 1;
 	}
-	if (m_playerA->getShipCounter() < 5)
+	if (playerA->getShipCounter() < 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_FEW_PLAYER_A_INDEX] = 1;
 	}
-	if (m_playerB->getShipCounter() > 5)
+	if (playerB->getShipCounter() > 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_MANY_PLAYER_B_INDEX] = 1;
 	}
-	if (m_playerB->getShipCounter() < 5)
+	if (playerB->getShipCounter() < 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_FEW_PLAYER_B_INDEX] = 1;
 	}
@@ -151,9 +152,7 @@ bool Game::checkAndCreateBoard(std::ifstream & boardFile)
 	if (printErrors(shouldPrintErrMsg, errMsg))
 		return true;
 
-	createBoardsForPlayers();
 	return false;
-
 }
 
 void Game::dfsShip(char currShip, int dummy[][GameConstants::BOARD_SIZE], int row, int col,
@@ -319,19 +318,11 @@ GameState Game::playMove()
 	int rowCoord, colCoord, winner = -1, currentPlayer = m_nextPlayer; 
 	char square;   
 	bool canPass;
+	auto playerA = m_players[0];
+	auto playerB = m_players[1];
 
 	/*gets player's next move*/
-	switch (currentPlayer)
-	{
-	case 0:
-		attackPair = m_playerA->attack(); 
-		break; 
-	case 1:
-		attackPair = m_playerB->attack();
-		break; 
-	default: 
-		break; 
-	}
+	attackPair = m_players[currentPlayer]->attack();
 
 	/*checks if both players got to EOF and if so -> game is over*/
 	if (endOfAttacks())
@@ -340,7 +331,7 @@ GameState Game::playMove()
 	}
 
 	/*if only the current player got to EOF, it means that we got no attack and we only pass the turn to the opponent*/
-	if ((m_playerA->isDone() && !currentPlayer) || (m_playerB->isDone() && currentPlayer))
+	if ((playerA->isDone() && !currentPlayer) || (playerB->isDone() && currentPlayer))
 	{
 		m_nextPlayer ^= 1; 
 		return GameState::CONTINUE_PLAYING; 
@@ -382,15 +373,15 @@ GameState Game::playMove()
 	}
 
 	/*notifies players on the current result*/
-	m_playerA->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
-	m_playerB->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
+	playerA->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
+	playerB->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
 	
 	/*checks if there is a winner*/
-	if (m_playerA->getShipCounter() == 0)
+	if (playerA->getShipCounter() == 0)
 	{
 		winner = 1; 
 	}
-	else if (m_playerB->getShipCounter() == 0)
+	else if (playerB->getShipCounter() == 0)
 	{
 		winner = 0; 
 	}
@@ -405,39 +396,32 @@ GameState Game::playMove()
 	return GameState::CONTINUE_PLAYING; 
 }
 
-void Game::createBoardsForPlayers()
+void Game::createBoardsForPlayers(int player)
 {
-	char** boardForA = new char*[GameConstants::BOARD_SIZE];
-	char** boardForB = new char*[GameConstants::BOARD_SIZE];
+	char** board = new char*[GameConstants::BOARD_SIZE];
 	char c; 
 	
 	for (int i = 0; i < GameConstants::BOARD_SIZE; i++)
 	{
-		boardForA[i] = new char[GameConstants::BOARD_SIZE];
-		boardForB[i] = new char[GameConstants::BOARD_SIZE];
+		board[i] = new char[GameConstants::BOARD_SIZE];
 
 		for (int j = 0; j < GameConstants::BOARD_SIZE; j++)
 		{
 			c = m_gameBoard[i][j];
 			if (c != '0')
 			{
-				boardForA[i][j] = isupper(c) ? c : '0';
-				boardForB[i][j] = isupper(c) ? '0' : c;
+				board[i][j] = (player ^ isupper(c)) ? c : '0';
 			}
 			else
 			{
-				boardForA[i][j] = '0';
-				boardForB[i][j] = '0'; 
+				board[i][j] = '0';
  			}		
 		}
 	}
 
-	m_playerA->setBoard(0, const_cast<const char**>(boardForA), GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
-	m_playerB->setBoard(1, const_cast<const char**>(boardForB), GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
-	
-	BattleshipUtils::deallocateBoard(boardForA, GameConstants::BOARD_SIZE);
-	BattleshipUtils::deallocateBoard(boardForB, GameConstants::BOARD_SIZE);
+	m_players[player]->setBoard(player, const_cast<const char**>(board), GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
 
+	BattleshipUtils::deallocateBoard(board, GameConstants::BOARD_SIZE);
 }
 
 void Game::printEndOfGame(int winner) const
@@ -453,13 +437,13 @@ void Game::printEndOfGame(int winner) const
 	}
 
 	std::cout << "Points:" << std::endl;
-	std::cout << "Player A: " << m_playerA->getPoints() << std::endl;
-	std::cout << "Player B: " << m_playerB->getPoints(); 
+	std::cout << "Player A: " << m_players[0]->getPoints() << std::endl;
+	std::cout << "Player B: " << m_players[1]->getPoints();
 }
 
 bool Game::endOfAttacks() const
 {
-	if (m_playerA->isDone() && m_playerB->isDone())
+	if (m_players[0]->isDone() && m_players[1]->isDone())
 	{
 		printEndOfGame(-1); 
 		return true; 
@@ -531,6 +515,7 @@ void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPl
 	if (result == AttackResult::Sink)
 	{
 		uint16_t points;
+		auto playerIndex = isAShip ? 1 : 0;
 
 		switch (ship)
 		{
@@ -555,19 +540,7 @@ void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPl
 			break;
 		}
 
-		/*A's ship sank*/
-		if (isAShip)
-		{
-			/*Player B gets the points*/
-			m_playerB->setPoints(m_playerB->getPoints() + points); 
-	
-		}
-		/*B's ship sank*/
-		else
-		{
-			/*Player A gets the points*/
-			m_playerA->setPoints(m_playerA->getPoints() + points); 
-		}		
+		m_players[playerIndex]->setPoints(m_players[playerIndex]->getPoints() + points);
 	}
 
 	/*passes the next turn to the opponent in case the current player hit his own ship and the opponent didn't get to EOF*/
@@ -597,6 +570,49 @@ size_t Game::getShipLen(char ship)
 	default:
 		return 0;
 	}
+}
+
+bool Game::loadAndInitPlayersFromDLL(const std::string& path, std::set<std::string> dllSet)
+{
+	// define function of the type we expect
+	typedef IBattleshipGameAlgo* (*GetPlayerType)();
+	GetPlayerType getPlayer;
+
+	auto dllIter = dllSet.begin();
+	HINSTANCE hDll;
+	std::string fullPath;
+
+	for (auto i = 0; i < m_players.size(); i++)
+	{
+		fullPath = path + *dllIter;
+		++dllIter;
+
+		hDll = LoadLibraryA(fullPath.c_str());
+		if (!hDll)
+		{
+			std::cout << "Cannot load dll: " << fullPath;
+			return false;
+		}
+
+		getPlayer = (GetPlayerType)GetProcAddress(hDll, "GetAlgorithm");
+		if (!getPlayer)
+		{
+			std::cout << "Cannot load dll: " << fullPath;
+			return false;
+		}
+
+		m_players[i] = dynamic_cast<Player*>(getPlayer());
+
+		createBoardsForPlayers(i);
+
+		if (!m_players[i]->init(path))
+		{
+			std::cout << "Algorithm initialization failed for dll: " << fullPath;
+			return false;
+		}
+	}
+
+	return true;
 }
 
 
