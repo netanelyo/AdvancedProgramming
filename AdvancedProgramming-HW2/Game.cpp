@@ -1,7 +1,11 @@
 #include "Game.h"
 
 #include <fstream>
-#include <windows.h>
+
+#define CHECK_CURRENT_SQUARE(i, j)	curr = m_gameBoard[i][j]; \
+									if (curr == '0')	break; \
+									if (curr == square) return AttackResult::Hit; \
+									tmp--
 
 const std::string Game::GameConstants::WRONG_SIZE_B_PLAYER_A	= "Wrong size or shape for ship B for player A";
 const std::string Game::GameConstants::WRONG_SIZE_P_PLAYER_A	= "Wrong size or shape for ship P for player A";
@@ -92,7 +96,7 @@ void Game::checkIfBoardIsValid(int shouldPrintErrMsg[], std::map<char, int>& shi
 				}
 				else
 				{
-					m_players[!belongsToA]->incrementShipCounter();
+					m_playersShips[(belongsToA ^ 0x1)]++;
 				}
 
 				if (adjShips)
@@ -110,22 +114,19 @@ void Game::checkIfBoardIsValid(int shouldPrintErrMsg[], std::map<char, int>& shi
 
 void Game::checkShipsQuantity(int shouldPrintErrMsg[]) const
 {
-	auto playerA = m_players[0];
-	auto playerB = m_players[1];
-
-	if (playerA->getShipCounter() > 5)
+	if (m_playersShips[0] > 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_MANY_PLAYER_A_INDEX] = 1;
 	}
-	if (playerA->getShipCounter() < 5)
+	if (m_playersShips[0] < 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_FEW_PLAYER_A_INDEX] = 1;
 	}
-	if (playerB->getShipCounter() > 5)
+	if (m_playersShips[1] > 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_MANY_PLAYER_B_INDEX] = 1;
 	}
-	if (playerB->getShipCounter() < 5)
+	if (m_playersShips[1] < 5)
 	{
 		shouldPrintErrMsg[GameConstants::TOO_FEW_PLAYER_B_INDEX] = 1;
 	}
@@ -323,6 +324,10 @@ GameState Game::playMove()
 
 	/*gets player's next move*/
 	attackPair = m_players[currentPlayer]->attack();
+	if (attackPair == std::pair<int, int>(-1, -1))
+	{
+		m_playerIsDone[currentPlayer] = true;
+	}
 
 	/*checks if both players got to EOF and if so -> game is over*/
 	if (endOfAttacks())
@@ -331,7 +336,7 @@ GameState Game::playMove()
 	}
 
 	/*if only the current player got to EOF, it means that we got no attack and we only pass the turn to the opponent*/
-	if ((playerA->isDone() && !currentPlayer) || (playerB->isDone() && currentPlayer))
+	if (m_playerIsDone[currentPlayer])
 	{
 		m_nextPlayer ^= 1; 
 		return GameState::CONTINUE_PLAYING; 
@@ -377,11 +382,11 @@ GameState Game::playMove()
 	playerB->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
 	
 	/*checks if there is a winner*/
-	if (playerA->getShipCounter() == 0)
+	if (m_playersShips[0] == 0)
 	{
 		winner = 1; 
 	}
-	else if (playerB->getShipCounter() == 0)
+	else if (m_playersShips[1] == 0)
 	{
 		winner = 0; 
 	}
@@ -437,19 +442,19 @@ void Game::printEndOfGame(int winner) const
 	}
 
 	std::cout << "Points:" << std::endl;
-	std::cout << "Player A: " << m_players[0]->getPoints() << std::endl;
-	std::cout << "Player B: " << m_players[1]->getPoints();
+	std::cout << "Player A: " << m_playersPoints[0] << std::endl;
+	std::cout << "Player B: " << m_playersPoints[1];
 }
 
 bool Game::endOfAttacks() const
 {
-	if (m_players[0]->isDone() && m_players[1]->isDone())
+	if (m_playerIsDone[0] && m_playerIsDone[1])
 	{
-		printEndOfGame(-1); 
-		return true; 
+		printEndOfGame(-1);
+		return true;
 	}
 
-	return false; 
+	return false;
 }
 
 AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord) const
@@ -463,44 +468,30 @@ AttackResult Game::determineAttackResult(char square, int rowCoord, int colCoord
 		return AttackResult::Hit;
 	}
 
-	//TODO remove code duplication, maybe... shahar doesn't approve
-
 	while (rowCoord > len - tmp - 1 && tmp > 0)
 	{
-		curr = m_gameBoard[rowCoord - (len - tmp)][colCoord];
-		if (curr == '0')	break;
-		if (curr == square) return AttackResult::Hit;
-		tmp--;
+		CHECK_CURRENT_SQUARE(rowCoord - (len - tmp), colCoord);
 	}
 
 	tmp = len - 1;
 
 	while (colCoord > len - tmp - 1 && tmp > 0)
 	{
-		curr = m_gameBoard[rowCoord][colCoord - (len - tmp)];
-		if (curr == '0')	break;
-		if (curr == square) return AttackResult::Hit;
-		tmp--;
+		CHECK_CURRENT_SQUARE(rowCoord, colCoord - (len - tmp));
 	}
 
 	tmp = len - 1;
 
 	while (rowCoord < GameConstants::BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
-		curr = m_gameBoard[rowCoord + (len - tmp)][colCoord];
-		if (curr == '0')	break;
-		if (curr == square) return AttackResult::Hit;
-		tmp--;
+		CHECK_CURRENT_SQUARE(rowCoord + (len - tmp), colCoord);
 	}
 
 	tmp = len - 1;
 
 	while (colCoord < GameConstants::BOARD_SIZE - (len - tmp) && tmp > 0)
 	{
-		curr = m_gameBoard[rowCoord][colCoord + (len - tmp)];
-		if (curr == '0')	break;
-		if (curr == square) return AttackResult::Hit;
-		tmp--;
+		CHECK_CURRENT_SQUARE(rowCoord, colCoord + (len - tmp));
 	}
 
 	return AttackResult::Sink;
@@ -540,7 +531,8 @@ void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPl
 			break;
 		}
 
-		m_players[playerIndex]->setPoints(m_players[playerIndex]->getPoints() + points);
+		m_playersPoints[playerIndex] += points;
+		m_playersShips[(playerIndex ^ 0x1)]--;
 	}
 
 	/*passes the next turn to the opponent in case the current player hit his own ship and the opponent didn't get to EOF*/
@@ -601,7 +593,7 @@ bool Game::loadAndInitPlayersFromDLL(const std::string& path, std::set<std::stri
 			return false;
 		}
 
-		m_players[i] = dynamic_cast<Player*>(getPlayer());
+		m_players[i] = getPlayer();
 
 		createBoardsForPlayers(i);
 
@@ -613,6 +605,22 @@ bool Game::loadAndInitPlayersFromDLL(const std::string& path, std::set<std::stri
 	}
 
 	return true;
+}
+
+void Game::checkParameters(char ** begin, char ** end)
+{
+	auto iter = std::find(begin, end, "-quiet");
+	if (iter != end)
+	{
+		m_quiet = true;
+		return;
+	}
+
+	iter = std::find(begin, end, "-delay");
+	if (iter != end && ++iter != end)
+	{
+		m_delay = std::stoi(*iter);
+	}
 }
 
 

@@ -8,7 +8,8 @@ bool FBattleshipGameAlgo::init(const std::string & path)
 	struct dirent* entry;
 	std::set<std::string> filesSet;
 	std::string tempFilename;
-	auto cnt = 0;
+
+	//TODO
 
 	if ((dir = opendir(path.c_str())))
 	{

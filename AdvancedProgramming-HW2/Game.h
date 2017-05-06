@@ -4,8 +4,9 @@
 #include <map>
 #include <set>
 #include <array>
+#include <windows.h>
 
-using Player = CommonBattleshipGameAlgo;
+using Player = IBattleshipGameAlgo;
 
 enum class GameState 
 {
@@ -22,7 +23,8 @@ public:
 	/**
 	* Constructor
 	*/
-	Game(): m_nextPlayer(0) {}
+	Game(): m_playersPoints({0, 0}), m_playersShips({0, 0}), m_playerIsDone({false, false}),
+			m_nextPlayer(0), m_quiet(false), m_delay(4000) {}
 	~Game() { /*TODO delete pointers*/ } //destructor
 
 	/**
@@ -46,14 +48,9 @@ public:
 	*/
 	GameState playMove();
 
-	/**
-	 * creates and sets a board for each player, which contains only the player's ships .
-	 * 
-	 * @param player - player's index
-	 */
-	void createBoardsForPlayers(int player);
-
 	bool loadAndInitPlayersFromDLL(const std::string& path, std::set<std::string> dllSet);
+
+	void checkParameters(char** begin, char** end);
 
 private:
 
@@ -94,7 +91,12 @@ private:
 	};
 
 	std::array<Player*, 2>	m_players;
+	std::array<size_t, 2>	m_playersPoints;
+	std::array<size_t, 2>	m_playersShips;
+	std::array<bool, 2>		m_playerIsDone;
 	int						m_nextPlayer;
+	bool					m_quiet;
+	size_t					m_delay;
 	char					m_gameBoard[GameConstants::BOARD_SIZE][GameConstants::BOARD_SIZE];
 
 	void readBoardFromFile(std::ifstream& boardFile);
@@ -103,7 +105,7 @@ private:
 
 	void checkShipsQuantity(int shouldPrint[]) const;
 
-	bool canPassTurn(int player) const { return (player ? !(m_players[0]->isDone()) : !(m_players[1]->isDone())); }
+	bool canPassTurn(int player) const { return (player ? !(m_playerIsDone[0]) : !(m_playerIsDone[1])); }
 
 	/**
 	* prints the game result when the game is over.
@@ -133,6 +135,13 @@ private:
 	AttackResult determineAttackResult(char square, int rowCoord, int colCoord) const;
 
 	/**
+	 * creates and sets a board for each player, which contains only the player's ships .
+	 * 
+	 * @param player - player's index
+	 */
+	void createBoardsForPlayers(int player);
+
+	/**
 	* adds points to a player if necessary (if a sink occurred)
 	* and sets the next player (=the player who has the next move)
 	*
@@ -152,7 +161,7 @@ private:
 	* @param dummy - a binary matrix 
 	* @param row - the currShip X coordinate
 	* @param col - the currShip Y coordinate
-	* @param len - the current length of currShip on board
+	* @param shipLen - the current length of currShip on board
 	* @param direction - an enum representing the expected direction of currShip on board 
 	* @param invalidShape - a boolean representing if the shape of currShip is invalid
 	* @param adjShips - a boolean representing if there are adjacent ships on board
@@ -200,5 +209,4 @@ private:
 	*/
 	static size_t getShipLen(char ship);
 	
-
 };

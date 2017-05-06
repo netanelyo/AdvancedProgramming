@@ -95,7 +95,6 @@ void CommonBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col
 		switch (result)
 		{
 		case AttackResult::Sink:
-			m_shipCounter--;
 		case AttackResult::Hit:
 			m_myBoard.setBoardSquare(row, col, 'X');
 			break;

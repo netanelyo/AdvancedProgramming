@@ -1,7 +1,5 @@
 #include "SBattleshipGameAlgo.h"
 
-/* Reminder: intPair = std::pair<int, int> */
-
 void SBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, AttackResult result)
 {
 	row--;
@@ -29,7 +27,7 @@ void SBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, Att
 	}
 }
 
-intPair SBattleshipGameAlgo::attack()
+std::pair<int, int> SBattleshipGameAlgo::attack()
 {
 	if (isSequntial() || isDone())
 	{
@@ -67,7 +65,7 @@ void SBattleshipGameAlgo::markOppSankShip(int row, int col, bool& changed)
 		return;
 	}
 
-	intPair tempCoor(row, col);
+	std::pair<int, int> tempCoor(row, col);
 	if (m_preferredAttackSquares.find(tempCoor) != m_preferredAttackSquares.end())
 	{
 		if (m_currentAttackingShip == tempCoor)
@@ -128,7 +126,7 @@ void SBattleshipGameAlgo::hitNotify(int row, int col, int player)
 
 	if (sq == '0') /* Opponent's ship*/
 	{
-		auto tmpPair = intPair(row, col);
+		auto tmpPair = std::pair<int, int>(row, col);
 
 		if (isSequntial() || player != getPlayerID())
 		{
@@ -164,36 +162,36 @@ void SBattleshipGameAlgo::sinkNotify(int row, int col, int player)
 	}
 }
 
-intPair SBattleshipGameAlgo::findNextEmptySquare(int row, int col, Direction nextAttackDirection)
+std::pair<int, int> SBattleshipGameAlgo::findNextEmptySquare(int row, int col, Direction nextAttackDirection)
 {
-	intPair retPair(-1, -1);
+	std::pair<int, int> retPair;
 
 	if (col < m_myBoard.getBoardCols() - 1 && nextAttackDirection != Direction::VERTICAL &&
 		m_myBoard.getBoardSquare(row, col + 1) == '0')
 	{
 		m_lastAttackDirection = Direction::HORIZONTAL;
-		retPair = intPair(row + 1, col + 2);
+		retPair = std::pair<int, int>(row + 1, col + 2);
 	}
 
 	else if (col > 0 && nextAttackDirection != Direction::VERTICAL &&
 		m_myBoard.getBoardSquare(row, col - 1) == '0')
 	{
 		m_lastAttackDirection = Direction::HORIZONTAL;
-		retPair = intPair(row + 1, col);
+		retPair = std::pair<int, int>(row + 1, col);
 	}
 
 	else if (row < m_myBoard.getBoardRows() - 1 && nextAttackDirection != Direction::HORIZONTAL &&
 		m_myBoard.getBoardSquare(row + 1, col) == '0')
 	{
 		m_lastAttackDirection = Direction::VERTICAL;
-		retPair = intPair(row + 2, col + 1);
+		retPair = std::pair<int, int>(row + 2, col + 1);
 	}
 
 	else if (row > 0 && nextAttackDirection != Direction::HORIZONTAL &&
 		m_myBoard.getBoardSquare(row - 1, col) == '0')
 	{
 		m_lastAttackDirection = Direction::VERTICAL;
-		retPair = intPair(row, col + 1);
+		retPair = std::pair<int, int>(row, col + 1);
 	}
 
 	else
@@ -204,7 +202,7 @@ intPair SBattleshipGameAlgo::findNextEmptySquare(int row, int col, Direction nex
 	return retPair;
 }
 
-intPair SBattleshipGameAlgo::findNextIterative(int row, int col, Direction nextAttackDirection) const
+std::pair<int, int> SBattleshipGameAlgo::findNextIterative(int row, int col, Direction nextAttackDirection) const
 {
 	switch (nextAttackDirection)
 	{
@@ -219,7 +217,7 @@ intPair SBattleshipGameAlgo::findNextIterative(int row, int col, Direction nextA
 				++tmpRow;
 
 			else if (sq == '0')
-				return intPair(tmpRow + 2, col + 1);
+				return std::pair<int, int>(tmpRow + 2, col + 1);
 		}
 
 		tmpRow = row;
@@ -229,7 +227,7 @@ intPair SBattleshipGameAlgo::findNextIterative(int row, int col, Direction nextA
 				--tmpRow;
 
 			else if (sq == '0')
-				return intPair(tmpRow, col + 1);
+				return std::pair<int, int>(tmpRow, col + 1);
 		}
 		break;
 	}
@@ -245,7 +243,7 @@ intPair SBattleshipGameAlgo::findNextIterative(int row, int col, Direction nextA
 				++tmpCol;
 
 			else if (sq == '0')
-				return intPair(row + 1, tmpCol + 2);
+				return std::pair<int, int>(row + 1, tmpCol + 2);
 		}
 
 		tmpCol = col;
@@ -255,7 +253,7 @@ intPair SBattleshipGameAlgo::findNextIterative(int row, int col, Direction nextA
 				--tmpCol;
 
 			else if (sq == '0')
-				return intPair(row + 1, tmpCol);
+				return std::pair<int, int>(row + 1, tmpCol);
 		}
 		break;
 	}
@@ -263,7 +261,8 @@ intPair SBattleshipGameAlgo::findNextIterative(int row, int col, Direction nextA
 	default:
 		break;
 	}
-	return intPair();
+	
+	return std::pair<int, int>(-1, -1);
 }
 
 IBattleshipGameAlgo* GetAlgorithm()

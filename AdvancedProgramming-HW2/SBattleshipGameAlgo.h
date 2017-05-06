@@ -1,9 +1,7 @@
 #pragma once
 #include "CommonBattleshipGameAlgo.h"
-#include <unordered_set>
-#include <unordered_map>
-
-using intPair = std::pair<int, int>;
+#include <set>
+#include <map>
 
 class SBattleshipGameAlgo : public CommonBattleshipGameAlgo
 {
@@ -13,16 +11,16 @@ public:
 
 	void notifyOnAttackResult(int player, int row, int col, AttackResult result) override;
 
-	intPair attack() override;
+	std::pair<int, int> attack() override;
 
 	bool isSequntial() const { return m_sequentialState; }
 
 private:
-	intPair		m_currentAttackingShip;
+	std::pair<int, int>		m_currentAttackingShip;
 	bool		m_sequentialState;
 	Direction	m_lastAttackDirection;
-	std::unordered_set<intPair> m_preferredAttackSquares;
-	std::unordered_map<intPair, Direction> m_attackHelperMap;
+	std::set<std::pair<int, int>> m_preferredAttackSquares;
+	std::map<std::pair<int, int>, Direction> m_attackHelperMap;
 
 	void markOppSankShip(int row, int col, bool& changed);
 	//void missSetUpForNextAttack();
@@ -30,6 +28,6 @@ private:
 	void findNextMove();
 	void hitNotify(int row, int col, int player);
 	void sinkNotify(int row, int col, int player);
-	intPair findNextEmptySquare(int row, int col, Direction nextAttackDirection);
-	intPair findNextIterative(int row, int col, Direction nextAttackDirection) const;
+	std::pair<int, int> findNextEmptySquare(int row, int col, Direction nextAttackDirection);
+	std::pair<int, int> findNextIterative(int row, int col, Direction nextAttackDirection) const;
 };

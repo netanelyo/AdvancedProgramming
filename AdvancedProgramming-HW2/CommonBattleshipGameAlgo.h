@@ -1,6 +1,7 @@
 #pragma once
 #include "IBattleshipGameAlgo.h"
 #include "BattleshipUtils.h"
+#include <fstream>
 
 
 class CommonBattleshipGameAlgo : public IBattleshipGameAlgo
@@ -37,13 +38,7 @@ public:
 	virtual std::pair<int, int> attack() override;
 
 	bool	isDone() const { return m_isDone; } //returns true if the player has no more moves, and false otherwise
-	size_t	getPoints() const { return m_points; } //returns the player's current points 
-	size_t	getShipCounter() const { return m_shipCounter; } //returns the number of ships the player has on board 
 	int		getPlayerID() const { return m_playerID; }
-
-	void setPoints(size_t pts) { m_points = pts; } //sets the player's points to pts
-	void incrementShipCounter() { m_shipCounter++; }
-	void decrementShipCounter() { m_shipCounter--; }
 
 protected:
 	class Board
@@ -76,8 +71,6 @@ protected:
 	};
 
 	Board				m_myBoard;
-	size_t				m_points		= 0;
-	size_t				m_shipCounter	= 0;
 	bool				m_isDone		= false;
 	int					m_playerID		= 0;
 	std::pair<int, int> m_currentSeqMove;

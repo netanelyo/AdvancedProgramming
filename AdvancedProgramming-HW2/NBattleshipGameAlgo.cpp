@@ -8,8 +8,6 @@ std::pair<int, int> NBattleshipGameAlgo::attack()
 		return std::pair<int, int>(-1, -1);
 	}
 
-	//return isDone() ? std::pair<int, int>(-1, -1) : 
-
 	auto attackPair = m_myBoard.getNextEmptySquare(m_currentSeqMove);
 	auto& row = attackPair.first;
 	auto& col = attackPair.second;
