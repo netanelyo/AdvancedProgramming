@@ -38,6 +38,8 @@ int main(int argc, char** argv)
 	}
 
 	filePath = fullPath;
+	filePath += "\\";
+
 	tempStr = "\\*.sboard";
 	dir = FindFirstFileA((filePath + tempStr).c_str(), &fileData);
 	if (dir == INVALID_HANDLE_VALUE)
@@ -55,7 +57,7 @@ int main(int argc, char** argv)
 		do
 		{
 			tempStr = fileData.cFileName;
-			boards.insert(filePath + tempStr);
+			boards.insert(tempStr);
 		} while (FindNextFileA(dir, &fileData));
 	}
 
@@ -63,6 +65,7 @@ int main(int argc, char** argv)
 	{
 		tempStr = *boards.begin();
 		std::ifstream boardFile(filePath + tempStr);
+
 		if (!boardFile.is_open())
 		{
 			PRINT_MISSING_FILE("board file (*.sboard)", filePath);
@@ -86,7 +89,7 @@ int main(int argc, char** argv)
 		do
 		{
 			tempStr = fileData.cFileName;
-			dlls.insert(filePath + tempStr);
+			dlls.insert(tempStr);
 		} while (FindNextFileA(dir, &fileData));
 	}
 

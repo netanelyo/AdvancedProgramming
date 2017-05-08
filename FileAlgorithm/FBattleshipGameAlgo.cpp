@@ -24,7 +24,7 @@ bool FBattleshipGameAlgo::init(const std::string & path)
 	do
 	{
 		tempFilename = fileData.cFileName;
-		filesSet.insert(path + tempFilename);
+		filesSet.insert(tempFilename);
 	} while (FindNextFileA(dir, &fileData));
 
 	auto setSize = filesSet.size();
@@ -49,6 +49,7 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 	{
 		line = m_playerMoves.front();
 		m_playerMoves.pop_front();
+
 		if (parseLineAndValidate(line, attackCoordinate))
 			break;
 	}
@@ -96,15 +97,14 @@ IBattleshipGameAlgo* GetAlgorithm()
 bool FBattleshipGameAlgo::parseLineAndValidate(const std::string& str, std::pair<int, int>& coord) const
 {
 	std::string				tempArr[2];		/* To hold potential strings representing row/col */
-	std::string::size_type	loc;
 	int						num;
 	int						cnt;
 
 	/* Splitting str by ',' */
-	loc = str.find_first_of(',');
+	auto loc = str.find_first_of(',');
 	tempArr[0] = str.substr(0, loc);
 
-	if (loc < str.length() - 1)
+	if (loc < str.npos)
 		tempArr[1] = str.substr(loc + 1);
 	else
 		return false;
@@ -134,5 +134,5 @@ bool FBattleshipGameAlgo::parseLineAndValidate(const std::string& str, std::pair
 		cnt++;
 	}
 
-	return true;
+	return m_myBoard.validateCoordinate(coord.first - 1, coord.second - 1);
 }

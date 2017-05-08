@@ -1,4 +1,5 @@
 #pragma once
+
 #include <windows.h>
 #include <iostream>
 
@@ -22,6 +23,8 @@ private:
 	static void setColor(Color color);
 
 	static void printSquare(int x, int y, char sq, Color color);
+
+	static void returnToDefault();
 
 	friend class Game;
 

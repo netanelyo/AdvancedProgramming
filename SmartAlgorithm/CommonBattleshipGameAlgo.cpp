@@ -1,7 +1,7 @@
 #include "CommonBattleshipGameAlgo.h"
 #include <fstream>
 
-void CommonBattleshipGameAlgo::Board::setMembers(const char ** board, size_t rows, size_t cols)
+void CommonBattleshipGameAlgo::Board::setMembers(const char ** board, int rows, int cols)
 {
 	m_rows = rows;
 	m_cols = cols;
@@ -23,10 +23,11 @@ CommonBattleshipGameAlgo::Board::getNextEmptySquare(const std::pair<int, int>& p
 {
 	/*gets next potential col*/
 	auto tmp = pair.second;
-	auto cond = tmp < (m_cols - 1);
+	auto cond = tmp < (getBoardCols() - 1);
 	auto col = cond ? (tmp + 1) : 0;
 	/*gets next potential row*/
 	tmp = pair.first;
+
 	auto row = cond ? tmp : tmp + 1;
 
 	bool valid;

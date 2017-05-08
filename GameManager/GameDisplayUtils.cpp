@@ -1,7 +1,6 @@
 #include "GameDisplayUtils.h"
 
-
-static HANDLE	m_consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+const HANDLE GameDisplayUtils::m_consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
 void GameDisplayUtils::consoleCursorVisibility(bool show)
 {
@@ -27,15 +26,15 @@ void GameDisplayUtils::setColor(Color color)
 	switch (color)
 	{
 	case Color::BLUE:
-		col = FOREGROUND_BLUE;
+		col = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 		break;
 
 	case Color::GREEN:
-		col = FOREGROUND_GREEN;
+		col = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
 		break;
 
 	case Color::RED:
-		col = FOREGROUND_RED;
+		col = FOREGROUND_RED | FOREGROUND_INTENSITY;
 		break;
 
 	default:
@@ -51,4 +50,10 @@ void GameDisplayUtils::printSquare(int x, int y, char sq, Color color)
 	setColor(color);
 	gotoxy(x, y);
 	std::cout << sq;
+}
+
+void GameDisplayUtils::returnToDefault()
+{
+	consoleCursorVisibility(true);
+	setColor(Color::WHITE);
 }

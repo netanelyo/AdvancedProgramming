@@ -291,7 +291,7 @@ bool Game::printErrors(int shouldPrint[], std::string errors[])
 
 void Game::removeSankShip(int row, int col)
 {
-	m_gameBoard[row][col] = '0';
+	m_gameBoard[row][col] = '@';
 	if (!m_quiet) GameDisplayUtils::printSquare(col, row, '@', Color::RED);
 
 	if (row > 0 && m_gameBoard[row - 1][col] == 'X')
@@ -348,6 +348,7 @@ GameState Game::playMove()
 	/*gets square coordinates*/
 	rowCoord = attackPair.first - 1;
 	colCoord = attackPair.second - 1;
+	//TODO check if game expects legal move or need to check
 	/*gets square*/
 	square = m_gameBoard[rowCoord][colCoord];
 
@@ -355,12 +356,12 @@ GameState Game::playMove()
 	canPass = canPassTurn(currentPlayer);
 
 	/*determines the attack result and sets the next Turn and the player's points accordingly*/
-	if (square == '0')
+	if (square == '0' || square == '@')
 	{
 		result = AttackResult::Miss;
 		m_nextPlayer ^= (canPass ? 1 : 0); /* If canPassTurn -> nextPlayer changes */
 
-		if (!m_quiet) GameDisplayUtils::printSquare(colCoord, rowCoord, '*', Color::RED);
+		if (!m_quiet && square != '@') GameDisplayUtils::printSquare(colCoord, rowCoord, '*', Color::WHITE);
 	}
 	else
 	{
@@ -432,8 +433,8 @@ void Game::printEndOfGame(int winner) const
 {
 	if (!m_quiet)
 	{
-		GameDisplayUtils::setColor(Color::WHITE);
-		GameDisplayUtils::gotoxy(10, 0);
+		GameDisplayUtils::gotoxy(0, GameConstants::BOARD_SIZE);
+		GameDisplayUtils::returnToDefault();
 	}
 	
 	if (winner == 0)
@@ -574,6 +575,8 @@ void Game::initializeGame() const
 	if (m_quiet)
 		return;
 
+	system("cls");
+	GameDisplayUtils::gotoxy(0, 0);
 	GameDisplayUtils::consoleCursorVisibility(false);
 
 	for (auto i = 0; i < GameConstants::BOARD_SIZE; i++)
@@ -644,18 +647,32 @@ bool Game::loadAndInitPlayersFromDLL(const std::string& path, std::set<std::stri
 
 void Game::checkParameters(char ** begin, char ** end)
 {
-	auto iter = std::find(begin, end, "-quiet");
-	if (iter != end)
+	auto iter = checkIfExists(begin, end, "-quiet");
+	if (iter)
 	{
 		m_quiet = true;
 		return;
 	}
 
-	iter = std::find(begin, end, "-delay");
-	if (iter != end && ++iter != end)
+	iter = checkIfExists(begin, end, "-delay");
+	if (iter)
 	{
+		++iter;
 		m_delay = std::stoi(*iter);
 	}
+}
+
+char** Game::checkIfExists(char ** begin, char ** end, const std::string & option)
+{
+	auto ret = begin;
+	while (ret != end)
+	{
+		if (!option.compare(*ret))
+			return ret;
+
+		++ret;
+	}
+	return nullptr;
 }
 
 

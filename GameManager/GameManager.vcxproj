@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{9A85C2E9-B384-4946-8546-0669E48F0B07}</ProjectGuid>
-    <RootNamespace>GameManger</RootNamespace>
+    <ProjectGuid>{4BE57681-E983-4549-B02E-A31B4E6E44C4}</ProjectGuid>
+    <RootNamespace>GameManager</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -111,6 +111,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BattleshipUtils.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameDisplayUtils.cpp" />
+    <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BattleshipUtils.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameDisplayUtils.h" />
+    <ClInclude Include="IBattleshipGameAlgo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

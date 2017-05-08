@@ -18,7 +18,7 @@ std::pair<int, int> NBattleshipGameAlgo::attack()
 		return attackPair;
 	}
 
-	m_currentSeqMove.first		= row++;
+	m_currentSeqMove.first	= row++;
 	m_currentSeqMove.second	= col++;
 
 	return attackPair;

@@ -6,7 +6,7 @@
 class CommonBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:
-	CommonBattleshipGameAlgo() : m_currentSeqMove(0, -1) {}
+	CommonBattleshipGameAlgo() : m_isDone(false), m_playerID(-1), m_currentSeqMove(0, -1) {}
 
 	/**
 	* @implements IBattleshipGameAlgo::setBoard pure virtual function
@@ -43,22 +43,22 @@ protected:
 	class Board
 	{
 	public:
-		void setMembers(const char** board, size_t rows, size_t cols);
+		void setMembers(const char** board, int rows, int cols);
 		void setBoardSquare(int i, int j, char val) const { m_board[i][j] = val; }
 
 		char getBoardSquare(int i, int j) const { return m_board[i][j]; }
-		size_t getBoardRows() const { return m_rows; }
-		size_t getBoardCols() const { return m_cols; }
+		int getBoardRows() const { return m_rows; }
+		int getBoardCols() const { return m_cols; }
 		std::pair<int, int> getNextEmptySquare(const std::pair<int, int>& pair) const;
 		bool validateCoordinate(int row, int col) const
 		{
-			return (row > 0 && row < m_rows && col > 0 && col < m_cols);
+			return (row >= 0 && row < m_rows && col >= 0 && col < m_cols);
 		}
 		
 	private:
 		char** m_board	= nullptr;
-		size_t m_rows	= 0;
-		size_t m_cols	= 0;
+		int m_rows	= 0;
+		int m_cols	= 0;
 		
 		friend class CommonBattleshipGameAlgo;
 
@@ -70,8 +70,8 @@ protected:
 	};
 
 	Board				m_myBoard;
-	bool				m_isDone		= false;
-	int					m_playerID		= 0;
+	bool				m_isDone;
+	int					m_playerID;
 	std::pair<int, int> m_currentSeqMove;
 
 };

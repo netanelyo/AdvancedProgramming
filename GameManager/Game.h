@@ -6,8 +6,6 @@
 #include <map>
 #include <set>
 #include <array>
-#include <iostream>
-#include <windows.h>
 
 
 using Player = IBattleshipGameAlgo;
@@ -102,7 +100,7 @@ private:
 	std::array<bool, 2>		m_playerIsDone;
 	int						m_nextPlayer;
 	bool					m_quiet;
-	size_t					m_delay;
+	uint32_t				m_delay;
 	char					m_gameBoard[GameConstants::BOARD_SIZE][GameConstants::BOARD_SIZE];
 
 	void readBoardFromFile(std::ifstream& boardFile);
@@ -215,6 +213,7 @@ private:
 	*/
 	static size_t getShipLen(char ship);
 
+	static char** checkIfExists(char** begin, char** end, const std::string& option);
 
 	
 };
