@@ -1,6 +1,6 @@
 #include "Game.h"
 
-#include <cstdlib>
+#include <fstream>
 
 #define PRINT_WRONG_PATH(path) std::cout << "Wrong path: " << path << std::endl
 #define PRINT_MISSING_FILE(msg, path) std::cout << "Missing " << msg << \
@@ -22,17 +22,31 @@ int main(int argc, char** argv)
 
 	if (argc == 1 || argv[1][0] == '-')
 	{
-		filePath = _fullpath(fullPath, ".", MAX_PATH);
+		_fullpath(fullPath, ".", MAX_PATH);
+		tempStr = "Working Directory";
 	}
 	else
 	{
-		filePath = _fullpath(fullPath, argv[1], MAX_PATH);
+		_fullpath(fullPath, argv[1], MAX_PATH);
+		tempStr = argv[1];
 	}
 
+	if (fullPath == nullptr)
+	{
+		std::cout << "Wrong path: " << tempStr;
+		return EXIT_FAILURE;
+	}
+
+	filePath = fullPath;
 	tempStr = "\\*.sboard";
 	dir = FindFirstFileA((filePath + tempStr).c_str(), &fileData);
 	if (dir == INVALID_HANDLE_VALUE)
 	{
+		if (GetLastError() != ERROR_FILE_NOT_FOUND)
+		{
+			std::cout << "Wrong path: " << fullPath;
+			return EXIT_FAILURE;
+		}
 		PRINT_MISSING_FILE("board file (*.sboard)", filePath);
 		error = true;
 	}
@@ -93,6 +107,7 @@ int main(int argc, char** argv)
 	}
 
 	battleshipGameManager.checkParameters(argv, argv + argc);
+	battleshipGameManager.initializeGame();
 
 	/* Playing game */
 	while (battleshipGameManager.playMove() != GameState::GAME_OVER) {}

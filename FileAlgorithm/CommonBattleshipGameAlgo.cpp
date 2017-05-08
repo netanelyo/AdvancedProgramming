@@ -5,7 +5,7 @@ void CommonBattleshipGameAlgo::Board::setMembers(const char ** board, size_t row
 {
 	m_rows = rows;
 	m_cols = cols;
-	m_board = allocateBoard(rows, cols);
+	m_board = BattleshipUtils::allocateBoard(rows, cols);
 	char c;
 	
 	for (auto i = 0; i < m_rows; i++)
@@ -53,7 +53,7 @@ CommonBattleshipGameAlgo::Board::getNextEmptySquare(const std::pair<int, int>& p
 
 CommonBattleshipGameAlgo::Board::~Board()
 {
-	deallocateBoard(m_board, m_rows);
+	BattleshipUtils::deallocateBoard(m_board, m_rows);
 }
 
 void CommonBattleshipGameAlgo::setBoard(int player, const char ** board, int numRows, int numCols)
@@ -128,23 +128,3 @@ std::pair<int, int> CommonBattleshipGameAlgo::attack()
 	return attackPair;
 }
 
-char ** CommonBattleshipGameAlgo::allocateBoard(size_t rows, size_t cols)
-{
-	char** board = new char*[rows];
-
-	for (auto i = 0; i < rows; i++)
-	{
-		board[i] = new char[cols];
-	}
-	return board;
-}
-
-void CommonBattleshipGameAlgo::deallocateBoard(char ** board, size_t rows)
-{
-	for (auto i = 0; i < rows; i++)
-	{
-		delete[] board[i];
-	}
-
-	delete[] board;
-}

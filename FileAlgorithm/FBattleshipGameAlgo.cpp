@@ -1,4 +1,7 @@
 #include "FBattleshipGameAlgo.h"
+#include <fstream>
+#include <cctype>
+#include <windows.h>
 
 
 const std::string FBattleshipGameAlgo::ATTACK_SUFFIX = "attack";
@@ -46,7 +49,7 @@ std::pair<int, int> FBattleshipGameAlgo::attack()
 	{
 		line = m_playerMoves.front();
 		m_playerMoves.pop_front();
-		if (BattleshipUtils::parseLineAndValidate(line, attackCoordinate))
+		if (parseLineAndValidate(line, attackCoordinate))
 			break;
 	}
 
@@ -88,4 +91,48 @@ void FBattleshipGameAlgo::setBoard(int player, const char ** board, int numRows,
 IBattleshipGameAlgo* GetAlgorithm()
 {
 	return new FBattleshipGameAlgo();
+}
+
+bool FBattleshipGameAlgo::parseLineAndValidate(const std::string& str, std::pair<int, int>& coord) const
+{
+	std::string				tempArr[2];		/* To hold potential strings representing row/col */
+	std::string::size_type	loc;
+	int						num;
+	int						cnt;
+
+	/* Splitting str by ',' */
+	loc = str.find_first_of(',');
+	tempArr[0] = str.substr(0, loc);
+
+	if (loc < str.length() - 1)
+		tempArr[1] = str.substr(loc + 1);
+	else
+		return false;
+
+	cnt = 0;
+	/* Checks if line is valid */
+	for (const auto& s : tempArr)
+	{
+		try
+		{
+			num = std::stoi(s);
+		}
+		catch (std::invalid_argument exInv)
+		{
+			return false;
+		}
+		catch (std::out_of_range exOut)
+		{
+			return false;
+		}
+
+		if (cnt)
+			coord.second = num;
+		else
+			coord.first = num;
+
+		cnt++;
+	}
+
+	return true;
 }

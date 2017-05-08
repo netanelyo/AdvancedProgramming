@@ -3,8 +3,7 @@
 #include "CommonBattleshipGameAlgo.h"
 #include <list>
 #include <set>
-#include <cctype>
-#include <windows.h>
+
 
 
 /**
@@ -37,6 +36,7 @@ public:
 	*/
 	void setBoard(int player, const char** board, int numRows, int numCols) override;
 
+
 	bool init(const std::string& path) override;
 
 	/**
@@ -57,6 +57,7 @@ private:
 	const static std::string ATTACK_SUFFIX;
 
 	bool makeMovesQueue(const std::string& filePath);
+	bool parseLineAndValidate(const std::string & str, std::pair<int, int>& coord) const;
 };
 
 

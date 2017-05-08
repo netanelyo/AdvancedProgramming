@@ -1,13 +1,7 @@
 #pragma once
 #include "IBattleshipGameAlgo.h"
+#include "BattleshipUtils.h"
 
-
-enum class Direction
-{
-	NON,
-	VERTICAL,
-	HORIZONTAL,
-};
 
 class CommonBattleshipGameAlgo : public IBattleshipGameAlgo
 {
@@ -79,10 +73,6 @@ protected:
 	bool				m_isDone		= false;
 	int					m_playerID		= 0;
 	std::pair<int, int> m_currentSeqMove;
-
-	static char** allocateBoard(size_t rows, size_t cols);
-
-	static void	deallocateBoard(char** board, size_t rows);
 
 };
 

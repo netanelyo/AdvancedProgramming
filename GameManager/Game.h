@@ -1,9 +1,13 @@
 #pragma once
 #include "IBattleshipGameAlgo.h"
+#include "BattleshipUtils.h"
+#include "GameDisplayUtils.h"
 
 #include <map>
 #include <set>
 #include <array>
+#include <iostream>
+#include <windows.h>
 
 
 using Player = IBattleshipGameAlgo;
@@ -49,6 +53,8 @@ public:
 	GameState playMove();
 
 	bool loadAndInitPlayersFromDLL(const std::string& path, std::set<std::string> dllSet);
+	
+	void initializeGame() const;
 
 	void checkParameters(char** begin, char** end);
 
@@ -208,5 +214,7 @@ private:
 	* otherwise the ship's length
 	*/
 	static size_t getShipLen(char ship);
+
+
 	
 };

@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <algorithm>
-#include <windows.h>
 
 #define CHECK_CURRENT_SQUARE(i, j)	curr = m_gameBoard[i][j]; \
 									if (curr == '0')	break; \
@@ -293,6 +292,8 @@ bool Game::printErrors(int shouldPrint[], std::string errors[])
 void Game::removeSankShip(int row, int col)
 {
 	m_gameBoard[row][col] = '0';
+	if (!m_quiet) GameDisplayUtils::printSquare(col, row, '@', Color::RED);
+
 	if (row > 0 && m_gameBoard[row - 1][col] == 'X')
 	{
 		removeSankShip(row - 1, col);
@@ -358,26 +359,24 @@ GameState Game::playMove()
 	{
 		result = AttackResult::Miss;
 		m_nextPlayer ^= (canPass ? 1 : 0); /* If canPassTurn -> nextPlayer changes */
+
+		if (!m_quiet) GameDisplayUtils::printSquare(colCoord, rowCoord, '*', Color::RED);
 	}
 	else
 	{
 		m_gameBoard[rowCoord][colCoord] = 'X';
 		result = determineAttackResult(square, rowCoord, colCoord);
 
-		if (result == AttackResult::Miss)
-		{
-			m_nextPlayer ^= (canPass ? 1 : 0);
-		}
-		else
-		{
-			handlePointsAndNextTurn(result, square, currentPlayer, isupper(square), canPass);
+		handlePointsAndNextTurn(result, square, currentPlayer, isupper(square), canPass);
+		if (!m_quiet) GameDisplayUtils::printSquare(colCoord, rowCoord, 'X', Color::RED);
 
-			if (result == AttackResult::Sink)
-			{
-				removeSankShip(rowCoord, colCoord);
-			}
+		if (result == AttackResult::Sink)
+		{
+			removeSankShip(rowCoord, colCoord);
 		}
 	}
+
+	if (!m_quiet) Sleep(m_delay);
 
 	/*notifies players on the current result*/
 	playerA->notifyOnAttackResult(currentPlayer, rowCoord + 1, colCoord + 1, result);
@@ -405,14 +404,12 @@ GameState Game::playMove()
 
 void Game::createBoardsForPlayers(int player)
 {
-	char** board = new char*[GameConstants::BOARD_SIZE];
-	char c; 
+	auto board = BattleshipUtils::allocateBoard(GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
+	char c;
 	
-	for (int i = 0; i < GameConstants::BOARD_SIZE; i++)
+	for (auto i = 0; i < GameConstants::BOARD_SIZE; i++)
 	{
-		board[i] = new char[GameConstants::BOARD_SIZE];
-
-		for (int j = 0; j < GameConstants::BOARD_SIZE; j++)
+		for (auto j = 0; j < GameConstants::BOARD_SIZE; j++)
 		{
 			c = m_gameBoard[i][j];
 			if (c != '0')
@@ -433,6 +430,12 @@ void Game::createBoardsForPlayers(int player)
 
 void Game::printEndOfGame(int winner) const
 {
+	if (!m_quiet)
+	{
+		GameDisplayUtils::setColor(Color::WHITE);
+		GameDisplayUtils::gotoxy(10, 0);
+	}
+	
 	if (winner == 0)
 	{
 		std::cout << "Player A won" << std::endl; 
@@ -563,6 +566,36 @@ size_t Game::getShipLen(char ship)
 		return GameConstants::DESTROYER_LEN;
 	default:
 		return 0;
+	}
+}
+
+void Game::initializeGame() const
+{
+	if (m_quiet)
+		return;
+
+	GameDisplayUtils::consoleCursorVisibility(false);
+
+	for (auto i = 0; i < GameConstants::BOARD_SIZE; i++)
+	{
+		for (auto j = 0; j < GameConstants::BOARD_SIZE; j++)
+		{
+			auto sq = m_gameBoard[i][j];
+			if (sq == '0')
+				GameDisplayUtils::setColor(Color::WHITE);
+
+			else
+			{
+				if (isupper(sq))
+					GameDisplayUtils::setColor(Color::BLUE);
+
+				else
+					GameDisplayUtils::setColor(Color::GREEN);
+			}
+
+			std::cout << sq;
+		}
+		std::cout << std::endl;
 	}
 }
 
