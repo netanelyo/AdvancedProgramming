@@ -1,4 +1,5 @@
 #include "SBattleshipGameAlgo.h"
+#include <iostream> //TODO
 
 void SBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, AttackResult result)
 {
@@ -247,7 +248,7 @@ std::pair<int, int> SBattleshipGameAlgo::findNextIterative(int row, int col, Dir
 		}
 
 		tmpCol = col;
-		while (tmpCol > 0 && (sq = m_myBoard.getBoardSquare(row, tmpCol + 1)) != '#')
+		while (tmpCol > 0 && (sq = m_myBoard.getBoardSquare(row, tmpCol - 1)) != '#')
 		{
 			if (sq == 'X')
 				--tmpCol;

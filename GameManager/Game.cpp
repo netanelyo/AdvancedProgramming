@@ -7,6 +7,7 @@
 									if (curr == '0')	break; \
 									if (curr == square) return AttackResult::Hit; \
 									tmp--
+#define SET_COLOR(currentPlayer) (currentPlayer ? Color::GREEN : Color::BLUE)
 
 const std::string Game::GameConstants::WRONG_SIZE_B_PLAYER_A	= "Wrong size or shape for ship B for player A";
 const std::string Game::GameConstants::WRONG_SIZE_P_PLAYER_A	= "Wrong size or shape for ship P for player A";
@@ -22,6 +23,14 @@ const std::string Game::GameConstants::TOO_FEW_PLAYER_B			= "Too few ships for p
 const std::string Game::GameConstants::TOO_MANY_PLAYER_B		= "Too many ships for player B";
 const std::string Game::GameConstants::ADJACENT_SHIPS			= "Adjacent Ships on Board";
 
+
+Game::~Game()
+{
+	if (m_players[0])
+		delete m_players[0]; 
+	if (m_players[1])
+		delete m_players[1]; 
+} 
 
 void Game::readBoardFromFile(std::ifstream & boardFile)
 {
@@ -335,20 +344,26 @@ GameState Game::playMove()
 	/*checks if both players got to EOF and if so -> game is over*/
 	if (endOfAttacks())
 	{
-		return GameState::GAME_OVER; 
+		return GameState::GAME_OVER;
 	}
 
 	/*if only the current player got to EOF, it means that we got no attack and we only pass the turn to the opponent*/
 	if (m_playerIsDone[currentPlayer])
 	{
 		m_nextPlayer ^= 1; 
-		return GameState::CONTINUE_PLAYING; 
+		return GameState::CONTINUE_PLAYING;
 	}
 
 	/*gets square coordinates*/
 	rowCoord = attackPair.first - 1;
 	colCoord = attackPair.second - 1;
-	//TODO check if game expects legal move or need to check
+	
+	if (rowCoord < 0 || rowCoord >= GameConstants::BOARD_SIZE ||
+		colCoord < 0 || colCoord >= GameConstants::BOARD_SIZE)
+	{
+		return GameState::CONTINUE_PLAYING;
+	}
+
 	/*gets square*/
 	square = m_gameBoard[rowCoord][colCoord];
 
@@ -360,8 +375,9 @@ GameState Game::playMove()
 	{
 		result = AttackResult::Miss;
 		m_nextPlayer ^= (canPass ? 1 : 0); /* If canPassTurn -> nextPlayer changes */
-
-		if (!m_quiet && square != '@') GameDisplayUtils::printSquare(colCoord, rowCoord, '*', Color::WHITE);
+		
+		if (!m_quiet && square != '@') GameDisplayUtils::printSquare(colCoord, rowCoord, '*',
+			SET_COLOR(currentPlayer));
 	}
 	else
 	{
@@ -369,7 +385,8 @@ GameState Game::playMove()
 		result = determineAttackResult(square, rowCoord, colCoord);
 
 		handlePointsAndNextTurn(result, square, currentPlayer, isupper(square), canPass);
-		if (!m_quiet) GameDisplayUtils::printSquare(colCoord, rowCoord, 'X', Color::RED);
+		if (!m_quiet) GameDisplayUtils::printSquare(colCoord, rowCoord, 'X',
+			SET_COLOR(currentPlayer));
 
 		if (result == AttackResult::Sink)
 		{
@@ -415,16 +432,17 @@ void Game::createBoardsForPlayers(int player)
 			c = m_gameBoard[i][j];
 			if (c != '0')
 			{
-				board[i][j] = (player ^ isupper(c)) ? c : '0';
+				board[i][j] = (player ^ isupper(c)) ? c : ' ';
 			}
 			else
 			{
-				board[i][j] = '0';
+				board[i][j] = ' ';
  			}		
 		}
 	}
 
-	m_players[player]->setBoard(player, const_cast<const char**>(board), GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
+	m_players[player]->setBoard(player, const_cast<const char**>(board),
+		GameConstants::BOARD_SIZE, GameConstants::BOARD_SIZE);
 
 	BattleshipUtils::deallocateBoard(board, GameConstants::BOARD_SIZE);
 }
@@ -585,7 +603,10 @@ void Game::initializeGame() const
 		{
 			auto sq = m_gameBoard[i][j];
 			if (sq == '0')
+			{
 				GameDisplayUtils::setColor(Color::WHITE);
+				sq = '-';
+			}
 
 			else
 			{

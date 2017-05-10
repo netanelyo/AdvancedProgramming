@@ -25,9 +25,13 @@ public:
 	/**
 	* Constructor
 	*/
-	Game(): m_playersPoints({0, 0}), m_playersShips({0, 0}), m_playerIsDone({false, false}),
+	Game() : m_players({ nullptr, nullptr }), m_playersPoints({ 0, 0 }), m_playersShips({ 0, 0 }), m_playerIsDone({ false, false }),
 			m_nextPlayer(0), m_quiet(false), m_delay(4000) {}
-	~Game() { /*TODO delete pointers*/ } //destructor
+	/**
+	 * Destructor
+	 * 
+	 */
+	~Game();
 
 	/**
 	*
@@ -50,14 +54,39 @@ public:
 	*/
 	GameState playMove();
 
+	/**
+	 * loads the dll files and initializes the players' board and the players. 
+	 * 
+	 * @param path - the absulote directory path containing the dll files
+	 * @param dllSet - an ordered set containing the names of the dll files
+	 * @return 
+	 * false in case the dll loading or the players' initialization failed
+	 * otherwise, true
+	 */
 	bool loadAndInitPlayersFromDLL(const std::string& path, std::set<std::string> dllSet);
 	
+	/**
+	 * initializes game animation if "-quiet" argument wasn't passed:
+	 * player A's ships are marked as capital letters colored in blue
+	 * player B's ships are marked as lowercase letters colored in green
+	 * empty squares are marked as "-" 
+	 */
 	void initializeGame() const;
 
+	/**
+	 * checks in an array of strings if one of the two following parameters appear:
+	 * -quiet, -delay
+	 * 
+	 * @param begin - a pointer to the beginning of the array
+	 * @param end - a pointer to the end of the array
+	 */
 	void checkParameters(char** begin, char** end);
 
 private:
-
+	
+	/*
+	 * a class that holds all the constant values used by Game
+	 */
 	class GameConstants
 	{
 	public:
@@ -103,12 +132,38 @@ private:
 	uint32_t				m_delay;
 	char					m_gameBoard[GameConstants::BOARD_SIZE][GameConstants::BOARD_SIZE];
 
+	/**
+	 * parses the board from the board file 
+	 * 
+	 * @param boardFile - a file stream to our board file
+	 */
 	void readBoardFromFile(std::ifstream& boardFile);
 
+	/*
+	 * check the board meets the following requirements:  
+	 * each ship has the right size and there are no adjacent ships.
+	 * If one of these requirements isn't met, we mark in shouldPrint array that this error occurred
+	 * 
+	 *@param shouldPrint - an array containing zeros or ones so that each cell represents a different error on board
+	 *@param shipsErrorMsgMap - a map between a char representing a ship of a certain player and the index of its error in shouldPrint array
+	 */
 	void checkIfBoardIsValid(int shouldPrint[], std::map<char, int>& shipsErrorMsgMap);
 
+	/**
+	 * checks each player has exactly 5 ships on board, otherwise this error is marked in shouldPrint array.
+	 * 
+	 *@param shouldPrint - an array containing zeros or ones so that each cell represents a different error on board 
+	 */
 	void checkShipsQuantity(int shouldPrint[]) const;
 
+	/**
+	 * checks if the next turn can be passed to the other player
+	 * 
+	 * @param player - the current player
+	 * @return 
+	 * true in case the turn can be passed
+	 * otherwise, false
+	 */
 	bool canPassTurn(int player) const { return (player ? !(m_playerIsDone[0]) : !(m_playerIsDone[1])); }
 
 	/**
@@ -128,14 +183,14 @@ private:
 	bool endOfAttacks() const; 
 
 	/**
-	* determines  if the attack result  was a sink or a hit
-	* 
-	* @param rowCoord - the X coordinate of the current attack
-	* @param colCoord - the Y coordinate of the current attack
-	* @return
-	* SINK in case the attack result was a sink
-	* otherwise HIT 
-	*/
+	 * Determines if the attack result was a sink or a hit.
+	 * 
+	 * @param rowCoord - the row coordinate of the current attack
+	 * @param colCoord - the column coordinate of the current attack
+	 * @return
+	 * Hit in case another square in the (rowCoord, colCoord) surrounding equals 'square'
+	 * otherwise Sink
+	 */
 	AttackResult determineAttackResult(char square, int rowCoord, int colCoord) const;
 
 	/**
@@ -163,8 +218,8 @@ private:
 	*
 	* @param currShip - the symbol of the current ship
 	* @param dummy - a binary matrix 
-	* @param row - the currShip X coordinate
-	* @param col - the currShip Y coordinate
+	* @param row - the currShip row coordinate
+	* @param col - the currShip column coordinate
 	* @param shipLen - the current length of currShip on board
 	* @param direction - an enum representing the expected direction of currShip on board 
 	* @param invalidShape - a boolean representing if the shape of currShip is invalid
@@ -177,8 +232,8 @@ private:
 	*
 	* @param currShip - the symbol of the current ship
 	* @param dummy - a binary matrix 
-	* @param row - the currShip X coordinate
-	* @param col - the currShip Y coordinate
+	* @param row - the currShip row coordinate
+	* @param col - the currShip col coordinate
 	* @param invalidShape - a boolean representing if the shape of currShip is invalid
 	* @param adjShips - a boolean representing if there are adjacent ships on board
 	*/
@@ -199,8 +254,8 @@ private:
 	/**
 	* removes a sunk ship from the game board
 	*
-	* @param xCoord -  X coordinate of the sunk ship 
-	* @param yCoord -  Y coordinate of the sunk current 
+	* @param xCoord -  row coordinate of the sunk ship 
+	* @param yCoord -  column coordinate of the sunk ship 
 	*/
 	void removeSankShip(int xCoord, int yCoord);
 
@@ -213,6 +268,17 @@ private:
 	*/
 	static size_t getShipLen(char ship);
 
+	/**
+	 * checks if a string appears in an array of strings (c strings)
+	 * 
+	 * @param begin - the beginning of the strings array
+	 * @param end - the end of the strings array
+	 * @param option - the string to be found
+	 * 
+	 * @return 
+	 * nullptr in case the string wasn't found in the array
+	 * otherwise, a pointer to the string in the array 
+	 */
 	static char** checkIfExists(char** begin, char** end, const std::string& option);
 
 	

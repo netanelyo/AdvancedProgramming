@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 	std::set<std::string> boards;
 	char fullPath[MAX_PATH];
 
+	/*gets directory path from cmd arguments, if exists. Otherwise, uses our current working directory*/
 	if (argc == 1 || argv[1][0] == '-')
 	{
 		_fullpath(fullPath, ".", MAX_PATH);
@@ -40,6 +41,7 @@ int main(int argc, char** argv)
 	filePath = fullPath;
 	filePath += "\\";
 
+	/*looks for board file*/
 	tempStr = "\\*.sboard";
 	dir = FindFirstFileA((filePath + tempStr).c_str(), &fileData);
 	if (dir == INVALID_HANDLE_VALUE)
@@ -60,7 +62,7 @@ int main(int argc, char** argv)
 			boards.insert(tempStr);
 		} while (FindNextFileA(dir, &fileData));
 	}
-
+	/*opens the board file and parses the board (in case a board file was found)*/
 	if (!error)
 	{
 		tempStr = *boards.begin();
@@ -81,7 +83,7 @@ int main(int argc, char** argv)
 			boardFile.close();
 		}
 	}
-
+	/*looks for dll files*/
 	tempStr = "\\*.dll";
 	dir = FindFirstFileA((filePath + tempStr).c_str(), &fileData);
 	if (dir != INVALID_HANDLE_VALUE)
@@ -92,7 +94,7 @@ int main(int argc, char** argv)
 			dlls.insert(tempStr);
 		} while (FindNextFileA(dir, &fileData));
 	}
-
+	/*checks we found at least 2 dll files*/
 	if (dlls.size() < 2)
 	{
 		if (error)
@@ -100,19 +102,20 @@ int main(int argc, char** argv)
 		PRINT_MISSING_FILE("an algorithm (dll) file", filePath);
 		error = true;
 	}
-
+	/*if any error occurred above, we exit the program*/
 	if (error)
 		return EXIT_FAILURE;
-
+	/*loads dll files, sets board for players and initializes each player*/
 	if (!(battleshipGameManager.loadAndInitPlayersFromDLL(filePath, dlls)))
 	{
 		return EXIT_FAILURE;
 	}
-
+	/*checks if we got extra paramaters from cmd*/
 	battleshipGameManager.checkParameters(argv, argv + argc);
+	/*initializes game animiation if necessary*/
 	battleshipGameManager.initializeGame();
 
-	/* Playing game */
+	/* Plays game */
 	while (battleshipGameManager.playMove() != GameState::GAME_OVER) {}
 
 	return EXIT_SUCCESS;
