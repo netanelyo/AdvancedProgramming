@@ -33,7 +33,7 @@ private:
 	*
 	* @param boardFile - a file stream to our board file
 	*/
-	GameBoard&& readBoardFromFile(std::ifstream& boardFile, bool& boardIsValid);
+	GameBoard readBoardFromFile(const std::string& boardFilePath, bool& boardIsValid);
 
 	/*
 	* check the board meets the following requirements:
@@ -79,5 +79,5 @@ private:
 
 	static void fillBoardWithEmptyLayers(const GameBoard& gameBoard, int z);
 
-	void checkShipTypesBalance(std::array<std::unordered_map<char, int>, 2>& shipTypes);
+	static bool shipTypesBalanced(std::array<std::unordered_map<char, int>, 2>& shipTypes);
 };

@@ -16,25 +16,26 @@ int main(int argc, char** argv)
 
 bool TournamentManager::initializeBoards()
 {
-	checkAndCreateBoard(std::string("C:\\Users\\Netanel\\Documents\\Visual Studio 2017\\Projects\\AdvancedProgramming\\AdvancedProgramming - HW3Official\\Boards\\good_board.sboard"));
+	checkAndCreateBoard(std::string("bad_board_4.sboard"));
 	std::cout << m_gameBoards.size() << std::endl;
-	m_gameBoards.back().printBoard();
+	std::ofstream file("testBoard.board", std::ios::trunc | std::ios::out);
+	//m_gameBoards.back().printBoard(file);
+	file.close();
 	return true;
 }
 
 void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
 {
-	std::ifstream boardFile(boardFilePath);
-	if (!boardFile.is_open())
-		return;
-
 	auto boardFileIsValid = true;
-	auto gameBoard = readBoardFromFile(boardFile, boardFileIsValid);
+	auto gameBoard = readBoardFromFile(boardFilePath, boardFileIsValid);
+	
+	std::cout << "Before boardFileIsValid" << std::endl;
 	if (!boardFileIsValid)
 		return;
 
 	if (boardIsValid(gameBoard))
-		m_gameBoards.push_back(gameBoard);
+		m_gameBoards.push_back(std::move(gameBoard));
+
 }
 
 bool TournamentManager::checkBoardDimensions(std::string & firstLine, std::vector<int>& dims) const
@@ -49,17 +50,14 @@ bool TournamentManager::checkBoardDimensions(std::string & firstLine, std::vecto
 
 	if (firstLineVec.size() != 3)
 		return false;
-	else
+	try
 	{
-		try
-		{
-			for (const auto& num : firstLineVec)
-				dims.push_back(std::stoi(num));
-		}
-		catch (...)
-		{
-			return false;
-		}
+		for (const auto& num : firstLineVec)
+			dims.push_back(std::stoi(num));
+	}
+	catch (...)
+	{
+		return false;
 	}
 	return true;
 }
@@ -78,30 +76,39 @@ void TournamentManager::fillBoardWithEmptyLayers(const GameBoard & gameBoard, in
 	}
 }
 
-void TournamentManager::checkShipTypesBalance(std::array<std::unordered_map<char, int>, 2>& shipTypes)
+bool TournamentManager::shipTypesBalanced(std::array<std::unordered_map<char, int>, 2>& shipTypes)
 {
 	for (auto& type : shipTypes[0])
 	{
 		if (type.second != shipTypes[1][tolower(type.first)])
 		{
-			m_logger.printToLogger(Logger::LoggerMessage::WARNING_UNBALANCED_BOARD, LoggerLevel::WARNING);
-			return;
+			return false;
 		}
 	}
+	return true;
 }
 
-GameBoard&& TournamentManager::readBoardFromFile(std::ifstream & boardFile, bool& boardIsValid)
+GameBoard TournamentManager::readBoardFromFile(const std::string& boardFilePath, bool& boardIsValid)
 {
 	std::string			line;
 	std::vector<int>	dims;
 	Coordinate currentCoor(0, 0, 0);
+	std::ifstream boardFile(boardFilePath);
+	if (!boardFile.is_open())
+	{
+		boardIsValid = false;
+		m_logger.printToLogger(Logger::LoggerMessage::ERROR_CANT_OPEN_BOARD_FILE + boardFilePath, LoggerLevel::ERROR);
+		return GameBoard(0, 0, 0);
+	}
 
 	if (!std::getline(boardFile, line) || !checkBoardDimensions(line, dims))
 	{
 		boardIsValid = false;
-		m_logger.printToLogger(Logger::LoggerMessage::ERROR_WRONG_DIMENSIONS_LINE, LoggerLevel::ERROR);
+		m_logger.printToLogger(Logger::LoggerMessage::ERROR_WRONG_DIMENSIONS_LINE + boardFilePath, LoggerLevel::ERROR);
+		return GameBoard(0, 0, 0);
 	}
 	GameBoard gameBoard(dims[1], dims[0], dims[2]);
+	gameBoard.setBoardName(boardFilePath);
 
 	std::getline(boardFile, line); // Skip line after dims
 
@@ -166,6 +173,7 @@ GameBoard&& TournamentManager::readBoardFromFile(std::ifstream & boardFile, bool
 		} while (!line.empty() && line.compare("\r") && boardFile);
 	}
 
+	boardFile.close();
 	return std::move(gameBoard);
 }
 
@@ -182,7 +190,7 @@ bool TournamentManager::checkAdjacentSquare(char currShip, const GameBoard & gam
 
 		else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::SPACE)
 		{
-			m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS, LoggerLevel::ERROR);
+			m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERROR);
 			return false;
 		}
 	}
@@ -250,7 +258,7 @@ bool TournamentManager::dfsShipHelper(Direction direction, Direction currentDire
 	{
 		if (currentDirection != Direction::NON && currentDirection != direction)
 		{
-			m_logger.printToLogger(Logger::LoggerMessage::ERROR_INVALID_SHAPE_OR_SIZE, LoggerLevel::ERROR);
+			m_logger.printToLogger(Logger::LoggerMessage::ERROR_INVALID_SHAPE_OR_SIZE + gameBoard.name(), LoggerLevel::ERROR);
 			return false;
 		}
 
@@ -263,7 +271,7 @@ bool TournamentManager::dfsShipHelper(Direction direction, Direction currentDire
 
 	else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::SPACE)
 	{
-		m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS, LoggerLevel::ERROR);
+		m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERROR);
 		return false;
 	}
 
@@ -357,7 +365,10 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 						return false;
 
 					if (shipLength != BattleshipGameUtils::getShipLength(currentShip))
+					{
+						m_logger.printToLogger(Logger::LoggerMessage::ERROR_INVALID_SHAPE_OR_SIZE + board.name(), LoggerLevel::ERROR);
 						return false;
+					}
 
 					shipTypesCountForPlayer[!belongsToA][currentShip]++;
 					board.incrementShipForPlayer(!belongsToA);
@@ -367,6 +378,7 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 			}
 		}
 	}
-	checkShipTypesBalance(shipTypesCountForPlayer);
+	if (!shipTypesBalanced(shipTypesCountForPlayer))
+		m_logger.printToLogger(Logger::LoggerMessage::WARNING_UNBALANCED_BOARD + board.name(), LoggerLevel::WARNING);
 	return true;
 }

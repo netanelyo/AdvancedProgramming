@@ -42,5 +42,5 @@ private:
 	bool			m_isOpen;
 
 	static std::string getTimeAndDate();
-	void printMessage(const std::string& msg);
+	void printMessage(const std::string& msg, bool first = false);
 };

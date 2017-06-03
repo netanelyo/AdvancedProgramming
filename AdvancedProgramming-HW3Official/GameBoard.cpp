@@ -1,6 +1,6 @@
 #include "GameBoard.h"
 #include <memory>
-#include <iostream>
+#include <fstream>
 
 GameBoard::GameBoard(int rows, int cols, int depth, bool defaultInit) :
 		m_rows(rows), m_cols(cols), m_depth(depth), m_playerShipCount({0, 0})
@@ -25,10 +25,11 @@ GameBoard::GameBoard(int rows, int cols, int depth, bool defaultInit) :
 
 GameBoard::GameBoard(GameBoard && board) noexcept
 {
-	m_rows		= board.m_rows;
-	m_cols		= board.m_cols;
-	m_depth		= board.m_depth;
-	m_gameBoard = std::move(board.m_gameBoard);
+	m_rows			= board.m_rows;
+	m_cols			= board.m_cols;
+	m_depth			= board.m_depth;
+	m_gameBoard		= std::move(board.m_gameBoard);
+	m_boardFileName = board.m_boardFileName;
 }
 
 char GameBoard::getBoardSquare(Coordinate coor) const
@@ -55,7 +56,7 @@ bool GameBoard::coordinateIsValid(Coordinate coor) const
 	return r >= 0 && r < m_rows && c >= 0 && c < m_cols && d >= 0 && d < m_depth;
 }
 
-void GameBoard::printBoard()
+void GameBoard::printBoard(std::ofstream& toFile) const
 {
 	for (auto z = 0; z < m_depth; z++)
 	{
@@ -63,11 +64,11 @@ void GameBoard::printBoard()
 		{
 			for (auto j = 0; j < m_cols; j++)
 			{
-				std::cout << m_gameBoard[i][j][z];
+				toFile << m_gameBoard[i][j][z];
 			}
-			std::cout << std::endl;
+			toFile << std::endl;
 		}
-		std::cout << std::endl;
+		toFile << std::endl;
 	}
 }
 

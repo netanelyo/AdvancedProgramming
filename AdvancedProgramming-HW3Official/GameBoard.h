@@ -26,7 +26,10 @@ public:
 	bool coordinateIsValid(Coordinate coor) const;
 
 	void incrementShipForPlayer(int player) { m_playerShipCount[player]++; }
-	void printBoard(); //TODO: delete!!! !!! !!!!!!!!!! TODO TODO
+	void printBoard(std::ofstream& toFile) const; //TODO: delete!!! !!! !!!!!!!!!! TODO TODO
+
+	void setBoardName(const std::string& fileName) { m_boardFileName = fileName; }
+	std::string name() const { return m_boardFileName; }
 
 private:
 	int m_rows;
@@ -34,5 +37,6 @@ private:
 	int m_depth;
 	char_multidim m_gameBoard;
 	std::array<int, 2> m_playerShipCount;
+	std::string m_boardFileName;
 };
 
