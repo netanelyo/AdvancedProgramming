@@ -1,7 +1,6 @@
 #include "Game.h"
 
 #include <fstream>
-#include <ctime>
 
 #define PRINT_WRONG_PATH(path) std::cout << "Wrong path: " << path << std::endl
 #define PRINT_MISSING_FILE(msg, path) std::cout << "Missing " << msg << \
@@ -14,7 +13,7 @@ int main(int argc, char** argv)
 	auto error = false;
 	auto boardCreateError = true;
 	Game battleshipGameManager;
-	
+
 	HANDLE dir;
 	WIN32_FIND_DATAA fileData;
 	std::set<std::string> dlls;

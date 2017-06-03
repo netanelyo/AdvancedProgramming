@@ -139,6 +139,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BattleshipUtils.cpp" />
+    <ClCompile Include="CommonBattleshipGameAlgo.cpp" />
+    <ClCompile Include="FBattleshipGameAlgo.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameDisplayUtils.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="NBattleshipGameAlgo.cpp" />
+    <ClCompile Include="SBattleshipGameAlgo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BattleshipUtils.h" />
+    <ClInclude Include="CommonBattleshipGameAlgo.h" />
+    <ClInclude Include="FBattleshipGameAlgo.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameDisplayUtils.h" />
+    <ClInclude Include="IBattleshipGameAlgo.h" />
+    <ClInclude Include="NBattleshipGameAlgo.h" />
+    <ClInclude Include="SBattleshipGameAlgo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
