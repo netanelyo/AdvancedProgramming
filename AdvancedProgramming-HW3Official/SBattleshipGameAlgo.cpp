@@ -29,7 +29,7 @@ void SBattleshipGameAlgo::notifyOnAttackResult(int player, int row, int col, Att
 
 std::pair<int, int> SBattleshipGameAlgo::attack()
 {
-	if (isSequntial() || isDone())
+	if (isRandom() || isDone())
 	{
 		return IBattleshipGameAlgo::attack();
 	}
@@ -128,9 +128,9 @@ void SBattleshipGameAlgo::hitNotify(int row, int col, int player)
 	{
 		auto tmpPair = std::pair<int, int>(row, col);
 
-		if (isSequntial() || player != getPlayerID())
+		if (isRandom() || player != getPlayerID())
 		{
-			if (isSequntial()) {
+			if (isRandom()) {
 				m_currentAttackingShip = tmpPair;
 				m_randomState = false;
 			}

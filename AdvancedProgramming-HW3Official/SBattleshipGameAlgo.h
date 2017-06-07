@@ -16,14 +16,17 @@ public:
 
 	void setBoard(const BoardData& board) override;
 
-	void setPlayer(int player) override;
+	void setPlayer(int player) override {}
 
-	bool isSequntial() const { return m_randomState; }
+	bool isRandom() const { return m_randomState; }
 
 private:
 	Coordinate	m_currentAttackingShip;
+	Coordinate	m_currentSeqMove;
 	bool		m_randomState;
 	Direction	m_lastAttackDirection;
+	bool		m_isDone = false;
+	int			m_playerID = 0;
 	std::set<Coordinate> m_preferredAttackSquares;
 	std::map<Coordinate, Direction> m_attackHelperMap;
 
