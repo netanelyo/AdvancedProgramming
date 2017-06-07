@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IBattleshipGameAlgo.h"
+#include "PlayerBoard.h"
 #include <memory>
 #include <array>
 
@@ -8,34 +8,22 @@ using char_array	= std::unique_ptr<char[]>;
 using char_matrix	= std::unique_ptr<char_array[]>;
 using char_multidim = std::unique_ptr<char_matrix[]>;
 
-class GameBoard
+class GameBoard : public PlayerBoard
 {
 public:
 	//GameBoard()
-	GameBoard(int rows, int cols, int depth, bool defaultInit = false);
-	GameBoard(GameBoard&& board) noexcept;
+	GameBoard::GameBoard(GameBoard && board) noexcept : PlayerBoard(std::move(board)), m_playerShipCount(std::move(board.m_playerShipCount)), m_boardFileName(board.m_boardFileName) {}
 	GameBoard(const GameBoard& board);
 	GameBoard& operator=(const GameBoard& board) = delete;
 
-	char getBoardSquare(Coordinate coor) const;
-	int rows()	const { return m_rows; }
-	int cols()	const { return m_cols; }
-	int depth() const { return m_depth; }
-	void setBoardSquare(Coordinate coor, char sq) const;
-	Coordinate getNextEmptySquare() const; //TODO: maybe player will implement
-	bool coordinateIsValid(Coordinate coor) const;
-
 	void incrementShipForPlayer(int player) { m_playerShipCount[player]++; }
+	int getShipCountForPlayer(int player) const { return m_playerShipCount[player]; }
 	void printBoard(std::ofstream& toFile) const; //TODO: delete!!! !!! !!!!!!!!!! TODO TODO
 
 	void setBoardName(const std::string& fileName) { m_boardFileName = fileName; }
 	std::string name() const { return m_boardFileName; }
 
 private:
-	int m_rows;
-	int m_cols;
-	int m_depth;
-	char_multidim m_gameBoard;
 	std::array<int, 2> m_playerShipCount;
 	std::string m_boardFileName;
 };
