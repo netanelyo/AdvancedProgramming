@@ -11,10 +11,13 @@ using char_multidim = std::unique_ptr<char_matrix[]>;
 class GameBoard : public PlayerBoard
 {
 public:
-	//GameBoard()
-	GameBoard::GameBoard(GameBoard && board) noexcept : PlayerBoard(std::move(board)), m_playerShipCount(std::move(board.m_playerShipCount)), m_boardFileName(board.m_boardFileName) {}
+	GameBoard(int rows, int cols, int depth, bool defaultInit = false);
+	GameBoard(GameBoard && board) noexcept : 
+		PlayerBoard(std::move(board)),	
+		m_playerShipCount(std::move(board.m_playerShipCount)), 
+		m_boardFileName(board.m_boardFileName) {}
 	GameBoard(const GameBoard& board);
-	GameBoard& operator=(const GameBoard& board) = delete;
+	GameBoard& operator=(const GameBoard& board);
 
 	void incrementShipForPlayer(int player) { m_playerShipCount[player]++; }
 	int getShipCountForPlayer(int player) const { return m_playerShipCount[player]; }
@@ -26,5 +29,7 @@ public:
 private:
 	std::array<int, 2> m_playerShipCount;
 	std::string m_boardFileName;
+
+	void copyValuesToBoard(const GameBoard& board) const; 
 };
 

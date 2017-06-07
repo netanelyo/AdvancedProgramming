@@ -30,4 +30,6 @@ protected:
 	int m_cols;
 	int m_depth;
 	char_multidim m_gameBoard;
+	
+	void allocateBoard();
 };
