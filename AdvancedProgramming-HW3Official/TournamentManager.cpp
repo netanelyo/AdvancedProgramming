@@ -70,7 +70,7 @@ void TournamentManager::fillBoardWithEmptyLayers(const GameBoard & gameBoard, in
 		{
 			for (auto col = 0; col < gameBoard.cols(); col++)
 			{
-				gameBoard.setBoardSquare(Coordinate(row, col, depth), BattleshipGameUtils::Constants::SPACE);
+				gameBoard.setBoardSquare(Coordinate(row, col, depth), BattleshipGameUtils::Constants::EMPTY_SIGN);
 			}
 		}
 	}
@@ -157,12 +157,12 @@ GameBoard TournamentManager::readBoardFromFile(const std::string& boardFilePath,
 						gameBoard.setBoardSquare(currentCoor, sq);
 						break;
 					default:
-						gameBoard.setBoardSquare(currentCoor, BattleshipGameUtils::Constants::SPACE);
+						gameBoard.setBoardSquare(currentCoor, BattleshipGameUtils::Constants::EMPTY_SIGN);
 						break;
 					}
 				}
 				else
-					gameBoard.setBoardSquare(currentCoor, BattleshipGameUtils::Constants::SPACE);
+					gameBoard.setBoardSquare(currentCoor, BattleshipGameUtils::Constants::EMPTY_SIGN);
 			}
 		}
 
@@ -188,7 +188,7 @@ bool TournamentManager::checkAdjacentSquare(char currShip, const GameBoard & gam
 				return false;
 		}
 
-		else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::SPACE)
+		else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::EMPTY_SIGN)
 		{
 			m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERROR);
 			return false;
@@ -269,7 +269,7 @@ bool TournamentManager::dfsShipHelper(Direction direction, Direction currentDire
 			return false;
 	}
 
-	else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::SPACE)
+	else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::EMPTY_SIGN)
 	{
 		m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERROR);
 		return false;
@@ -355,7 +355,7 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 					auto currentShip = board.getBoardSquare(currentCoor);
 
 					dummyBoard.setBoardSquare(currentCoor, 1);
-					if (currentShip == BattleshipGameUtils::Constants::SPACE)
+					if (currentShip == BattleshipGameUtils::Constants::EMPTY_SIGN)
 						continue;
 
 					/* currentShip - candidate to be a valid ship */

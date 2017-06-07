@@ -15,7 +15,10 @@ public:
 	{
 	public:
 		// Constants
-		static const char SPACE = ' ';
+		static const char EMPTY_SIGN	= ' ';
+		static const char HIT_SIGN		= 'X';
+		static const char MISS_SIGN		= '#';
+		static const char SINK_SIGN		= '@';
 
 		const static int RUBBER_BOAT_POINTS = 2;
 		const static int MISSILE_BOAT_POINTS = 3;

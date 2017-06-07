@@ -10,6 +10,7 @@ using char_multidim = std::unique_ptr<char_matrix[]>;
 class PlayerBoard
 {
 public:
+	PlayerBoard() : m_rows(0), m_cols(0), m_depth(0), m_gameBoard(nullptr) {}
 	PlayerBoard(int rows, int cols, int depth);
 	PlayerBoard(PlayerBoard&& board) noexcept:
 		m_rows(board.m_rows), m_cols(board.m_cols), m_depth(board.m_depth),
@@ -30,6 +31,6 @@ protected:
 	int m_cols;
 	int m_depth;
 	char_multidim m_gameBoard;
-	
+
 	void allocateBoard();
 };
