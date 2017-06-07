@@ -25,11 +25,30 @@ GameBoard::GameBoard(int rows, int cols, int depth, bool defaultInit) :
 
 GameBoard::GameBoard(GameBoard && board) noexcept
 {
-	m_rows			= board.m_rows;
-	m_cols			= board.m_cols;
-	m_depth			= board.m_depth;
-	m_gameBoard		= std::move(board.m_gameBoard);
+	m_rows				= board.m_rows;
+	m_cols				= board.m_cols;
+	m_depth				= board.m_depth;
+	m_gameBoard			= std::move(board.m_gameBoard);
+	m_boardFileName		= board.m_boardFileName;
+	m_playerShipCount	= std::move(board.m_playerShipCount);
+}
+
+GameBoard::GameBoard(const GameBoard & board) : 
+	GameBoard(board.m_rows, board.m_cols, board.m_depth)
+{
+	m_playerShipCount = board.m_playerShipCount;
 	m_boardFileName = board.m_boardFileName;
+	
+	for (auto i = 0; i < m_rows; i++)
+	{
+		for (auto j = 0; j < m_cols; j++)
+		{
+			for (auto k = 0; k < m_depth; k++)
+			{
+				m_gameBoard[i][j][k] = board.m_gameBoard[i][j][k];
+			}
+		}
+	}
 }
 
 char GameBoard::getBoardSquare(Coordinate coor) const

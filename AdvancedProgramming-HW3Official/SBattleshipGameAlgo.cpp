@@ -31,7 +31,7 @@ std::pair<int, int> SBattleshipGameAlgo::attack()
 {
 	if (isSequntial() || isDone())
 	{
-		return CommonBattleshipGameAlgo::attack();
+		return IBattleshipGameAlgo::attack();
 	}
 
 	auto& nextAttackDirection = m_attackHelperMap[m_currentAttackingShip];
@@ -148,7 +148,7 @@ void SBattleshipGameAlgo::sinkNotify(int row, int col, int player)
 {
 	if (m_myBoard.getBoardSquare(row, col) != '0')
 	{
-		CommonBattleshipGameAlgo::notifyOnAttackResult(player, row + 1, col + 1, AttackResult::Sink);
+		IBattleshipGameAlgo::notifyOnAttackResult(player, row + 1, col + 1, AttackResult::Sink);
 	}
 	else
 	{

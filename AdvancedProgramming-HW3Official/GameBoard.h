@@ -14,7 +14,7 @@ public:
 	//GameBoard()
 	GameBoard(int rows, int cols, int depth, bool defaultInit = false);
 	GameBoard(GameBoard&& board) noexcept;
-	GameBoard(const GameBoard& board) = delete;
+	GameBoard(const GameBoard& board);
 	GameBoard& operator=(const GameBoard& board) = delete;
 
 	char getBoardSquare(Coordinate coor) const;
