@@ -37,4 +37,6 @@ public:
 
 	static bool splitStringByDelimiter(const std::string& str, std::vector<int>& vec, char delim);
 	static int getShipLength(char ship);
+	static int parseArgs(int argc, char** argv, std::string& dirPath);
+	static char ** checkIfExists(char ** begin, char ** end, const std::string & option);
 };

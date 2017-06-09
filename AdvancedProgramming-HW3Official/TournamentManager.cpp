@@ -7,13 +7,6 @@
 #include <iostream>
 
 
-int main(int argc, char** argv)
-{
-	TournamentManager t(1, "game.log", LoggerLevel::ERROR);
-	
-	t.initializeBoards();
-}
-
 bool TournamentManager::initializeBoards()
 {
 	checkAndCreateBoard(std::string("bad_board_4.sboard"));
