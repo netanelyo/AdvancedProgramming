@@ -58,7 +58,7 @@ private:
 	bool dfsShip(char currShip, const GameBoard& gameBoard, const GameBoard& dummyBoard,
 		Coordinate coor, int & shipLen, Direction direction);
 
-	bool checkBoardDimensions(std::string& firstLine, std::vector<int>& dims) const;
+	bool dimensionsAreValid(std::string& firstLine, std::vector<int>& dims) const;
 
 	/**
 	* an helper function of dfsShip that finds all neighboring appearances of currShip on board

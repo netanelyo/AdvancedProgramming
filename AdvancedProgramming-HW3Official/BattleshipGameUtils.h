@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 enum class Direction
 {
@@ -34,5 +35,6 @@ public:
 		const static int PLAYER_B = 1;
 	};
 
+	static bool splitStringByDelimiter(const std::string& str, std::vector<int>& vec, char delim);
 	static int getShipLength(char ship);
 };

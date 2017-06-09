@@ -38,27 +38,10 @@ void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
 
 }
 
-bool TournamentManager::checkBoardDimensions(std::string & firstLine, std::vector<int>& dims) const
+bool TournamentManager::dimensionsAreValid(std::string & firstLine, std::vector<int>& dims) const
 {
-	std::vector<std::string> firstLineVec;
-
 	std::transform(firstLine.begin(), firstLine.end(), firstLine.begin(), ::tolower);
-	std::istringstream firstLineStream = std::istringstream(firstLine);
-	while (std::getline(firstLineStream, firstLine, 'x'))
-		firstLineVec.push_back(firstLine);
-
-	if (firstLineVec.size() != 3)
-		return false;
-	try
-	{
-		for (const auto& num : firstLineVec)
-			dims.push_back(std::stoi(num));
-	}
-	catch (...)
-	{
-		return false;
-	}
-	return true;
+	return BattleshipGameUtils::splitStringByDelimiter(firstLine, dims, 'x');
 }
 
 void TournamentManager::fillBoardWithEmptyLayers(const GameBoard & gameBoard, int z)
@@ -99,7 +82,7 @@ GameBoard TournamentManager::readBoardFromFile(const std::string& boardFilePath,
 		return GameBoard(0, 0, 0);
 	}
 
-	if (!std::getline(boardFile, line) || !checkBoardDimensions(line, dims))
+	if (!std::getline(boardFile, line) || !dimensionsAreValid(line, dims))
 	{
 		boardIsValid = false;
 		m_logger.printToLogger(Logger::LoggerMessage::ERROR_WRONG_DIMENSIONS_LINE + boardFilePath, LoggerLevel::ERROR);
