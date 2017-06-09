@@ -13,8 +13,9 @@ enum class Direction;
 class TournamentManager
 {
 public:
-	TournamentManager(int numOfThread, const std::string& loggerFilePath, LoggerLevel level) :
-	m_numOfThreads(numOfThread), m_logger(loggerFilePath, level) {}
+	TournamentManager(int numOfThread, const std::string& loggerFilePath,
+						LoggerLevel level = LoggerLevel::WARNING) :
+							m_numOfThreads(numOfThread), m_logger(loggerFilePath, level) {}
 	
 	bool initializeBoards();
 
@@ -31,7 +32,7 @@ private:
 	/**
 	* parses the board from the board file
 	*
-	* @param boardFile - a file stream to our board file
+	* @param boardFilePath - a file path to a potential board file
 	*/
 	GameBoard readBoardFromFile(const std::string& boardFilePath, bool& boardIsValid);
 
@@ -47,13 +48,10 @@ private:
 	* searches for all neighboring appearances of currShip on board in order to determine the validity of the board
 	*
 	* @param currShip - the symbol of the current ship
-	* @param dummy - a binary matrix
-	* @param row - the currShip row coordinate
-	* @param col - the currShip column coordinate
+	* @param dummyBoard - a binary matrix
+	* @param coor - the currShip coordinate
 	* @param shipLen - the current length of currShip on board
 	* @param direction - an enum representing the expected direction of currShip on board
-	* @param invalidShape - a boolean representing if the shape of currShip is invalid
-	* @param adjShips - a boolean representing if there are adjacent ships on board
 	*/
 	bool dfsShip(char currShip, const GameBoard& gameBoard, const GameBoard& dummyBoard,
 		Coordinate coor, int & shipLen, Direction direction);
@@ -64,11 +62,8 @@ private:
 	* an helper function of dfsShip that finds all neighboring appearances of currShip on board
 	*
 	* @param currShip - the symbol of the current ship
-	* @param dummy - a binary matrix
-	* @param row - the currShip row coordinate
-	* @param col - the currShip col coordinate
-	* @param invalidShape - a boolean representing if the shape of currShip is invalid
-	* @param adjShips - a boolean representing if there are adjacent ships on board
+	* @param dummyBoard - a binary matrix
+	* @param coor - the currShip coordinate
 	*/
 	bool markAllOfSameShip(char currShip, const GameBoard& gameBoard, const GameBoard& dummyBoard, Coordinate coor);
 
