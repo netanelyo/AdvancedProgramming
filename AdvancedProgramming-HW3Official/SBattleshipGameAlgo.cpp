@@ -83,7 +83,7 @@ Coordinate SBattleshipGameAlgo::attack()
 void SBattleshipGameAlgo::setBoard(const BoardData & board)
 {
 	char square;
-	/* If it's the first time the method is called */
+	// If it's the first time the method is called
 	if (!newBorn())
 		reset();
 	else
@@ -91,8 +91,8 @@ void SBattleshipGameAlgo::setBoard(const BoardData & board)
 
 	auto rows = board.rows(), cols = board.cols(), depth = board.depth();
 	m_board.setMembers(rows, cols, depth);
-
-	/*marks on board all the squares surrounding our ships*/
+	
+	// Sets player board
 	for (auto i = 0; i < rows; i++)
 	{
 		for (auto j = 0; j < cols; j++)
@@ -111,6 +111,7 @@ void SBattleshipGameAlgo::setBoard(const BoardData & board)
 
 void SBattleshipGameAlgo::markShipsBoarders()
 {
+	// Marks on board all the squares surrounding our ships
 	auto rows = m_board.rows(), cols = m_board.cols(), depth = m_board.depth();
 	for (auto i = 0; i < rows; i++)
 	{
