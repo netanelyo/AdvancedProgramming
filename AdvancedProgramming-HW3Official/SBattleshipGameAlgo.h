@@ -1,9 +1,7 @@
 #pragma once
 #include "IBattleshipGameAlgo.h"
 #include "BattleshipGameUtils.h"
-#include <set>
 #include <map>
-#include <algorithm>
 #include "PlayerBoard.h"
 #include <vector>
 
@@ -11,7 +9,8 @@ class SBattleshipGameAlgo : public IBattleshipGameAlgo
 {
 public:
 	SBattleshipGameAlgo() : IBattleshipGameAlgo(), m_currentAttackingShip({ -1, -1, -1 }),
-							m_lastAttackDirection(Direction::NON), m_randomState(true) {}
+							m_lastAttackDirection(Direction::NON), m_randomState(true),
+							m_isDone(false), m_newBorn(true), m_playerID(-1) {}
 
 	void notifyOnAttackResult(int player, Coordinate coor, AttackResult result) override;
 
@@ -19,7 +18,7 @@ public:
 
 	void setBoard(const BoardData& board) override;
 
-	void setPlayer(int player) override {}
+	void setPlayer(int player) override { m_playerID = player; }
 
 	bool isRandom() const { return m_randomState; }
 
@@ -27,10 +26,10 @@ private:
 	Coordinate	m_currentAttackingShip;
 	Direction	m_lastAttackDirection;
 	bool		m_randomState;
-	PlayerBoard m_board;
 	bool		m_isDone;
+	bool		m_newBorn;
 	int			m_playerID;
-	std::set<std::string>				m_preferredAttackSquares;
+	PlayerBoard m_board;
 	std::vector<Coordinate>				m_possibleMoves;
 	std::map<std::string, Direction>	m_attackHelperMap;
 
@@ -46,6 +45,9 @@ private:
 	Coordinate getNextRandomSquare();
 	bool isDone() const { return m_isDone; }
 	int playerID() const { return m_playerID; }
+	void markShipsBoarders();
+	void reset();
+	bool newBorn() const { return m_newBorn; }
 	static std::string generateKey(const Coordinate& coor);
 	static Coordinate retrieveCoordinateFromString(const std::string& str);
 	//bool hasShipInPerimiter(Coordinate coor, int axis, int upperBound) const;

@@ -1,14 +1,11 @@
 #include "SBattleshipGameAlgo.h"
+#include <algorithm>
 
 // For a cleaner code
 using Constant = BattleshipGameUtils::Constants;
 
 void SBattleshipGameAlgo::notifyOnAttackResult(int player, Coordinate coor, AttackResult result)
 {
-	auto row = --coor.row;
-	auto col = --coor.col;
-	auto depth = --coor.depth;
-
 	if (!m_board.coordinateIsValid(coor))
 		return;
 
@@ -43,6 +40,7 @@ Coordinate SBattleshipGameAlgo::attack()
 		if (attackCoor.row == -1 && attackCoor.col == -1 && attackCoor.depth == -1)
 		{
 			m_isDone = true;
+			return attackCoor;
 		}
 
 		attackCoor.row++;
@@ -80,6 +78,84 @@ Coordinate SBattleshipGameAlgo::attack()
 	}
 
 	return findNextEmptySquare(row, col, depth, nextAttackDirection);
+}
+
+void SBattleshipGameAlgo::setBoard(const BoardData & board)
+{
+	char square;
+	/* If it's the first time the method is called */
+	if (!newBorn())
+		reset();
+	else
+		m_newBorn = false;
+
+	auto rows = board.rows(), cols = board.cols(), depth = board.depth();
+	m_board.setMembers(rows, cols, depth);
+
+	/*marks on board all the squares surrounding our ships*/
+	for (auto i = 0; i < rows; i++)
+	{
+		for (auto j = 0; j < cols; j++)
+		{
+			for (auto k = 0; k < depth; k++)
+			{
+				Coordinate coor(i, j, k);
+				auto sq = board.charAt(coor);
+				m_board.setBoardSquare(coor, sq);
+			}
+		}
+	}
+	markShipsBoarders();
+	std::random_shuffle(m_possibleMoves.begin(), m_possibleMoves.end());
+}
+
+void SBattleshipGameAlgo::markShipsBoarders()
+{
+	auto rows = m_board.rows(), cols = m_board.cols(), depth = m_board.depth();
+	for (auto i = 0; i < rows; i++)
+	{
+		for (auto j = 0; j < cols; j++)
+		{
+			for (auto k = 0; k < depth; k++)
+			{
+				Coordinate coor(i, j, k);
+				auto sq = m_board.getBoardSquare(coor);
+				if (!isalpha(sq))
+				{
+					if (i > 0 && isalpha(m_board.getBoardSquare({ i - 1, j, k })))
+						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
+
+					else if ((i < rows - 1) && isalpha(m_board.getBoardSquare({ i + 1, j, k })))
+						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
+
+					else if (j > 0 && isalpha(m_board.getBoardSquare({ i, j - 1, k })))
+						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
+
+					else if ((j < cols - 1) && isalpha(m_board.getBoardSquare({ i, j + 1, k })))
+						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
+
+					else if ((j > 0) && isalpha(m_board.getBoardSquare({ i, j, k - 1 })))
+						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
+
+					else if ((j < depth - 1) && isalpha(m_board.getBoardSquare({ i, j, k + 1 })))
+						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
+
+					else
+						m_possibleMoves.push_back(coor);
+				}
+			}
+		}
+	}
+}
+
+void SBattleshipGameAlgo::reset()
+{
+	m_currentAttackingShip = Coordinate(-1, -1, -1);
+	m_lastAttackDirection = Direction::NON;
+	m_randomState = true;
+	m_isDone = false;
+	m_possibleMoves.clear();
+	m_attackHelperMap.clear();
 }
 
 void SBattleshipGameAlgo::markOppSankShip(Coordinate coor, bool& changed)
@@ -148,14 +224,14 @@ void SBattleshipGameAlgo::markRecursiveCall(int row, int col, int depth, bool& c
 
 void SBattleshipGameAlgo::findNextMove()
 {
-	if (m_preferredAttackSquares.empty())
+	if (m_attackHelperMap.empty())
 	{
 		m_randomState = true;
 	}
 	else
 	{
-		auto iter = m_attackHelperMap.begin();
-		m_currentAttackingShip = *iter;
+		auto coordKey = m_attackHelperMap.begin()->first;
+		m_currentAttackingShip = retrieveCoordinateFromString(coordKey);
 	}
 }
 
@@ -175,7 +251,6 @@ void SBattleshipGameAlgo::hitNotify(Coordinate coor, int player)
 
 			auto key = generateKey(coor);
 			m_attackHelperMap[key] = Direction::NON;
-			m_preferredAttackSquares.insert(key); //TODO: remove the set!
 		}
 
 		else
@@ -380,8 +455,10 @@ std::string SBattleshipGameAlgo::generateKey(const Coordinate & coor)
 
 Coordinate SBattleshipGameAlgo::retrieveCoordinateFromString(const std::string & str)
 {
-
-	return Coordinate();
+	std::vector<int> coords;
+	if (!BattleshipGameUtils::splitStringByDelimiter(str, coords, ':'))
+		return { -1, -1, -1 };
+	return { coords[0], coords[1], coords[2] };
 }
 
 IBattleshipGameAlgo* GetAlgorithm()

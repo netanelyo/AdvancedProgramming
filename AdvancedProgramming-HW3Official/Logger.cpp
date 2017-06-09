@@ -47,7 +47,9 @@ std::string Logger::getTimeAndDate()
 	struct tm timeinfo;
 
 	time(&rawtime);
-	localtime_s(&timeinfo, &rawtime);
+	auto ret = localtime_s(&timeinfo, &rawtime);
+	if (ret)
+		return "";
 
 	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", &timeinfo);
 

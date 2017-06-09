@@ -23,8 +23,8 @@ public:
 	int cols()	const { return m_cols; }
 	int depth() const { return m_depth; }
 	void setBoardSquare(Coordinate coor, char sq) const;
-	Coordinate getNextEmptySquare() const; //TODO: maybe player will implement
 	bool coordinateIsValid(Coordinate coor) const;
+	void setMembers(int rows, int cols, int depth);
 
 protected:
 	int m_rows;

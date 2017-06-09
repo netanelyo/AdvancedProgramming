@@ -24,6 +24,14 @@ bool PlayerBoard::coordinateIsValid(Coordinate coor) const
 	return r >= 0 && r < m_rows && c >= 0 && c < m_cols && d >= 0 && d < m_depth;
 }
 
+void PlayerBoard::setMembers(int rows, int cols, int depth)
+{
+	m_rows = rows;
+	m_cols = cols;
+	m_depth = depth;
+	allocateBoard();
+}
+
 void PlayerBoard::allocateBoard()
 {
 	m_gameBoard = std::make_unique<char_matrix[]>(m_rows);
