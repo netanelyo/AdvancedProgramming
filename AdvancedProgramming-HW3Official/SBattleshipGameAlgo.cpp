@@ -82,54 +82,68 @@ Coordinate SBattleshipGameAlgo::attack()
 	return findNextEmptySquare(row, col, depth, nextAttackDirection);
 }
 
-void SBattleshipGameAlgo::markOppSankShip(int row, int col, bool& changed)
+void SBattleshipGameAlgo::markOppSankShip(Coordinate coor, bool& changed)
 {
-	auto sq = m_myBoard.getBoardSquare(row, col);
-	m_myBoard.setBoardSquare(row, col, '#');
-	if (sq != 'X')
+	auto sq = m_board.getBoardSquare(coor);
+	m_board.setBoardSquare(coor, Constant::MISS_SIGN);
+	if (sq != Constant::HIT_SIGN)
 	{
 		return;
 	}
-
-	std::pair<int, int> tempCoor(row, col);
-	if (m_preferredAttackSquares.find(tempCoor) != m_preferredAttackSquares.end())
+	auto row = coor.row, col = coor.col, depth = coor.depth;
+	auto key = generateKey(coor);
+	if (m_attackHelperMap.find(key) != m_attackHelperMap.end())
 	{
-		if (m_currentAttackingShip == tempCoor)
+		if (m_currentAttackingShip.row		== row &&
+			m_currentAttackingShip.col		== col &&
+			m_currentAttackingShip.depth	== depth)
+		{
 			changed = true;
+		}
 
-		m_preferredAttackSquares.erase(tempCoor);
-		m_attackHelperMap.erase(tempCoor);
+		m_attackHelperMap.erase(key);
 	}
 
 	if (row > 0)
 	{
-		markRecursiveCall(row - 1, col, changed);
+		markRecursiveCall(row - 1, col, depth, changed);
 	}
 
 	if (col > 0)
 	{
-		markRecursiveCall(row, col - 1, changed);
+		markRecursiveCall(row, col - 1, depth, changed);
 	}
 
-	if (row < m_myBoard.getBoardRows() - 1)
+	if (depth > 0)
 	{
-		markRecursiveCall(row + 1, col, changed);
+		markRecursiveCall(row, col, depth - 1, changed);
 	}
 
-	if (col < m_myBoard.getBoardCols() - 1)
+	if (row < m_board.rows() - 1)
 	{
-		markRecursiveCall(row, col + 1, changed);
+		markRecursiveCall(row + 1, col, depth, changed);
+	}
+
+	if (col < m_board.cols() - 1)
+	{
+		markRecursiveCall(row, col + 1, depth, changed);
+	}
+
+	if (depth < m_board.depth() - 1)
+	{
+		markRecursiveCall(row, col, depth + 1, changed);
 	}
 }
 
-void SBattleshipGameAlgo::markRecursiveCall(int row, int col, bool& changed)
+void SBattleshipGameAlgo::markRecursiveCall(int row, int col, int depth, bool& changed)
 {
-	auto sq = m_myBoard.getBoardSquare(row, col);
-	if (sq == 'X')
-		markOppSankShip(row, col, changed);
+	Coordinate coor(row, col, depth);
+	auto sq = m_board.getBoardSquare(coor);
+	if (sq == Constant::HIT_SIGN)
+		markOppSankShip(coor, changed);
 
-	else if (sq == '0')
-		m_myBoard.setBoardSquare(row, col, '#');
+	else if (sq == Constant::EMPTY_SIGN)
+		m_board.setBoardSquare(coor, Constant::MISS_SIGN);
 }
 
 void SBattleshipGameAlgo::findNextMove()
@@ -140,7 +154,7 @@ void SBattleshipGameAlgo::findNextMove()
 	}
 	else
 	{
-		auto iter = m_preferredAttackSquares.begin();
+		auto iter = m_attackHelperMap.begin();
 		m_currentAttackingShip = *iter;
 	}
 }
@@ -161,7 +175,7 @@ void SBattleshipGameAlgo::hitNotify(Coordinate coor, int player)
 
 			auto key = generateKey(coor);
 			m_attackHelperMap[key] = Direction::NON;
-			m_preferredAttackSquares.insert(key); //TODO
+			m_preferredAttackSquares.insert(key); //TODO: remove the set!
 		}
 
 		else
@@ -171,16 +185,11 @@ void SBattleshipGameAlgo::hitNotify(Coordinate coor, int player)
 
 void SBattleshipGameAlgo::sinkNotify(Coordinate coor, int player)
 {
-	if (m_board.getBoardSquare(coor) != Constant::EMPTY_SIGN)
+	m_board.setBoardSquare(coor, Constant::HIT_SIGN);
+	if (player == playerID())
 	{
-		m_board.setBoardSquare(coor, Constant::HIT_SIGN);
-	}
-	else
-	{
-		//TODO: stopped here...
 		auto changed = false;
-		m_myBoard.setBoardSquare(row, col, 'X');
-		markOppSankShip(row, col, changed);
+		markOppSankShip(coor, changed);
 		if (changed)
 		{
 			findNextMove();
@@ -367,6 +376,12 @@ std::string SBattleshipGameAlgo::generateKey(const Coordinate & coor)
 	ret += ":";
 	ret += std::to_string(coor.depth);
 	return ret;
+}
+
+Coordinate SBattleshipGameAlgo::retrieveCoordinateFromString(const std::string & str)
+{
+
+	return Coordinate();
 }
 
 IBattleshipGameAlgo* GetAlgorithm()

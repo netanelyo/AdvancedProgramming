@@ -34,9 +34,9 @@ private:
 	std::vector<Coordinate>				m_possibleMoves;
 	std::map<std::string, Direction>	m_attackHelperMap;
 
-	void markOppSankShip(int row, int col, bool& changed);
+	void markOppSankShip(Coordinate coor, bool& changed);
 	//void missSetUpForNextAttack();
-	void markRecursiveCall(int row, int col, bool& changed);
+	void markRecursiveCall(int row, int col, int depth, bool& changed);
 	void findNextMove();
 	void hitNotify(Coordinate coor, int player);
 	void sinkNotify(Coordinate coor, int player);
@@ -47,5 +47,6 @@ private:
 	bool isDone() const { return m_isDone; }
 	int playerID() const { return m_playerID; }
 	static std::string generateKey(const Coordinate& coor);
+	static Coordinate retrieveCoordinateFromString(const std::string& str);
 	//bool hasShipInPerimiter(Coordinate coor, int axis, int upperBound) const;
 };
