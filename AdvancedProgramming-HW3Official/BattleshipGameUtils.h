@@ -29,6 +29,9 @@ public:
 		const static int MISSILE_BOAT_LEN = 2;
 		const static int SUBMARINE_LEN = 3;
 		const static int DESTROYER_LEN = 4;
+
+		const static int PLAYER_A = 0; 
+		const static int PLAYER_B = 1;
 	};
 
 	static int getShipLength(char ship);

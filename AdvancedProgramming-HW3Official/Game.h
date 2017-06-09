@@ -2,8 +2,10 @@
 
 #include "IBattleshipGameAlgo.h"
 #include "GameBoard.h"
+#include "BattleshipGameUtils.h"
 
 using Player = IBattleshipGameAlgo;
+using Constant = BattleshipGameUtils::Constants;
 
 
 class Game

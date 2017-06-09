@@ -1,9 +1,9 @@
 #include "Game.h"
 #include "BoardDataImpl.h"
-#include "BattleshipGameUtils.h"
+
 
 #define CHECK_CURRENT_SQUARE(i, j, k)	curr = m_board.getBoardSquare(Coordinate(i, j, k)); \
-										if (curr == '0')	break; \
+										if (curr == Constant::EMPTY_SIGN) break; \
 										if (curr == square) return AttackResult::Hit; \
 										tmp--
 
@@ -27,73 +27,73 @@ void Game::runGame()
 
 void Game::setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB)
 {
-	m_players[0] = playerA;
-	m_players[1] = playerB;
+	m_players[Constant::PLAYER_A] = playerA;
+	m_players[Constant::PLAYER_B] = playerB;
 
-	m_playersShips[0] = m_board.getShipCountForPlayer(0);
-	m_playersShips[1] = m_board.getShipCountForPlayer(1);
+	m_playersShips[Constant::PLAYER_A] = m_board.getShipCountForPlayer(Constant::PLAYER_A);
+	m_playersShips[Constant::PLAYER_B] = m_board.getShipCountForPlayer(Constant::PLAYER_B);
 
-	m_playersPoints[0] = 0;
-	m_playersPoints[1] = 0;
+	m_playersPoints[Constant::PLAYER_A] = 0;
+	m_playersPoints[Constant::PLAYER_B] = 0;
 
-	m_playerIsDone[0] = false;
-	m_playerIsDone[1] = false;
+	m_playerIsDone[Constant::PLAYER_A] = false;
+	m_playerIsDone[Constant::PLAYER_B] = false;
 
-	m_nextPlayer = 0;
+	m_nextPlayer = Constant::PLAYER_A;
 }
 
 void Game::initPlayers()
 {
-	m_players[0]->setPlayer(0); 
-	m_players[1]->setPlayer(1); 
+	m_players[Constant::PLAYER_A]->setPlayer(Constant::PLAYER_A);
+	m_players[Constant::PLAYER_B]->setPlayer(Constant::PLAYER_B);
 
-	BoardDataImpl boardDataForPlayers(m_board, 0);
-	m_players[0]->setBoard(boardDataForPlayers);
-	boardDataForPlayers.setPlayer(1); 
-	m_players[1]->setBoard(boardDataForPlayers); 
+	BoardDataImpl boardDataForPlayers(m_board, Constant::PLAYER_A);
+	m_players[Constant::PLAYER_A]->setBoard(boardDataForPlayers);
+	boardDataForPlayers.setPlayer(Constant::PLAYER_B);
+	m_players[Constant::PLAYER_B]->setBoard(boardDataForPlayers);
 }
 
 void Game::removeSankShip(Coordinate coor) const
 {
-	m_board.setBoardSquare(coor, '@');
+	m_board.setBoardSquare(coor, Constant::SINK_SIGN);
 
 	coor.row--; 
-	if (coor.row >= 0 && m_board.getBoardSquare(coor) == 'X')
+	if (coor.row >= 0 && m_board.getBoardSquare(coor) == Constant::HIT_SIGN)
 	{
 		removeSankShip(coor);
 	}
 	coor.row++;
 
 	coor.col--;
-	if (coor.col >= 0 && m_board.getBoardSquare(coor) == 'X')
+	if (coor.col >= 0 && m_board.getBoardSquare(coor) == Constant::HIT_SIGN)
 	{
 		removeSankShip(coor);
 	}
 	coor.col++; 
 
 	coor.depth--;
-	if (coor.depth >= 0 && m_board.getBoardSquare(coor) == 'X')
+	if (coor.depth >= 0 && m_board.getBoardSquare(coor) == Constant::HIT_SIGN)
 	{
 		removeSankShip(coor); 
 	}
 	coor.depth++;
 
 	coor.row++;
-	if (coor.row <= m_board.rows() - 1 && m_board.getBoardSquare(coor) == 'X')
+	if (coor.row <= m_board.rows() - 1 && m_board.getBoardSquare(coor) == Constant::HIT_SIGN)
 	{
 		removeSankShip(coor);
 	}
 	coor.row--;
 
 	coor.col++;
-	if (coor.col <= m_board.cols() - 1 && m_board.getBoardSquare(coor) == 'X')
+	if (coor.col <= m_board.cols() - 1 && m_board.getBoardSquare(coor) == Constant::HIT_SIGN)
 	{
 		removeSankShip(coor);
 	}
 	coor.col--; 
 
 	coor.depth++;
-	if (coor.depth <= m_board.depth() - 1 && m_board.getBoardSquare(coor) == 'X')
+	if (coor.depth <= m_board.depth() - 1 && m_board.getBoardSquare(coor) == Constant::HIT_SIGN)
 	{
 		removeSankShip(coor); 
 	}
@@ -101,7 +101,7 @@ void Game::removeSankShip(Coordinate coor) const
 
 bool Game::endOfAttacks() const
 {
-	if (m_playerIsDone[0] && m_playerIsDone[1])
+	if (m_playerIsDone[Constant::PLAYER_A] && m_playerIsDone[Constant::PLAYER_B])
 	{
 		return true;
 	}
@@ -115,16 +115,16 @@ int Game::getShipLen(char ship)
 	{
 	case 'B':
 	case 'b':
-		return BattleshipGameUtils::Constants::RUBBER_BOAT_LEN;
+		return Constant::RUBBER_BOAT_LEN;
 	case 'P':
 	case 'p':
-		return BattleshipGameUtils::Constants::MISSILE_BOAT_LEN;
+		return Constant::MISSILE_BOAT_LEN;
 	case 'M':
 	case 'm':
-		return BattleshipGameUtils::Constants::SUBMARINE_LEN;
+		return Constant::SUBMARINE_LEN;
 	case 'D':
 	case 'd':
-		return BattleshipGameUtils::Constants::DESTROYER_LEN;
+		return Constant::DESTROYER_LEN;
 	default:
 		return 0;
 	}
@@ -134,9 +134,9 @@ AttackResult Game::determineAttackResult(char square, Coordinate coor) const
 	auto len = getShipLen(square);
 	auto tmp = len - 1;
 	char curr;
-	int rowCoord = coor.row, colCoord = coor.col, depthCoord = coor.depth;
+	auto rowCoord = coor.row, colCoord = coor.col, depthCoord = coor.depth;
 
-	if (square == 'X')
+	if (square == Constant::HIT_SIGN)
 	{
 		return AttackResult::Hit;
 	}
@@ -187,31 +187,31 @@ AttackResult Game::determineAttackResult(char square, Coordinate coor) const
 void Game::handlePointsAndNextTurn(AttackResult result, char ship, int currentPlayer, bool isAShip, bool canPassTurn)
 {
 	auto shouldPass = ((!currentPlayer && isAShip) || (currentPlayer && !isAShip)
-		|| ship == 'X') && canPassTurn;
+		|| ship == Constant::HIT_SIGN) && canPassTurn;
 
 	/*handles points in case of a sink*/
 	if (result == AttackResult::Sink)
 	{
 		uint16_t points;
-		auto playerIndex = isAShip ? 1 : 0;
+		auto playerIndex = isAShip ? Constant::PLAYER_B : Constant::PLAYER_A;
 
 		switch (ship)
 		{
 		case 'B':
 		case 'b':
-			points = BattleshipGameUtils::Constants::RUBBER_BOAT_POINTS;
+			points = Constant::RUBBER_BOAT_POINTS;
 			break;
 		case 'P':
 		case 'p':
-			points = BattleshipGameUtils::Constants::MISSILE_BOAT_POINTS;
+			points = Constant::MISSILE_BOAT_POINTS;
 			break;
 		case 'M':
 		case 'm':
-			points = BattleshipGameUtils::Constants::SUBMARINE_POINTS;
+			points = Constant::SUBMARINE_POINTS;
 			break;
 		case 'D':
 		case 'd':
-			points = BattleshipGameUtils::Constants::DESTROYER_POINTS;
+			points = Constant::DESTROYER_POINTS;
 			break;
 		default:
 			points = 0;
@@ -233,11 +233,11 @@ Game::GameState Game::playMove()
 {
 	AttackResult result;
 	int  winner = -1, currentPlayer = m_nextPlayer;
-	auto playerA = m_players[0];
-	auto playerB = m_players[1];
+	auto playerA = m_players[Constant::PLAYER_A];
+	auto playerB = m_players[Constant::PLAYER_B];
 
 	/*gets player's next move*/
-	Coordinate attackCoord = m_players[currentPlayer]->attack();
+	auto attackCoord = m_players[currentPlayer]->attack();
 	if (attackCoord.row == -1 && attackCoord.col == -1 && attackCoord.depth == -1)
 	{
 		m_playerIsDone[currentPlayer] = true;
@@ -273,14 +273,14 @@ Game::GameState Game::playMove()
 	bool canPass = canPassTurn(currentPlayer);
 
 	/*determines the attack result and sets the next Turn and the player's points accordingly*/
-	if (square == BattleshipGameUtils::Constants::SPACE || square == '@')
+	if (square == Constant::EMPTY_SIGN || square == Constant::HIT_SIGN)
 	{
 		result = AttackResult::Miss;
 		m_nextPlayer ^= (canPass ? 1 : 0); /* If canPassTurn -> nextPlayer changes */
 	}
 	else
 	{
-		m_board.setBoardSquare(attackCoord, 'X');
+		m_board.setBoardSquare(attackCoord, Constant::HIT_SIGN);
 		result = determineAttackResult(square, attackCoord);
 
 		handlePointsAndNextTurn(result, square, currentPlayer, isupper(square), canPass);
@@ -298,13 +298,13 @@ Game::GameState Game::playMove()
 	playerB->notifyOnAttackResult(currentPlayer, attackCoord, result);
 
 	/*checks if there is a winner*/
-	if (m_playersShips[0] == 0)
+	if (m_playersShips[Constant::PLAYER_A] == 0)
 	{
-		winner = 1;
+		winner = Constant::PLAYER_B;
 	}
-	else if (m_playersShips[1] == 0)
+	else if (m_playersShips[Constant::PLAYER_B] == 0)
 	{
-		winner = 0;
+		winner = Constant::PLAYER_A;
 	}
 
 	/*if there's a winner, we end the game*/

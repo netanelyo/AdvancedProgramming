@@ -40,11 +40,10 @@ void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
 
 bool TournamentManager::checkBoardDimensions(std::string & firstLine, std::vector<int>& dims) const
 {
-	std::istringstream firstLineStream;
 	std::vector<std::string> firstLineVec;
 
 	std::transform(firstLine.begin(), firstLine.end(), firstLine.begin(), ::tolower);
-	firstLineStream = std::istringstream(firstLine);
+	std::istringstream firstLineStream = std::istringstream(firstLine);
 	while (std::getline(firstLineStream, firstLine, 'x'))
 		firstLineVec.push_back(firstLine);
 
@@ -92,7 +91,6 @@ GameBoard TournamentManager::readBoardFromFile(const std::string& boardFilePath,
 {
 	std::string			line;
 	std::vector<int>	dims;
-	Coordinate currentCoor(0, 0, 0);
 	std::ifstream boardFile(boardFilePath);
 	if (!boardFile.is_open())
 	{
@@ -140,7 +138,7 @@ GameBoard TournamentManager::readBoardFromFile(const std::string& boardFilePath,
 
 			for (auto col = 0; col < gameBoard.cols(); ++col)
 			{
-				currentCoor.depth = z, currentCoor.col = col, currentCoor.row = row;
+				Coordinate currentCoor(row, col, z);
 				if (col < len)
 				{
 					auto sq = line[col];
@@ -334,7 +332,6 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 {
 	auto rows = board.rows(), cols = board.cols(), depth = board.depth();
 	GameBoard dummyBoard(rows, cols, depth, true);
-	Coordinate currentCoor(0, 0, 0);
 	auto shipLength = 1;
 	std::array<std::unordered_map<char, int>, 2> shipTypesCountForPlayer =
 	{
@@ -348,10 +345,9 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 		{
 			for (auto col = 0; col < cols; ++col)
 			{
-				currentCoor.depth = z, currentCoor.col = col, currentCoor.row = row;
+				Coordinate currentCoor(row, col, z); 
 				if (dummyBoard.getBoardSquare(currentCoor) == 0)
 				{
-					int belongsToA;
 					auto currentShip = board.getBoardSquare(currentCoor);
 
 					dummyBoard.setBoardSquare(currentCoor, 1);
@@ -359,7 +355,7 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 						continue;
 
 					/* currentShip - candidate to be a valid ship */
-					belongsToA = isupper(currentShip);
+					auto belongsToA = isupper(currentShip);
 
 					if (!dfsShip(currentShip, board, dummyBoard, currentCoor, shipLength, Direction::NON))
 						return false;
@@ -378,6 +374,10 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 			}
 		}
 	}
+
+	if (board.getShipCountForPlayer(0) == 0 && board.getShipCountForPlayer(1) == 0)
+		return false;
+
 	if (!shipTypesBalanced(shipTypesCountForPlayer))
 		m_logger.printToLogger(Logger::LoggerMessage::WARNING_UNBALANCED_BOARD + board.name(), LoggerLevel::WARNING);
 	return true;
