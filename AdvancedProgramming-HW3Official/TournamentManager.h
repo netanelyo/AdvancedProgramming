@@ -17,12 +17,14 @@ public:
 						LoggerLevel level = LoggerLevel::WARNING) :
 							m_numOfThreads(numOfThread), m_logger(loggerFilePath, level) {}
 	
-	bool initializeBoards();
+	bool initializeBoards(const std::vector<std::string>& boardNames, std::string dirPath);
+	bool initializeDlls(const std::vector<std::string>& dllNames, std::string dirPath);
 
 private:
 	int							m_numOfThreads;
 	std::vector<std::thread>	m_threadPool;
 	std::vector<GameBoard>		m_gameBoards;
+	std::vector<std::function<IBattleshipGameAlgo*()>> m_functionPointers;
 	std::vector<Game>			m_games;
 	std::vector<std::shared_ptr<IBattleshipGameAlgo>> m_players;
 	Logger						m_logger;

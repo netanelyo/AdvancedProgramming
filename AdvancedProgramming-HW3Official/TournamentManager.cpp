@@ -7,14 +7,25 @@
 #include <iostream>
 
 
-bool TournamentManager::initializeBoards()
+bool TournamentManager::initializeBoards(const std::vector<std::string>& boardNames, std::string dirPath)
 {
-	checkAndCreateBoard(std::string("bad_board_4.sboard"));
-	std::cout << m_gameBoards.size() << std::endl;
-	std::ofstream file("testBoard.board", std::ios::trunc | std::ios::out);
-	//m_gameBoards.back().printBoard(file);
-	file.close();
+	for (const auto& boardName: boardNames)
+	{
+		checkAndCreateBoard(dirPath + boardName); 
+	}
+
+	if (m_gameBoards.empty())
+		return false;
+
 	return true;
+}
+
+bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames, std::string firPath)
+{
+	for (const auto& dllName: dllNames)
+	{
+		
+	}
 }
 
 void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
@@ -28,7 +39,6 @@ void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
 
 	if (boardIsValid(gameBoard))
 		m_gameBoards.push_back(std::move(gameBoard));
-
 }
 
 bool TournamentManager::dimensionsAreValid(std::string & firstLine, std::vector<int>& dims) const
