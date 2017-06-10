@@ -10,6 +10,8 @@ public:
 
 	static const std::string DEFAULT_LOGFILE_NAME;
 	static const std::string CONFIG_END;
+	static const std::string BOARD_END;
+	static const std::string DLL_END;
 	static const std::string WORKING_DIR;
 	static const std::string SEPERATOR;
 	static const std::string ASTERISK;

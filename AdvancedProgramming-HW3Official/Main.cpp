@@ -4,13 +4,18 @@
 #include <iostream>
 #include <sstream>
 
-#define PRINT_WRONG_PATH(path) std::cout << "Wrong path: " << path << std::endl
-#define PRINT_MISSING_FILE(msg, path) std::cout << "Missing " << msg << \
-				" looking in path: " << path
+#define PRINT_WRONG_PATH(path) std::cout << "Wrong path: " << path
+#define PRINT_MISSING_BOARD_FILE(path) std::cout << \
+								"No board files (*.sboard) looking in path: " << path
+#define PRINT_MISSING_DLL_FILE(path) std::cout << \
+								"Missing algorithm (dll) files looking in path: " << \
+								path << " (needs at least two)"
 
 
 const std::string MainUtils::DEFAULT_LOGFILE_NAME = "game.log";
 const std::string MainUtils::CONFIG_END = ".config";
+const std::string MainUtils::BOARD_END = ".sboard";
+const std::string MainUtils::DLL_END = ".dll";
 const std::string MainUtils::WORKING_DIR = ".";
 const std::string MainUtils::SEPERATOR = "\\";
 const std::string MainUtils::ASTERISK = "*";
@@ -21,7 +26,7 @@ const std::string MainUtils::LOGGER_LEVEL = "loggerLevel";
 
 int main(int argc, char** argv)
 {
-	std::string dirPath(".");
+	std::string dirPath(MainUtils::WORKING_DIR);
 	char cFullPath[MAX_PATH];
 	WIN32_FIND_DATAA fileData;
 	auto logName = MainUtils::DEFAULT_LOGFILE_NAME;
@@ -37,7 +42,7 @@ int main(int argc, char** argv)
 	{
 		if (GetLastError() != ERROR_FILE_NOT_FOUND)
 		{
-			std::cout << "Wrong path: " << fullPath;
+			PRINT_WRONG_PATH(fullPath);
 			return EXIT_FAILURE;
 		}
 		if (numOfThreads == -1)
@@ -52,7 +57,50 @@ int main(int argc, char** argv)
 		config.close();
 	}
 
+	TournamentManager tournament(numOfThreads, fullPath + MainUtils::SEPERATOR + logName);
 
+	std::vector<std::string> boards;
+	auto error = false;
+	dir = FindFirstFileA((fullPath +
+						MainUtils::SEPERATOR +
+						MainUtils::ASTERISK +
+						MainUtils::BOARD_END).c_str(), &fileData);
+	if (dir == INVALID_HANDLE_VALUE)
+	{
+		PRINT_MISSING_BOARD_FILE(fullPath);
+		error = true;
+	}
+	else
+	{
+		do
+		{
+			boards.push_back(MainUtils::SEPERATOR + fileData.cFileName);
+		} while (FindNextFileA(dir, &fileData));
+	}
+
+	//tournament.initializeBoards() //TODO: initiliaze
+
+	std::vector<std::string> dlls;
+	dir = FindFirstFileA((fullPath +
+						MainUtils::SEPERATOR +
+						MainUtils::ASTERISK +
+						MainUtils::DLL_END).c_str(), &fileData);
+	if (dir == INVALID_HANDLE_VALUE)
+	{
+		if (error)
+			std::cout << std::endl;
+		PRINT_MISSING_DLL_FILE(fullPath);
+		return EXIT_FAILURE;
+	}
+	do
+	{
+		boards.push_back(MainUtils::SEPERATOR + fileData.cFileName);
+	} while (FindNextFileA(dir, &fileData));
+	
+	if (error)
+		return EXIT_FAILURE;
+
+	//TODO: initDlls
 
 }
 
