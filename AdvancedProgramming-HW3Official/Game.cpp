@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "BoardDataImpl.h"
+#include <iostream>
 
 
 #define CHECK_CURRENT_SQUARE(i, j, k)	curr = m_board.getBoardSquare(Coordinate(i, j, k)); \
@@ -23,6 +24,8 @@ void Game::runGame()
 {
 	initPlayers();
 	while (playMove() != GameState::GAME_OVER){}
+
+	std::cout << "A: " << m_playersPoints[0] << ", B: " << m_playersPoints[1] << std::endl;
 }
 
 void Game::setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB)
@@ -296,6 +299,26 @@ Game::GameState Game::playMove()
 	attackCoord.depth++;
 	playerA->notifyOnAttackResult(currentPlayer, attackCoord, result);
 	playerB->notifyOnAttackResult(currentPlayer, attackCoord, result);
+
+	std::cout << "player: " << currentPlayer << std::endl;
+	std::cout << "(" << attackCoord.row << ", " << attackCoord.col << ", " << attackCoord.depth << ")" << std::endl;
+	switch (result)
+	{
+	case AttackResult::Hit:
+		std::cout << "HIT" << std::endl;
+		break;
+
+	case AttackResult::Sink:
+		std::cout << "SINK" << std::endl;
+		break;
+
+	case AttackResult::Miss:
+		std::cout << "Miss" << std::endl;
+		break;
+
+	default:
+		break;
+	}
 
 	/*checks if there is a winner*/
 	if (m_playersShips[Constant::PLAYER_A] == 0)

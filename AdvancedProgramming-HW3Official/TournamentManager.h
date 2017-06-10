@@ -19,6 +19,7 @@ public:
 	
 	bool initializeBoards(const std::vector<std::string>& boardNames, std::string dirPath);
 	bool initializeDlls(const std::vector<std::string>& dllNames, std::string dirPath);
+	void startTournament();
 
 private:
 	int							m_numOfThreads;

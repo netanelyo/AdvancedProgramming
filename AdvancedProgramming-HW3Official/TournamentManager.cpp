@@ -25,14 +25,14 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 
 	for (const auto& dllName: dllNames)
 	{	
-		auto dllPath = dllName + dirPath;
+		auto dllPath = dirPath + dllName;
 		auto hDll = LoadLibraryA(dllPath.c_str());
 		if (!hDll)
 		{
 			m_logger.printToLogger(Logger::LoggerMessage::ERROR_CANT_OPEN_DLL + dllName, LoggerLevel::ERR);
 			continue;
 		}
-		auto getPlayer = GetPlayerType(GetProcAddress(hDll, FUNCTION_NAME.c_str())); 
+		auto getPlayer = GetPlayerType(GetProcAddress(hDll, FUNCTION_NAME.c_str()));
 		if (!getPlayer)
 		{
 			m_logger.printToLogger(Logger::LoggerMessage::ERROR_CANT_LOAD_DLL + dllName, LoggerLevel::ERR);
@@ -42,13 +42,15 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 		m_functionPointers.push_back(getPlayer);
 	}
 
-	return m_functionPointers.size() < 2;
+	return m_functionPointers.size() >= 2;
 	
 }
 
 void TournamentManager::startTournament()
 {
-
+	std::shared_ptr<IBattleshipGameAlgo> A(m_functionPointers[0]()), B(m_functionPointers[1]());
+	Game game(m_gameBoards[0], A, B);
+	game.runGame();
 }
 
 void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)

@@ -1,8 +1,8 @@
 #pragma once
 #include "IBattleshipGameAlgo.h"
 #include "BattleshipGameUtils.h"
-#include <map>
 #include "PlayerBoard.h"
+#include <map>
 #include <vector>
 
 class SBattleshipGameAlgo : public IBattleshipGameAlgo

@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 	if (error)
 		return EXIT_FAILURE;
 
-	//TODO: start game
+	tournament.startTournament();
 }
 
 int MainUtils::parseArgs(int argc, char ** argv, std::string & dirPath)
@@ -118,7 +118,7 @@ int MainUtils::parseArgs(int argc, char ** argv, std::string & dirPath)
 		dirPath = argv[1];
 	}
 
-	auto iter = checkIfExists(argv, argv + argc, "-threads");
+	auto iter = checkIfExists(argv, argv + argc, THREADS);
 	if (iter)
 	{
 		++iter;

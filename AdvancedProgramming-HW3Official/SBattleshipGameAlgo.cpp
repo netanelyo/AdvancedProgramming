@@ -1,11 +1,19 @@
 #include "SBattleshipGameAlgo.h"
 #include <algorithm>
+#include <random>
+#include "BattleshipGameUtils.h"
 
 // For a cleaner code
 using Constant = BattleshipGameUtils::Constants;
 
+#define	UPDATE_COORD_AND_RETURN		coor.row++, coor.col++, coor.depth++; \
+									return coor
+
 void SBattleshipGameAlgo::notifyOnAttackResult(int player, Coordinate coor, AttackResult result)
 {
+	coor.row--;
+	coor.col--;
+	coor.depth--;
 	if (!m_board.coordinateIsValid(coor))
 		return;
 
@@ -58,20 +66,20 @@ Coordinate SBattleshipGameAlgo::attack()
 
 	if (nextAttackDirection == Direction::NON)
 	{
-		if ((col < m_board.cols() - 1 && m_board.getBoardSquare({ row, col + 1, depth }) == 'X')
-			|| (col > 0 && m_board.getBoardSquare({ row, col - 1, depth }) == 'X'))
+		if ((col < m_board.cols() - 1 && m_board.getBoardSquare({ row, col + 1, depth }) == Constant::HIT_SIGN)
+			|| (col > 0 && m_board.getBoardSquare({ row, col - 1, depth }) == Constant::HIT_SIGN))
 		{
 			m_lastAttackDirection = Direction::HORIZONTAL;
 		}
 
-		else if ((row < m_board.rows() - 1 && m_board.getBoardSquare({ row + 1, col, depth }) == 'X')
-			|| (row > 0 && m_board.getBoardSquare({ row - 1, col, depth }) == 'X'))
+		else if ((row < m_board.rows() - 1 && m_board.getBoardSquare({ row + 1, col, depth }) == Constant::HIT_SIGN)
+			|| (row > 0 && m_board.getBoardSquare({ row - 1, col, depth }) == Constant::HIT_SIGN))
 		{
 			m_lastAttackDirection = Direction::VERTICAL;
 		}
 
-		else if ((depth < m_board.depth() - 1 && m_board.getBoardSquare({ row, col, depth + 1 }) == 'X')
-			|| (depth > 0 && m_board.getBoardSquare({ row, col, depth - 1 }) == 'X'))
+		else if ((depth < m_board.depth() - 1 && m_board.getBoardSquare({ row, col, depth + 1 }) == Constant::HIT_SIGN)
+			|| (depth > 0 && m_board.getBoardSquare({ row, col, depth - 1 }) == Constant::HIT_SIGN))
 		{
 			m_lastAttackDirection = Direction::DEPTH;
 		}
@@ -82,7 +90,6 @@ Coordinate SBattleshipGameAlgo::attack()
 
 void SBattleshipGameAlgo::setBoard(const BoardData & board)
 {
-	char square;
 	// If it's the first time the method is called
 	if (!newBorn())
 		reset();
@@ -106,6 +113,9 @@ void SBattleshipGameAlgo::setBoard(const BoardData & board)
 		}
 	}
 	markShipsBoarders();
+	/* Shuffle moves */
+	std::random_device rd;
+	srand(rd());
 	std::random_shuffle(m_possibleMoves.begin(), m_possibleMoves.end());
 }
 
@@ -135,10 +145,10 @@ void SBattleshipGameAlgo::markShipsBoarders()
 					else if ((j < cols - 1) && isalpha(m_board.getBoardSquare({ i, j + 1, k })))
 						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
 
-					else if ((j > 0) && isalpha(m_board.getBoardSquare({ i, j, k - 1 })))
+					else if ((k > 0) && isalpha(m_board.getBoardSquare({ i, j, k - 1 })))
 						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
 
-					else if ((j < depth - 1) && isalpha(m_board.getBoardSquare({ i, j, k + 1 })))
+					else if ((k < depth - 1) && isalpha(m_board.getBoardSquare({ i, j, k + 1 })))
 						m_board.setBoardSquare(coor, Constant::MISS_SIGN);
 
 					else
@@ -343,8 +353,7 @@ Coordinate SBattleshipGameAlgo::findNextIterative(int row, int col, int depth, D
 
 			else if (sq == Constant::EMPTY_SIGN)
 			{
-				coor.row++, coor.col++, coor.depth++;
-				return coor;
+				UPDATE_COORD_AND_RETURN;
 			}
 		}
 
@@ -356,8 +365,7 @@ Coordinate SBattleshipGameAlgo::findNextIterative(int row, int col, int depth, D
 
 			else if (sq == Constant::EMPTY_SIGN)
 			{
-				coor.depth++, coor.col++;
-				return coor;
+				UPDATE_COORD_AND_RETURN;
 			}
 		}
 		break;
@@ -374,8 +382,7 @@ Coordinate SBattleshipGameAlgo::findNextIterative(int row, int col, int depth, D
 
 			else if (sq == Constant::EMPTY_SIGN)
 			{
-				coor.row++, coor.col++, coor.depth++;
-				return coor;
+				UPDATE_COORD_AND_RETURN;
 			}
 		}
 
@@ -387,8 +394,7 @@ Coordinate SBattleshipGameAlgo::findNextIterative(int row, int col, int depth, D
 
 			else if (sq == Constant::EMPTY_SIGN)
 			{
-				coor.row++, coor.depth++;
-				return coor;
+				UPDATE_COORD_AND_RETURN;
 			}
 		}
 		break;
@@ -405,8 +411,7 @@ Coordinate SBattleshipGameAlgo::findNextIterative(int row, int col, int depth, D
 
 			else if (sq == Constant::EMPTY_SIGN)
 			{
-				coor.row++, coor.col++, coor.depth++;
-				return coor;
+				UPDATE_COORD_AND_RETURN;
 			}
 		}
 
@@ -418,8 +423,7 @@ Coordinate SBattleshipGameAlgo::findNextIterative(int row, int col, int depth, D
 
 			else if (sq == Constant::EMPTY_SIGN)
 			{
-				coor.row++, coor.col++;
-				return coor;
+				UPDATE_COORD_AND_RETURN;
 			}
 		}
 		break;
