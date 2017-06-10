@@ -74,34 +74,41 @@ int main(int argc, char** argv)
 	{
 		do
 		{
-			boards.push_back(MainUtils::SEPERATOR + fileData.cFileName);
+			boards.push_back(fileData.cFileName);
 		} while (FindNextFileA(dir, &fileData));
 	}
 
-	//tournament.initializeBoards() //TODO: initiliaze
+	if (!error && !tournament.initializeBoards(boards, fullPath + MainUtils::SEPERATOR))
+	{
+		PRINT_MISSING_BOARD_FILE(fullPath);
+		error = true;
+	}
 
 	std::vector<std::string> dlls;
 	dir = FindFirstFileA((fullPath +
 						MainUtils::SEPERATOR +
 						MainUtils::ASTERISK +
 						MainUtils::DLL_END).c_str(), &fileData);
-	if (dir == INVALID_HANDLE_VALUE)
+	if (dir != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			dlls.push_back(fileData.cFileName);
+		} while (FindNextFileA(dir, &fileData));
+	}
+	if (dir == INVALID_HANDLE_VALUE || dlls.size() < 2 ||
+		!tournament.initializeDlls(dlls, fullPath + MainUtils::SEPERATOR))
 	{
 		if (error)
 			std::cout << std::endl;
 		PRINT_MISSING_DLL_FILE(fullPath);
 		return EXIT_FAILURE;
 	}
-	do
-	{
-		boards.push_back(MainUtils::SEPERATOR + fileData.cFileName);
-	} while (FindNextFileA(dir, &fileData));
-	
+
 	if (error)
 		return EXIT_FAILURE;
 
-	//TODO: initDlls
-
+	//TODO: start game
 }
 
 int MainUtils::parseArgs(int argc, char ** argv, std::string & dirPath)
