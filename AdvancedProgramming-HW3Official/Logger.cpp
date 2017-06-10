@@ -26,7 +26,7 @@ void Logger::printToLogger(const std::string& msg, LoggerLevel level)
 {
 	switch (level)
 	{
-	case LoggerLevel::ERROR:
+	case LoggerLevel::ERR:
 		printMessage(LoggerMessage::ERROR + msg);
 		break;
 

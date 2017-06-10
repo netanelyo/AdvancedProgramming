@@ -1,11 +1,13 @@
 #include "TournamentManager.h"
+#include "BattleshipGameUtils.h"
 
+#include <algorithm>
 #include <sstream>
 #include <fstream>
-#include <algorithm>
-#include "BattleshipGameUtils.h"
 #include <iostream>
+#include <windows.h>
 
+const std::string TournamentManager::FUNCTION_NAME = "GetAlgorithm"; 
 
 bool TournamentManager::initializeBoards(const std::vector<std::string>& boardNames, std::string dirPath)
 {
@@ -14,18 +16,39 @@ bool TournamentManager::initializeBoards(const std::vector<std::string>& boardNa
 		checkAndCreateBoard(dirPath + boardName); 
 	}
 
-	if (m_gameBoards.empty())
-		return false;
-
-	return true;
+	return !m_gameBoards.empty();
 }
 
-bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames, std::string firPath)
+bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames, std::string dirPath)
 {
+	typedef IBattleshipGameAlgo* (*GetPlayerType)();
+
 	for (const auto& dllName: dllNames)
-	{
-		
+	{	
+		auto dllPath = dllName + dirPath;
+		auto hDll = LoadLibraryA(dllPath.c_str());
+		if (!hDll)
+		{
+			m_logger.printToLogger(Logger::LoggerMessage::ERROR_CANT_OPEN_DLL + dllName, LoggerLevel::ERR);
+			continue;
+		}
+		auto getPlayer = GetPlayerType(GetProcAddress(hDll, FUNCTION_NAME.c_str())); 
+		if (!getPlayer)
+		{
+			m_logger.printToLogger(Logger::LoggerMessage::ERROR_CANT_LOAD_DLL + dllName, LoggerLevel::ERR);
+			continue;
+		}
+
+		m_functionPointers.push_back(getPlayer);
 	}
+
+	return m_functionPointers.size() < 2;
+	
+}
+
+void TournamentManager::startTournament()
+{
+
 }
 
 void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
@@ -81,14 +104,14 @@ GameBoard TournamentManager::readBoardFromFile(const std::string& boardFilePath,
 	if (!boardFile.is_open())
 	{
 		boardIsValid = false;
-		m_logger.printToLogger(Logger::LoggerMessage::ERROR_CANT_OPEN_BOARD_FILE + boardFilePath, LoggerLevel::ERROR);
+		m_logger.printToLogger(Logger::LoggerMessage::ERROR_CANT_OPEN_BOARD_FILE + boardFilePath, LoggerLevel::ERR);
 		return GameBoard(0, 0, 0);
 	}
 
 	if (!std::getline(boardFile, line) || !dimensionsAreValid(line, dims))
 	{
 		boardIsValid = false;
-		m_logger.printToLogger(Logger::LoggerMessage::ERROR_WRONG_DIMENSIONS_LINE + boardFilePath, LoggerLevel::ERROR);
+		m_logger.printToLogger(Logger::LoggerMessage::ERROR_WRONG_DIMENSIONS_LINE + boardFilePath, LoggerLevel::ERR);
 		return GameBoard(0, 0, 0);
 	}
 	GameBoard gameBoard(dims[1], dims[0], dims[2]);
@@ -174,7 +197,7 @@ bool TournamentManager::checkAdjacentSquare(char currShip, const GameBoard & gam
 
 		else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::EMPTY_SIGN)
 		{
-			m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERROR);
+			m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERR);
 			return false;
 		}
 	}
@@ -242,7 +265,7 @@ bool TournamentManager::dfsShipHelper(Direction direction, Direction currentDire
 	{
 		if (currentDirection != Direction::NON && currentDirection != direction)
 		{
-			m_logger.printToLogger(Logger::LoggerMessage::ERROR_INVALID_SHAPE_OR_SIZE + gameBoard.name(), LoggerLevel::ERROR);
+			m_logger.printToLogger(Logger::LoggerMessage::ERROR_INVALID_SHAPE_OR_SIZE + gameBoard.name(), LoggerLevel::ERR);
 			return false;
 		}
 
@@ -255,7 +278,7 @@ bool TournamentManager::dfsShipHelper(Direction direction, Direction currentDire
 
 	else if (gameBoard.getBoardSquare(coor) != BattleshipGameUtils::Constants::EMPTY_SIGN)
 	{
-		m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERROR);
+		m_logger.printToLogger(Logger::LoggerMessage::ERROR_ADJACENT_SHIPS + gameBoard.name(), LoggerLevel::ERR);
 		return false;
 	}
 
@@ -348,7 +371,7 @@ bool TournamentManager::boardIsValid(GameBoard & board)
 
 					if (shipLength != BattleshipGameUtils::getShipLength(currentShip))
 					{
-						m_logger.printToLogger(Logger::LoggerMessage::ERROR_INVALID_SHAPE_OR_SIZE + board.name(), LoggerLevel::ERROR);
+						m_logger.printToLogger(Logger::LoggerMessage::ERROR_INVALID_SHAPE_OR_SIZE + board.name(), LoggerLevel::ERR);
 						return false;
 					}
 

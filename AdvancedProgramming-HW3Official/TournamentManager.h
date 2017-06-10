@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
-#include <thread>
 #include "GameBoard.h"
 #include "Game.h"
 #include "IBattleshipGameAlgo.h"
 #include "Logger.h"
+#include <vector>
+#include <thread>
 #include <unordered_map>
 
 enum class Direction;
@@ -28,6 +28,8 @@ private:
 	std::vector<Game>			m_games;
 	std::vector<std::shared_ptr<IBattleshipGameAlgo>> m_players;
 	Logger						m_logger;
+
+	static const std::string FUNCTION_NAME; 
 
 	void checkAndCreateBoard(const std::string& boardFile);
 

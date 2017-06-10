@@ -4,9 +4,8 @@
 
 enum class LoggerLevel
 {
-	ERROR,
-	WARNING,
-	//DEBUG //TODO: redundant?
+	ERR,
+	WARNING
 };
 
 class Logger
