@@ -10,6 +10,9 @@
 
 enum class Direction;
 
+// A pair representing both rounds for each match
+using shuffledPair = std::pair<std::pair<int, int>, std::pair<int, int>>;
+
 class TournamentManager
 {
 public:
@@ -21,14 +24,18 @@ public:
 	bool initializeDlls(const std::vector<std::string>& dllNames, std::string dirPath);
 	void startTournament();
 
+
+
 private:
 	int							m_numOfThreads;
+	Logger						m_logger;
 	std::vector<std::thread>	m_threadPool;
 	std::vector<GameBoard>		m_gameBoards;
-	std::vector<std::function<IBattleshipGameAlgo*()>> m_functionPointers;
 	std::vector<Game>			m_games;
+	std::vector<std::string>	m_playerNames;
+	std::vector<int>			m_playerIds;
+	std::vector<std::function<IBattleshipGameAlgo*()>> m_functionPointers;
 	std::vector<std::shared_ptr<IBattleshipGameAlgo>> m_players;
-	Logger						m_logger;
 
 	static const std::string FUNCTION_NAME;
 
@@ -78,6 +85,8 @@ private:
 		const GameBoard & gameBoard, const GameBoard & dummyBoard, Coordinate coor, int & shipLen);
 
 	bool checkAdjacentSquare(char currShip, const GameBoard & gameBoard, const GameBoard & dummyBoard, Coordinate coor);
+
+	static void gamesScheduler(std::vector<shuffledPair>& matches, std::vector<int> ids);
 
 	static void fillBoardWithEmptyLayers(const GameBoard& gameBoard, int z);
 

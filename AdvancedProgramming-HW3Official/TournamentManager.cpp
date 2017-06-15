@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <windows.h>
+#include "ConcurrentVector.h"
 
 #define LEGAL "Number of legal "
 
@@ -25,6 +26,7 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 {
 	typedef IBattleshipGameAlgo* (*GetPlayerType)();
 
+	auto id = 0;
 	for (const auto& dllName: dllNames)
 	{	
 		auto dllPath = dirPath + dllName;
@@ -42,6 +44,8 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 		}
 
 		m_functionPointers.push_back(getPlayer);
+		m_playerNames.push_back(dllName);
+		m_playerIds.push_back(id++);
 	}
 
 	return m_functionPointers.size() >= 2;
@@ -51,9 +55,10 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 void TournamentManager::startTournament()
 {
 	printStartingMessage();
-	std::shared_ptr<IBattleshipGameAlgo> A(m_functionPointers[0]()), B(m_functionPointers[1]());
-	Game game(m_gameBoards[0], A, B);
-	game.runGame();
+	ConcurrentVector vec;
+	std::thread t1(push, std::ref(vec), 0), t2(push, std::ref(vec), 1), t3(read, std::ref(vec));
+	t1.join(); t2.join(); t3.join();
+	//std::thread t1(push, vec, 0), t2(push, vec, 1);
 }
 
 void TournamentManager::printStartingMessage() const
@@ -214,6 +219,31 @@ bool TournamentManager::checkAdjacentSquare(char currShip, const GameBoard & gam
 	}
 
 	return true;
+}
+
+void TournamentManager::gamesScheduler(std::vector<shuffledPair>& matches, std::vector<int> ids)
+{
+	if (ids.size() % 2 == 1)
+		ids.push_back(-1);
+
+	auto size = ids.size();
+	auto numOfPlayers = size;
+	auto numOfRounds = size - 1;
+	auto half = size / 2;
+
+	for (size_t i = 0; i < numOfRounds; i++)
+	{
+		for (size_t j = 0; j < half; j++)
+		{
+			// Push to vector pairs of player ids and the transposition
+			if (ids[numOfPlayers - j - 1] == -1 || ids[j] == -1)
+				continue;
+
+			matches.push_back({ { ids[j], ids[numOfPlayers - j - 1] }, { ids[numOfPlayers - j - 1], ids[j] } });
+		}
+		ids.insert(ids.begin() + 1, ids[size - 1]);
+		ids.pop_back();
+	}
 }
 
 bool TournamentManager::markAllOfSameShip(char currShip, const GameBoard & gameBoard, const GameBoard & dummyBoard, Coordinate coor)
