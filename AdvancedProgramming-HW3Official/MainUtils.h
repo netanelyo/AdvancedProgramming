@@ -17,7 +17,6 @@ public:
 	static const std::string ASTERISK;
 	static const std::string THREADS;
 	static const std::string LOGGER_NAME;
-	static const std::string LOGGER_LEVEL;
 
 	static int parseArgs(int argc, char** argv, std::string& dirPath);
 	static char ** checkIfExists(char ** begin, char ** end, const std::string & option);

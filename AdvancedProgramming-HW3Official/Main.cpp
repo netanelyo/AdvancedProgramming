@@ -21,7 +21,6 @@ const std::string MainUtils::SEPERATOR = "\\";
 const std::string MainUtils::ASTERISK = "*";
 const std::string MainUtils::THREADS = "threads";
 const std::string MainUtils::LOGGER_NAME = "loggerName";
-const std::string MainUtils::LOGGER_LEVEL = "loggerLevel";
 
 
 int main(int argc, char** argv)
