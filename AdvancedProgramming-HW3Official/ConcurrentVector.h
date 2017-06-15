@@ -8,11 +8,16 @@ class ConcurrentVector
 public:
 	struct Statistics
 	{
-		int pointsFor;
-		int pointsAgainst;
-		int games;
-		int wins;
-		int losses;
+		int pointsFor = 0;
+		int pointsAgainst = 0;
+		int games = 0;
+		int wins = 0;
+		int losses = 0;
+
+		Statistics(int ptsFor, int ptsAg, int gms, int wns, int loss) : 
+				pointsFor(ptsFor), pointsAgainst(ptsAg), games(gms), wins(wns), losses(loss) {}
+
+		Statistics() {}
 		
 		Statistics& operator+=(const Statistics& other)
 		{
@@ -22,6 +27,11 @@ public:
 			wins += other.wins;
 			losses += other.losses;
 			return *this;
+		}
+
+		double winRatio() const
+		{
+			return 100 * (double(wins) / games);
 		}
 	};
 	

@@ -3,6 +3,7 @@
 #include "IBattleshipGameAlgo.h"
 #include "GameBoard.h"
 #include "BattleshipGameUtils.h"
+#include "Printer.h"
 
 using Player = IBattleshipGameAlgo;
 using Constant = BattleshipGameUtils::Constants;
@@ -15,18 +16,19 @@ public:
 	 * constructor
 	 */
 	Game(GameBoard board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, 
-			int playerAId, int playerBId); 
+			int playerAId, int playerBId);
 
 	Game(const Game& game) = delete;
 	Game(Game&& game) = delete;
 	Game& operator=(const Game& game) = delete; 
 
-	void resetGame(const GameBoard& board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB);
+	void resetGame(const GameBoard& board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB,
+							int playerAId, int playerBId);
 
 	/**
 	 * initializes players and runs the game 
 	 */
-	void runGame(); 
+	void runGame(Printer& printer); 
 	
 
 
@@ -44,7 +46,8 @@ private:
 	std::array<int, 2>	                    m_playersPoints;
 	std::array<int, 2>	                    m_playersShips;
 	std::array<bool, 2>		                m_playerIsDone;
-	int						                m_nextPlayer;
+	int						                m_nextPlayer = 0;
+	int										m_winner = -1;
 	
 	/**
 	* checks if the next turn can be passed to the other player

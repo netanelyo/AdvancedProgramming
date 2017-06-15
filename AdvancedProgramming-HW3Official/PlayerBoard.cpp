@@ -1,4 +1,5 @@
 #include "PlayerBoard.h"
+#include "BattleshipGameUtils.h"
 
 PlayerBoard::PlayerBoard(int rows, int cols, int depth) : m_rows(rows), m_cols(cols), m_depth(depth)
 {
@@ -9,7 +10,7 @@ char PlayerBoard::getBoardSquare(Coordinate coor) const
 {
 	if (coordinateIsValid(coor))
 		return m_gameBoard[coor.row][coor.col][coor.depth];
-	return 0;
+	return BattleshipGameUtils::Constants::EMPTY_SIGN;
 }
 
 void PlayerBoard::setBoardSquare(Coordinate coor, char sq) const

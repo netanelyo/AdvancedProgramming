@@ -7,6 +7,7 @@
 #include <vector>
 #include <thread>
 #include <unordered_map>
+#include "ConcurrentVector.h"
 
 enum class Direction;
 
@@ -16,26 +17,28 @@ using shuffledPair = std::pair<std::pair<int, int>, std::pair<int, int>>;
 class TournamentManager
 {
 public:
+	std::atomic<int> m_numOfActiveThreads;
+	std::condition_variable m_fullThreadCapCv;
+
 	TournamentManager(int numOfThread, const std::string& loggerFilePath,
-						LoggerLevel level = LoggerLevel::WARNING) :
+						LoggerLevel level = LoggerLevel::WARNING) : m_numOfActiveThreads(0),
 							m_numOfThreads(numOfThread), m_logger(loggerFilePath, level) {}
 	
 	bool initializeBoards(const std::vector<std::string>& boardNames, std::string dirPath);
 	bool initializeDlls(const std::vector<std::string>& dllNames, std::string dirPath);
 	void startTournament();
 
-
-
 private:
-	int							m_numOfThreads;
-	Logger						m_logger;
-	std::vector<std::thread>	m_threadPool;
-	std::vector<GameBoard>		m_gameBoards;
-	std::vector<Game>			m_games;
-	std::vector<std::string>	m_playerNames;
-	std::vector<int>			m_playerIds;
-	std::vector<std::function<IBattleshipGameAlgo*()>> m_functionPointers;
-	std::vector<std::shared_ptr<IBattleshipGameAlgo>> m_players;
+	int								m_numOfThreads;
+	Logger							m_logger;
+	std::vector<std::thread>		m_threadPool;
+	std::vector<GameBoard>			m_gameBoards;
+	//std::vector<Game>				m_games;
+	std::vector<std::string>		m_playerNames;
+	//std::vector<int>				m_playerIds;
+	std::vector<ConcurrentVector>	m_playerResults;
+	std::vector<std::function<IBattleshipGameAlgo*()>>	m_functionPointers;
+	//std::vector<std::shared_ptr<IBattleshipGameAlgo>>	m_players;
 
 	static const std::string FUNCTION_NAME;
 
@@ -86,7 +89,7 @@ private:
 
 	bool checkAdjacentSquare(char currShip, const GameBoard & gameBoard, const GameBoard & dummyBoard, Coordinate coor);
 
-	static void gamesScheduler(std::vector<shuffledPair>& matches, std::vector<int> ids);
+	static void gamesScheduler(std::vector<shuffledPair>& matches, std::vector<int>& ids);
 
 	static void fillBoardWithEmptyLayers(const GameBoard& gameBoard, int z);
 

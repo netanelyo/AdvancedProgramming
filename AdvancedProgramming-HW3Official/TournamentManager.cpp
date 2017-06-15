@@ -6,7 +6,9 @@
 #include <fstream>
 #include <iostream>
 #include <windows.h>
-#include "ConcurrentVector.h"
+#include <mutex>
+#include <condition_variable>
+#include "Printer.h"
 
 #define LEGAL "Number of legal "
 
@@ -45,7 +47,6 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 
 		m_functionPointers.push_back(getPlayer);
 		m_playerNames.push_back(dllName);
-		m_playerIds.push_back(id++);
 	}
 
 	return m_functionPointers.size() >= 2;
@@ -55,10 +56,58 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 void TournamentManager::startTournament()
 {
 	printStartingMessage();
-	ConcurrentVector vec;
-	std::thread t1(push, std::ref(vec), 0), t2(push, std::ref(vec), 1), t3(read, std::ref(vec));
-	t1.join(); t2.join(); t3.join();
-	//std::thread t1(push, vec, 0), t2(push, vec, 1);
+	auto numOfPlayers = int(m_functionPointers.size());
+	auto numOfBoards = int(m_gameBoards.size());
+	auto numOfGames = numOfPlayers * (numOfPlayers - 1) * numOfBoards;
+	
+	m_numOfThreads = m_numOfThreads > numOfGames ? numOfGames : m_numOfThreads;
+
+	std::vector<int> ids;
+	for (auto i = 0; i < numOfPlayers; i++)
+	{
+		ids.push_back(i);
+	}
+
+	std::vector<shuffledPair> matches;
+	gamesScheduler(matches, ids);
+	Printer printer((numOfPlayers - 1) * 2, m_playerNames);
+	std::thread reader(&Printer::start, printer);
+
+	for (auto i = 0; i < 2; i++)
+	{
+		for (const auto& board : m_gameBoards)
+		{
+			for (const auto& match : matches)
+			{
+				std::pair<int, int> currMatch;
+				switch (i)
+				{
+				case 0:
+					currMatch = match.first;
+					break;
+
+				case 1:
+					currMatch = match.second;
+					break;
+
+				default:
+					break;
+				}
+
+				if (m_numOfActiveThreads >= m_numOfThreads)
+				{
+					std::mutex tmpMutex;
+					std::unique_lock<std::mutex> lk(tmpMutex);
+					m_fullThreadCapCv.wait(lk, [this] { return m_numOfActiveThreads < m_numOfThreads; });
+				}
+
+				auto idA = currMatch.first, idB = currMatch.second;
+				std::shared_ptr<Player> playerA(m_functionPointers[idA]()), playerB(m_functionPointers[idB]());
+				std::thread t(&Game::runGame, Game(board, playerA, playerB, idA, idB), std::ref(printer));
+			}
+		}
+	}
+	reader.join();
 }
 
 void TournamentManager::printStartingMessage() const
@@ -221,7 +270,7 @@ bool TournamentManager::checkAdjacentSquare(char currShip, const GameBoard & gam
 	return true;
 }
 
-void TournamentManager::gamesScheduler(std::vector<shuffledPair>& matches, std::vector<int> ids)
+void TournamentManager::gamesScheduler(std::vector<shuffledPair>& matches, std::vector<int>& ids)
 {
 	if (ids.size() % 2 == 1)
 		ids.push_back(-1);

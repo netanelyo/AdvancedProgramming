@@ -11,21 +11,27 @@
 Game::Game(GameBoard board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, int playerAId, int playerBId) :
 	m_board(board)
 {
-	setDataStructs(playerA, playerB, playerAId, playerBID);
+	setDataStructs(playerA, playerB, playerAId, playerBId);
 }
 
-void Game::resetGame(const GameBoard& board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB)
+void Game::resetGame(const GameBoard& board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB,
+									int playerAId, int playerBId)
 {
 	m_board = board;
-	setDataStructs(playerA, playerB, playerAId, playerBID);
+	setDataStructs(playerA, playerB, playerAId, playerBId);
 }
 
-void Game::runGame()
+void Game::runGame(Printer& printer)
 {
 	initPlayers();
-	while (playMove() != GameState::GAME_OVER){}
-
-	std::cout << "A: " << m_playersPoints[0] << ", B: " << m_playersPoints[1] << std::endl;
+	while (playMove() != GameState::GAME_OVER) {}
+	
+	for (auto i = 0; i < 2; i++)
+	{
+		auto win = m_winner == i ? 1 : 0;
+		ConcurrentVector::Statistics stats({m_playersPoints[i], m_playersPoints[2 - i], 1, win, 1 - win});
+		printer.m_playersResults[m_playersIDs[i]].addAndNotify(stats);
+	}
 }
 
 void Game::setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, int playerAId, int playerBId)
@@ -336,7 +342,7 @@ Game::GameState Game::playMove()
 	/*if there's a winner, we end the game*/
 	if (winner > -1)
 	{
-		//TODO
+		m_winner = winner;
 		return GameState::GAME_OVER;
 	}
 
