@@ -30,7 +30,9 @@ private:
 	std::vector<std::shared_ptr<IBattleshipGameAlgo>> m_players;
 	Logger						m_logger;
 
-	static const std::string FUNCTION_NAME; 
+	static const std::string FUNCTION_NAME;
+
+	void printStartingMessage() const;
 
 	void checkAndCreateBoard(const std::string& boardFile);
 

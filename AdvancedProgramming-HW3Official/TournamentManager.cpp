@@ -7,6 +7,8 @@
 #include <iostream>
 #include <windows.h>
 
+#define LEGAL "Number of legal "
+
 const std::string TournamentManager::FUNCTION_NAME = "GetAlgorithm"; 
 
 bool TournamentManager::initializeBoards(const std::vector<std::string>& boardNames, std::string dirPath)
@@ -48,9 +50,16 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 
 void TournamentManager::startTournament()
 {
+	printStartingMessage();
 	std::shared_ptr<IBattleshipGameAlgo> A(m_functionPointers[0]()), B(m_functionPointers[1]());
 	Game game(m_gameBoards[0], A, B);
 	game.runGame();
+}
+
+void TournamentManager::printStartingMessage() const
+{
+	std::cout << LEGAL << "players: " << m_functionPointers.size() << std::endl;
+	std::cout << LEGAL << "boards: " << m_gameBoards.size();
 }
 
 void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
