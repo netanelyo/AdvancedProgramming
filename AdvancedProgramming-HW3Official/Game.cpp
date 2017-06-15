@@ -8,16 +8,16 @@
 										if (curr == square) return AttackResult::Hit; \
 										tmp--
 
-Game::Game(GameBoard board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB) :
+Game::Game(GameBoard board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, int playerAId, int playerBId) :
 	m_board(board)
 {
-	setDataStructs(playerA, playerB);
+	setDataStructs(playerA, playerB, playerAId, playerBID);
 }
 
 void Game::resetGame(const GameBoard& board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB)
 {
 	m_board = board;
-	setDataStructs(playerA, playerB); 
+	setDataStructs(playerA, playerB, playerAId, playerBID);
 }
 
 void Game::runGame()
@@ -28,10 +28,13 @@ void Game::runGame()
 	std::cout << "A: " << m_playersPoints[0] << ", B: " << m_playersPoints[1] << std::endl;
 }
 
-void Game::setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB)
+void Game::setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, int playerAId, int playerBId)
 {
 	m_players[Constant::PLAYER_A] = playerA;
 	m_players[Constant::PLAYER_B] = playerB;
+
+	m_playersIDs[Constant::PLAYER_A] = playerAId; 
+	m_playersIDs[Constant::PLAYER_B] = playerBId;
 
 	m_playersShips[Constant::PLAYER_A] = m_board.getShipCountForPlayer(Constant::PLAYER_A);
 	m_playersShips[Constant::PLAYER_B] = m_board.getShipCountForPlayer(Constant::PLAYER_B);

@@ -14,7 +14,8 @@ public:
 	/*
 	 * constructor
 	 */
-	Game(GameBoard board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB); 
+	Game(GameBoard board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, 
+			int playerAId, int playerBId); 
 
 	Game(const Game& game) = delete;
 	Game(Game&& game) = delete;
@@ -39,10 +40,11 @@ private:
 
 	GameBoard m_board;
 	std::array<std::shared_ptr<Player>, 2>	m_players;
-	std::array<int, 2>	    m_playersPoints;
-	std::array<int, 2>	    m_playersShips;
-	std::array<bool, 2>		m_playerIsDone;
-	int						m_nextPlayer;
+	std::array<int, 2>						m_playersIDs; 
+	std::array<int, 2>	                    m_playersPoints;
+	std::array<int, 2>	                    m_playersShips;
+	std::array<bool, 2>		                m_playerIsDone;
+	int						                m_nextPlayer;
 	
 	/**
 	* checks if the next turn can be passed to the other player
@@ -75,7 +77,7 @@ private:
 	/**
 	 * resets the relevant data structures for the new upcoming game
 	 */
-	void setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB);
+	void setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, int playerAId, int playerBId);
 
 	/**
 	* initializes players for the upcoming game by giving each player its number 
