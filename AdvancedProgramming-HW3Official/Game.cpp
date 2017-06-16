@@ -1,6 +1,5 @@
 #include "Game.h"
 #include "BoardDataImpl.h"
-#include <iostream>
 
 
 #define CHECK_CURRENT_SQUARE(i, j, k)	curr = m_board.getBoardSquare(Coordinate(i, j, k)); \
@@ -14,13 +13,6 @@ Game::Game(GameBoard board, std::shared_ptr<Player> playerA, std::shared_ptr<Pla
 	setDataStructs(playerA, playerB, playerAId, playerBId);
 }
 
-void Game::resetGame(const GameBoard& board, std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB,
-									int playerAId, int playerBId)
-{
-	m_board = board;
-	setDataStructs(playerA, playerB, playerAId, playerBId);
-}
-
 void Game::runGame(Printer& printer)
 {
 	initPlayers();
@@ -28,10 +20,25 @@ void Game::runGame(Printer& printer)
 	
 	for (auto i = 0; i < 2; i++)
 	{
-		auto win = m_winner == i ? 1 : 0;
-		ConcurrentVector::Statistics stats({m_playersPoints[i], m_playersPoints[2 - i], 1, win, 1 - win});
+		auto win = 0, lose = 0;
+		if (m_winner != -1)
+		{
+			win = m_winner == i ? 1 : 0;
+			lose = 1 - win;
+		}
+		ConcurrentVector::Statistics stats({m_playersPoints[i], m_playersPoints[1 - i], 1, win, lose});
 		printer.m_playersResults[m_playersIDs[i]].addAndNotify(stats);
 	}
+}
+
+void Game::start(GameBoard board, std::shared_ptr<Player> A, std::shared_ptr<Player> B, int idA, int idB,
+	Printer& printer, int& active, std::condition_variable& cv, std::mutex& m)
+{
+	Game game(board, A, B, idA, idB);
+	game.runGame(printer);
+	std::lock_guard<std::mutex> lk(m);
+	--active;
+	cv.notify_one();
 }
 
 void Game::setDataStructs(std::shared_ptr<Player> playerA, std::shared_ptr<Player> playerB, int playerAId, int playerBId)
@@ -282,7 +289,7 @@ Game::GameState Game::playMove()
 	auto square = m_board.getBoardSquare(attackCoord);
 
 	/*determines if the next turn can be passed to the opponent */
-	bool canPass = canPassTurn(currentPlayer);
+	auto canPass = canPassTurn(currentPlayer);
 
 	/*determines the attack result and sets the next Turn and the player's points accordingly*/
 	if (square == Constant::EMPTY_SIGN || square == Constant::HIT_SIGN)
@@ -308,26 +315,6 @@ Game::GameState Game::playMove()
 	attackCoord.depth++;
 	playerA->notifyOnAttackResult(currentPlayer, attackCoord, result);
 	playerB->notifyOnAttackResult(currentPlayer, attackCoord, result);
-
-	std::cout << "player: " << currentPlayer << std::endl;
-	std::cout << "(" << attackCoord.row << ", " << attackCoord.col << ", " << attackCoord.depth << ")" << std::endl;
-	switch (result)
-	{
-	case AttackResult::Hit:
-		std::cout << "HIT" << std::endl;
-		break;
-
-	case AttackResult::Sink:
-		std::cout << "SINK" << std::endl;
-		break;
-
-	case AttackResult::Miss:
-		std::cout << "Miss" << std::endl;
-		break;
-
-	default:
-		break;
-	}
 
 	/*checks if there is a winner*/
 	if (m_playersShips[Constant::PLAYER_A] == 0)

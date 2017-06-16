@@ -21,6 +21,8 @@ const std::string MainUtils::SEPERATOR = "\\";
 const std::string MainUtils::ASTERISK = "*";
 const std::string MainUtils::THREADS = "threads";
 const std::string MainUtils::LOGGER_NAME = "loggerName";
+const std::string MainUtils::LOGGER_LEVEL = "loggerLevel";
+const std::string MainUtils::ERROR_STRING = "ERROR";
 
 
 int main(int argc, char** argv)
@@ -29,6 +31,7 @@ int main(int argc, char** argv)
 	char cFullPath[MAX_PATH];
 	WIN32_FIND_DATAA fileData;
 	auto logName = MainUtils::DEFAULT_LOGFILE_NAME;
+	auto level = LoggerLevel::WARNING;
 
 	auto numOfThreads = MainUtils::parseArgs(argc, argv, dirPath);
 	std::string fullPath = _fullpath(cFullPath, dirPath.c_str(), MAX_PATH);
@@ -52,11 +55,11 @@ int main(int argc, char** argv)
 	else 
 	{
 		std::ifstream config(fullPath + MainUtils::SEPERATOR + fileData.cFileName);
-		logName = MainUtils::getDefaultParamsFromConfig(numOfThreads, config); 
+		MainUtils::getDefaultParamsFromConfig(numOfThreads, config, logName, level); 
 		config.close();
 	}
 
-	TournamentManager tournament(numOfThreads, fullPath + MainUtils::SEPERATOR + logName);
+	TournamentManager tournament(numOfThreads, fullPath + MainUtils::SEPERATOR + logName, level);
 
 	std::vector<std::string> boards;
 	auto error = false;
@@ -112,12 +115,13 @@ int main(int argc, char** argv)
 
 int MainUtils::parseArgs(int argc, char ** argv, std::string & dirPath)
 {
-	if (argc > 1 && strcmp(argv[1], "-threads"))
+	std::string th = "-" + THREADS;
+	if (argc > 1 && th.compare(argv[1]))
 	{
 		dirPath = argv[1];
 	}
 
-	auto iter = checkIfExists(argv, argv + argc, THREADS);
+	auto iter = checkIfExists(argv, argv + argc, th);
 	if (iter)
 	{
 		++iter;
@@ -144,10 +148,8 @@ char** MainUtils::checkIfExists(char ** begin, char ** end, const std::string & 
 	return nullptr;
 }
 
-std::string MainUtils::getDefaultParamsFromConfig(int& numOfThreads, std::ifstream& config)
+void MainUtils::getDefaultParamsFromConfig(int& numOfThreads, std::ifstream& config, std::string& logName, LoggerLevel& level)
 {
-	auto logName = DEFAULT_LOGFILE_NAME;
-
 	if (!config.is_open())
 	{
 		if (numOfThreads == -1)
@@ -173,22 +175,23 @@ std::string MainUtils::getDefaultParamsFromConfig(int& numOfThreads, std::ifstre
 
 			if (lineParts.size() != 2)
 				continue;
-	
-			if (!lineParts[0].compare(THREADS))
+
+			if (numOfThreads == -1 && !lineParts[0].compare(THREADS))
 			{
 				try
 				{
-					numOfThreads = std::stoi(lineParts[1]); 
+					numOfThreads = std::stoi(lineParts[1]);
 				}
-				catch(...)
+				catch (...)
 				{
-					numOfThreads = DEFAULT_THREAD_NUM; 
+					numOfThreads = DEFAULT_THREAD_NUM;
 				}
 			}
 			else if (!lineParts[0].compare(LOGGER_NAME))
-				logName = lineParts[1]; 
-		}
+				logName = lineParts[1];
+			else if (!lineParts[0].compare(LOGGER_LEVEL))
+				if (!lineParts[1].compare(ERROR_STRING))
+					level = LoggerLevel::ERR;
+		}	
 	}
-
-	return logName; 
 }

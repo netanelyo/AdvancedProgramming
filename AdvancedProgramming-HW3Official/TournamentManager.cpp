@@ -11,8 +11,19 @@
 #include "Printer.h"
 
 #define LEGAL "Number of legal "
+#define DEFAULT_THREADS 4
 
-const std::string TournamentManager::FUNCTION_NAME = "GetAlgorithm"; 
+const std::string TournamentManager::FUNCTION_NAME = "GetAlgorithm";
+
+TournamentManager::TournamentManager(int numOfThread, const std::string& loggerFilePath, LoggerLevel level)
+	: m_numOfActiveThreads(0), m_numOfThreads(numOfThread), m_logger(loggerFilePath, level)
+{
+	if (m_numOfThreads <= 0)
+	{
+		m_logger.printToLogger(Logger::LoggerMessage::WARNING_INVALID_NUM_THREADS, LoggerLevel::WARNING);
+		m_numOfThreads = DEFAULT_THREADS;
+	}
+}
 
 bool TournamentManager::initializeBoards(const std::vector<std::string>& boardNames, std::string dirPath)
 {
@@ -28,7 +39,6 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 {
 	typedef IBattleshipGameAlgo* (*GetPlayerType)();
 
-	auto id = 0;
 	for (const auto& dllName: dllNames)
 	{	
 		auto dllPath = dirPath + dllName;
@@ -56,11 +66,16 @@ bool TournamentManager::initializeDlls(const std::vector<std::string>& dllNames,
 void TournamentManager::startTournament()
 {
 	printStartingMessage();
+	Sleep(2000); // To let the opening message be shown for a reasonable time
 	auto numOfPlayers = int(m_functionPointers.size());
 	auto numOfBoards = int(m_gameBoards.size());
 	auto numOfGames = numOfPlayers * (numOfPlayers - 1) * numOfBoards;
 	
-	m_numOfThreads = m_numOfThreads > numOfGames ? numOfGames : m_numOfThreads;
+	if (m_numOfThreads > numOfGames)
+	{
+		m_logger.printToLogger(Logger::LoggerMessage::WARNING_LARGE_NUM_THREADS, LoggerLevel::WARNING);
+		m_numOfThreads = numOfGames;
+	}
 
 	std::vector<int> ids;
 	for (auto i = 0; i < numOfPlayers; i++)
@@ -70,8 +85,9 @@ void TournamentManager::startTournament()
 
 	std::vector<shuffledPair> matches;
 	gamesScheduler(matches, ids);
-	Printer printer((numOfPlayers - 1) * 2, m_playerNames);
-	std::thread reader(&Printer::start, printer);
+	Printer printer((numOfPlayers - 1) * 2 * numOfBoards, m_playerNames);
+
+	std::thread reader(&Printer::start, std::ref(printer));
 
 	for (auto i = 0; i < 2; i++)
 	{
@@ -94,16 +110,20 @@ void TournamentManager::startTournament()
 					break;
 				}
 
+				std::unique_lock<std::mutex> lk(m_gamesMutex);
 				if (m_numOfActiveThreads >= m_numOfThreads)
 				{
-					std::mutex tmpMutex;
-					std::unique_lock<std::mutex> lk(tmpMutex);
 					m_fullThreadCapCv.wait(lk, [this] { return m_numOfActiveThreads < m_numOfThreads; });
 				}
+				++m_numOfActiveThreads;
+				lk.unlock();
 
 				auto idA = currMatch.first, idB = currMatch.second;
 				std::shared_ptr<Player> playerA(m_functionPointers[idA]()), playerB(m_functionPointers[idB]());
-				std::thread t(&Game::runGame, Game(board, playerA, playerB, idA, idB), std::ref(printer));
+				
+				std::thread t(Game::start, board, playerA, playerB, idA, idB, std::ref(printer),
+								std::ref(m_numOfActiveThreads), std::ref(m_fullThreadCapCv), std::ref(m_gamesMutex));
+				t.detach();
 			}
 		}
 	}
@@ -121,7 +141,6 @@ void TournamentManager::checkAndCreateBoard(const std::string& boardFilePath)
 	auto boardFileIsValid = true;
 	auto gameBoard = readBoardFromFile(boardFilePath, boardFileIsValid);
 	
-	std::cout << "Before boardFileIsValid" << std::endl;
 	if (!boardFileIsValid)
 		return;
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <mutex>
-#include <atomic>
 
 class ConcurrentVector
 {
@@ -42,5 +41,4 @@ private:
 	std::vector<Statistics> m_vec = {};
 	std::condition_variable m_cv;
 	std::mutex m_writeMutex;
-	std::atomic<int> m_size;
 };

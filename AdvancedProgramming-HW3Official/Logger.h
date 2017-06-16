@@ -16,6 +16,8 @@ public:
 	public:
 		static const std::string PROGRAM_START;
 		static const std::string WARNING_UNBALANCED_BOARD;
+		static const std::string WARNING_INVALID_NUM_THREADS;
+		static const std::string WARNING_LARGE_NUM_THREADS;
 		static const std::string ERROR_CANT_OPEN_BOARD_FILE;
 		static const std::string ERROR_WRONG_DIMENSIONS_LINE;
 		static const std::string ERROR_ADJACENT_SHIPS;

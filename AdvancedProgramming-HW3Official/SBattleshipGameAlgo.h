@@ -34,7 +34,6 @@ private:
 	std::map<std::string, Direction>	m_attackHelperMap;
 
 	void markOppSankShip(Coordinate coor, bool& changed);
-	//void missSetUpForNextAttack();
 	void markRecursiveCall(int row, int col, int depth, bool& changed);
 	void findNextMove();
 	void hitNotify(Coordinate coor, int player);
@@ -50,5 +49,4 @@ private:
 	bool newBorn() const { return m_newBorn; }
 	static std::string generateKey(const Coordinate& coor);
 	static Coordinate retrieveCoordinateFromString(const std::string& str);
-	//bool hasShipInPerimiter(Coordinate coor, int axis, int upperBound) const;
 };

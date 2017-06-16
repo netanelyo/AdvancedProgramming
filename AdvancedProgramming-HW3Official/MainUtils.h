@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+enum class LoggerLevel;
+
 class MainUtils
 {
 public:
@@ -17,8 +19,10 @@ public:
 	static const std::string ASTERISK;
 	static const std::string THREADS;
 	static const std::string LOGGER_NAME;
+	static const std::string LOGGER_LEVEL;
+	static const std::string ERROR_STRING;
 
 	static int parseArgs(int argc, char** argv, std::string& dirPath);
 	static char ** checkIfExists(char ** begin, char ** end, const std::string & option);
-	static std::string getDefaultParamsFromConfig(int& numOfThreads, std::ifstream& config); 
+	static void getDefaultParamsFromConfig(int& numOfThreads, std::ifstream& config, std::string& logName, LoggerLevel& level);
 };

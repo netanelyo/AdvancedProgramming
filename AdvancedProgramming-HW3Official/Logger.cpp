@@ -5,6 +5,8 @@
 
 const std::string Logger::LoggerMessage::PROGRAM_START = "Battleship application started";
 const std::string Logger::LoggerMessage::WARNING_UNBALANCED_BOARD = "Ship types between the players are not balanced - ";
+const std::string Logger::LoggerMessage::WARNING_INVALID_NUM_THREADS = "Invalid num of threads; changed to default";
+const std::string Logger::LoggerMessage::WARNING_LARGE_NUM_THREADS = "Too many threads; changed to max possible games";
 const std::string Logger::LoggerMessage::ERROR_CANT_OPEN_BOARD_FILE = "Board file couldn't be opened - ";
 const std::string Logger::LoggerMessage::ERROR_WRONG_DIMENSIONS_LINE = "Wrong board file format - ";
 const std::string Logger::LoggerMessage::ERROR_ADJACENT_SHIPS = "Adjacent ships on board - ";
@@ -60,9 +62,11 @@ void Logger::printMessage(const std::string & msg, bool first)
 {
 	auto timeAndDate = getTimeAndDate();
 
-	if (!first)
-		m_logger << std::endl;
-
 	if (m_isOpen)
+	{
+		if (!first)
+			m_logger << std::endl;
+		
 		m_logger << timeAndDate << " " << msg;
+	}
 }
